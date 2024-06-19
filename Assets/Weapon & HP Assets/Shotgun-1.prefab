@@ -216,5 +216,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dccf4bc6c7caca48a83fc3941a8f4e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gunIndexToUnlock: 2
+  gunIndexToUnlock: 1
   interactKey: 101

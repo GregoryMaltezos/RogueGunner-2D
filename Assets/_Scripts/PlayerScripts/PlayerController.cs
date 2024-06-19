@@ -1,10 +1,14 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-
     public static PlayerController instance;
+
+
+    public static event Action OnPlayerDeath;
+    public static event Action<float> OnPlayerWalkDistance;
 
     public float moveSpeed = 5f;
     public float dashSpeed = 10f; // Speed of the dash
@@ -20,6 +24,7 @@ public class PlayerController : MonoBehaviour
     private bool isDashing = false;
     private bool canDash = true;
     private bool isInvincible = false;
+
 
 
 
@@ -128,5 +133,12 @@ public class PlayerController : MonoBehaviour
             // Smooth Movement
             rb.velocity = movement * moveSpeed;
         }
+    }
+
+    public void Die()
+    {
+        Debug.Log("Player died!"); // Example: Log message
+                                   // Add logic here to handle player death
+        OnPlayerDeath?.Invoke();
     }
 }
