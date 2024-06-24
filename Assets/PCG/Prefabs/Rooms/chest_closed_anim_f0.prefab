@@ -170,6 +170,8 @@ MonoBehaviour:
   weaponPrefabs:
   - {fileID: 4204341758394100099, guid: 1abdec3ace5a2cd4a974f136b23147d0, type: 3}
   - {fileID: 5141202351538643788, guid: f15a722adceb2c54285065954d88ec30, type: 3}
+  - {fileID: 2837518685893780112, guid: a87d756d76d7c3d47a8b71a101492b64, type: 3}
+  - {fileID: 1820405049787079124, guid: e05377fad637bd745b642aa42ed65548, type: 3}
   spawnPoint: {fileID: 6450105357964119813}
   interactionDistance: 2.7
 --- !u!61 &7139147360000505547
