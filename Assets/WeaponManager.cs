@@ -52,6 +52,14 @@ public class WeaponManager : MonoBehaviour
         {
             SwitchWeapon(2); // Switch to the third equipped gun if available
         }
+        else if (Input.GetKeyDown(KeyCode.Alpha4) && equippedGunIndices.Count > 3)
+        {
+            SwitchWeapon(3); // Switch to the third equipped gun if available
+        }
+         else if (Input.GetKeyDown(KeyCode.Alpha5) && equippedGunIndices.Count > 4)
+        {
+            SwitchWeapon(4); // Switch to the third equipped gun if available
+        }
         // Add more cases for additional gun slots (e.g., Alpha4 for slot 4)
     }
 

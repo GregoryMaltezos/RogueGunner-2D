@@ -7,9 +7,12 @@ public class Chest : MonoBehaviour
     public GameObject[] weaponPrefabs; // Array of weapon prefabs
     public Transform spawnPoint; // Point where the weapon will be spawned
     public float interactionDistance = 2.0f; // Distance within which the player can interact
+    public float hoverHeight = 0.5f; // Height of the hovering effect
+    public float hoverSpeed = 2f; // Speed of the hovering effect
 
-   
     private bool isOpen = false; // Track whether the chest is open
+    private GameObject spawnedWeapon; // Reference to the spawned weapon
+    private Vector3 originalWeaponPosition; // Original position of the spawned weapon
 
     void Update()
     {
@@ -17,6 +20,13 @@ public class Chest : MonoBehaviour
         if (Vector3.Distance(PlayerController.instance.transform.position, transform.position) < interactionDistance && Input.GetKeyDown(KeyCode.E) && !isOpen)
         {
             OpenChest();
+        }
+
+        // Apply hovering effect to the spawned weapon if it exists
+        if (spawnedWeapon != null)
+        {
+            float newY = originalWeaponPosition.y + Mathf.Sin(Time.time * hoverSpeed) * hoverHeight;
+            spawnedWeapon.transform.position = new Vector3(originalWeaponPosition.x, newY, originalWeaponPosition.z);
         }
     }
 
@@ -87,10 +97,13 @@ public class Chest : MonoBehaviour
             GameObject spawnedWeaponPrefab = availableWeapons[randomIndex];
 
             // Spawn the weapon at the specified spawn point
-            GameObject spawnedWeapon = Instantiate(spawnedWeaponPrefab, spawnPoint.position, spawnPoint.rotation);
+            spawnedWeapon = Instantiate(spawnedWeaponPrefab, spawnPoint.position, spawnPoint.rotation);
 
             // Ensure the weapon is initially active when spawned
             spawnedWeapon.SetActive(true);
+
+            // Store the original position for hovering effect
+            originalWeaponPosition = spawnedWeapon.transform.position;
 
             // Notify the WeaponManager or other relevant systems about the spawned weapon
             NotifyWeaponPickedUp(spawnedWeapon);

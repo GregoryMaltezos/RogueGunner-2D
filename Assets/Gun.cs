@@ -8,13 +8,27 @@ public class Gun : MonoBehaviour
     public bool isShotgun = false; // Indicates whether the gun should fire as a shotgun
     public int shotgunPelletCount = 5; // Number of pellets for shotgun weapons (adjustable in Inspector)
     public float shotgunSpreadAngle = 20f; // Spread angle for shotgun weapons (adjustable in Inspector)
+    public bool isAutomatic = false; // Indicates whether the gun should be automatic
+    public float fireRate = 0.1f; // Rate of fire for automatic weapons (adjustable in Inspector)
     private bool facingRight = true; // Variable to track character's facing direction
+    private float nextFireTime = 0f; // Time until the next shot can be fired
 
     void Update()
     {
-        if (Input.GetButtonDown("Fire1"))
+        if (isAutomatic)
         {
-            Fire(); // Call the Fire method
+            if (Input.GetButton("Fire1") && Time.time >= nextFireTime)
+            {
+                nextFireTime = Time.time + fireRate;
+                Fire(); // Call the Fire method
+            }
+        }
+        else
+        {
+            if (Input.GetButtonDown("Fire1"))
+            {
+                Fire(); // Call the Fire method
+            }
         }
     }
 
@@ -38,7 +52,7 @@ public class Gun : MonoBehaviour
         if (!isShotgun)
         {
             // Fire a single projectile without spread
-            FireProjectile(shootDirection, Quaternion.identity);
+            FireProjectile(shootDirection);
         }
         else
         {
@@ -46,23 +60,26 @@ public class Gun : MonoBehaviour
             for (int i = 0; i < shotgunPelletCount; i++)
             {
                 // Calculate spread angle for each pellet
-                float spreadAngle = Random.Range(-shotgunSpreadAngle, shotgunSpreadAngle);
-                Quaternion spreadRotation = Quaternion.Euler(0f, 0f, spreadAngle);
+                float spreadAngle = Random.Range(-shotgunSpreadAngle / 2f, shotgunSpreadAngle / 2f);
+                Vector3 spreadDirection = Quaternion.Euler(0, 0, spreadAngle) * shootDirection;
 
                 // Fire projectile with spread
-                FireProjectile(shootDirection, spreadRotation);
+                FireProjectile(spreadDirection);
             }
         }
     }
 
-    void FireProjectile(Vector3 shootDirection, Quaternion spreadRotation)
+    void FireProjectile(Vector3 shootDirection)
     {
         // Instantiate the projectile
-        GameObject projectileInstance = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation * spreadRotation);
+        GameObject projectileInstance = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
         Rigidbody2D rb = projectileInstance.GetComponent<Rigidbody2D>(); // Get the Rigidbody2D component
 
         if (rb != null) // Ensure Rigidbody2D component exists
         {
+            // Set collision detection mode to continuous for fast-moving projectiles
+            rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+
             // Adjust velocity based on player's facing direction
             Vector2 velocity = shootDirection * projectileSpeed;
             rb.velocity = velocity;
