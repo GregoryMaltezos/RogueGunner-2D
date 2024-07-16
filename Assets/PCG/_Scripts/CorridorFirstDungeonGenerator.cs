@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,8 +7,11 @@ using UnityEngine;
 using Cinemachine;
 using UnityEngine.Events;
 
-public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
+    public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
 {
+      
+
+
     // PCG parameters
     [SerializeField]
     private int corridorLength = 14, corridorCount = 5;
@@ -30,7 +34,8 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     // Events
     public UnityEvent<DungeonData> OnDungeonFloorReady;
 
-    protected override void RunProceduralGeneration()
+
+        protected override void RunProceduralGeneration()
     {
         CorridorFirstGeneration();
         DungeonData data = new DungeonData
@@ -40,8 +45,9 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
             floorPositions = this.floorPositions
         };
         OnDungeonFloorReady?.Invoke(data);
-    }
 
+
+    }
     private void CorridorFirstGeneration()
     {
         floorPositions = new HashSet<Vector2Int>();
@@ -51,6 +57,7 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
 
         GenerateRooms(potentialRoomPositions);
     }
+
 
     private void GenerateRooms(HashSet<Vector2Int> potentialRoomPositions)
     {
@@ -195,4 +202,5 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
             }
         }
     }
+
 }

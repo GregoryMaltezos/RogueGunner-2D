@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,6 +8,7 @@ public class Agent : MonoBehaviour
     private AgentMover agentMover;
 
     private WeaponParent weaponParent;
+    private EnemyBodyAttack bodyAttack;
 
     private Vector2 pointerInput, movementInput;
 
@@ -17,23 +17,40 @@ public class Agent : MonoBehaviour
 
     private void Update()
     {
-        //pointerInput = GetPointerInput();
-        //movementInput = movement.action.ReadValue<Vector2>().normalized;
+        // pointerInput = GetPointerInput();
+        // movementInput = movement.action.ReadValue<Vector2>().normalized;
 
         agentMover.MovementInput = MovementInput;
-        weaponParent.PointerPosition = pointerInput;
+
+        if (weaponParent != null)
+        {
+            weaponParent.PointerPosition = pointerInput;
+        }
+        else if (bodyAttack != null)
+        {
+            bodyAttack.PointerPosition = pointerInput;
+        }
+
         AnimateCharacter();
     }
 
     public void PerformAttack()
     {
-        weaponParent.Attack();
+        if (weaponParent != null)
+        {
+            weaponParent.Attack();
+        }
+        else if (bodyAttack != null)
+        {
+            bodyAttack.Attack();
+        }
     }
 
     private void Awake()
     {
         agentAnimations = GetComponentInChildren<AgentAnimations>();
         weaponParent = GetComponentInChildren<WeaponParent>();
+        bodyAttack = GetComponentInChildren<EnemyBodyAttack>();
         agentMover = GetComponent<AgentMover>();
     }
 
@@ -41,9 +58,6 @@ public class Agent : MonoBehaviour
     {
         Vector2 lookDirection = pointerInput - (Vector2)transform.position;
         agentAnimations.RotateToPointer(lookDirection);
-        agentAnimations.PlayAnimation(MovementInput);
+        agentAnimations.PlayAnimation(movementInput); // This will set the "Running" bool based on movement input
     }
-
-    
-
 }
