@@ -310,7 +310,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerRoom: {fileID: 378666303130500032, guid: afdc382d653128043b97c6bfaffe7852, type: 3}
   defaultRoom: {fileID: 7777476307801422254, guid: 377fa56baa708c045ab0ed6a3b4e6926, type: 3}
-  bossRoom: {fileID: 7777476307801422254, guid: fbb439bd69fd8984b998490004ed6170, type: 3}
+  bossRoom: {fileID: 3722469904553937811, guid: fbb439bd69fd8984b998490004ed6170, type: 3}
   itemRoom: {fileID: 2093250188409553397, guid: d535309e9fe664c459a32549d23b5976, type: 3}
   cinemachineCamera: {fileID: 1792208467}
   itemParent: {fileID: 1607766029}
