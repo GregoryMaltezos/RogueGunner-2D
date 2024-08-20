@@ -207,15 +207,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56d7d8d2e52a4a343a149c599e2b82fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waitTime: 5
+  waitTime: 3
   animator: {fileID: 122720114002056178}
   spriteRenderer: {fileID: 5382279492904410793}
+  bossCollider: {fileID: -8048581968402484557}
+  shadowRenderer: {fileID: 5632789838422258754}
   teleportRadius: 5
   dungeonLayerMask:
     serializedVersion: 2
     m_Bits: 65536
   playerTag: Player
   runAwayDistance: 3
+  invisibilityDuration: 5
+  reappearanceDelay: 1
+  cycleTime: 7
+  chaseDistanceThreshold: 0.8
 --- !u!210 &-8040247705653738786
 SortingGroup:
   m_ObjectHideFlags: 0

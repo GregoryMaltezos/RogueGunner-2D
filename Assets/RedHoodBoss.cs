@@ -6,12 +6,17 @@ public class RedHoodBoss : MonoBehaviour
     public float waitTime = 15f; // Time before the boss starts the disappear sequence
     public Animator animator; // Animator for playing animations
     public SpriteRenderer spriteRenderer; // To control visibility
+    public Collider2D bossCollider; // Collider to disable when invisible
+    public SpriteRenderer shadowRenderer; // To control shadow visibility
     public float teleportRadius = 10f; // Radius within which the boss can teleport further from the player
     public LayerMask dungeonLayerMask; // Layer mask to ensure the boss spawns in the dungeon bounds
     public string playerTag = "Player"; // Tag assigned to the player GameObject
     public float runAwayDistance = 3f; // Distance to run away from the player after attacking
     public float invisibilityDuration = 5f; // Duration the boss remains invisible before reappearing
     public float reappearanceDelay = 3f; // Delay before the next sequence starts
+    public float cycleTime = 10f; // Time between cycles, adjustable in Inspector
+    public float chaseDistanceThreshold = 0.5f; // Distance within which the boss will stop chasing and attack
+    public float chaseSpeed = 2f; // Speed at which the boss chases the player
 
     private Transform player; // Reference to the player's transform
 
@@ -32,79 +37,107 @@ public class RedHoodBoss : MonoBehaviour
         {
             while (true)
             {
-                // Play the disappear animation and wait for it to complete
+                // Play the disappear animation
                 Debug.Log("Boss is disappearing");
                 if (animator)
                 {
                     animator.SetTrigger("Disappear");
-                    // Wait until the disappear animation is done
-                    yield return WaitForAnimation(animator, "Disappear");
+                    // Wait for 1 second before becoming invisible
+                    yield return new WaitForSeconds(0.8f);
                 }
 
-                // Become invisible
+                // Become invisible (disable sprite only)
                 spriteRenderer.enabled = false;
 
+                // Disable the hitbox and shadow
+                bossCollider.enabled = false;
+                if (shadowRenderer != null)
+                {
+                    shadowRenderer.enabled = false;
+                }
+
                 // Wait for an additional delay before teleporting
-                yield return new WaitForSeconds(0.4f); // Delay before teleporting
+                yield return new WaitForSeconds(0.4f);
 
                 // Teleport further from the player
                 Debug.Log("Boss is teleporting");
+                Vector2 oldPosition = transform.position; // Record the old position
                 TeleportFurtherFromPlayer();
 
-                // Move towards the player while invisible
-                Debug.Log("Boss is moving towards the player");
-                yield return StartCoroutine(MoveTowardsPlayerWhileInvisible());
+                // Move the shadow to the new position immediately
+                if (shadowRenderer != null)
+                {
+                    shadowRenderer.transform.position = transform.position + Vector3.down * 0.5f; // Adjust this offset as needed
+                }
 
-                // Become visible when close to the player
+                // Enable the hitbox and shadow after teleportation
+                bossCollider.enabled = true;
+                if (shadowRenderer != null)
+                {
+                    shadowRenderer.enabled = true;
+                }
+
+                // Move towards the player while invisible, actively chasing
+                Debug.Log("Boss is actively chasing the player");
+                yield return StartCoroutine(ChasePlayerUntilClose());
+
+                // Become fully visible when close to the player
                 Debug.Log("Boss is becoming visible");
                 spriteRenderer.enabled = true;
+
                 if (animator)
                 {
                     animator.SetTrigger("Visible");
+                    yield return StartCoroutine(WaitForAnimation(animator, "Visible"));
                 }
 
                 // Attack the player
+                Debug.Log("Boss is attacking");
                 if (animator)
                 {
                     animator.SetTrigger("Attack");
-                    // Wait until the attack animation is done
-                    yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+                    yield return StartCoroutine(WaitForAnimation(animator, "Attack"));
                 }
 
-                // Transition to idle state while moving away
+                // Wait for 0.4 seconds after the attack
+                yield return new WaitForSeconds(0.4f);
+
+                // After attack is complete, transition to idle state and then run away
                 if (animator)
                 {
                     animator.SetTrigger("Idle");
                 }
 
+                // Start moving away from the player and flip the boss to face away from the player
                 Debug.Log("Boss is running away");
-                // Move away from the player while visible and in idle state
+                yield return new WaitForSeconds(0.2f); // Additional wait before flipping
+                FlipBoss(false); // Flip to face away from the player
                 yield return StartCoroutine(MoveAwayFromPlayer());
 
-                // Become invisible again
-                Debug.Log("Boss is becoming invisible again");
-                spriteRenderer.enabled = false;
+                // Play the disappear animation again after running away
+                Debug.Log("Boss is disappearing again");
                 if (animator)
                 {
                     animator.SetTrigger("Disappear");
-                    // Wait until the disappear animation is done
-                    yield return WaitForAnimation(animator, "Disappear");
+                    // Wait for the animation to finish before becoming invisible
+                    yield return new WaitForSeconds(0.8f);
                 }
 
-                // Wait for the specified invisibility duration before reappearing
+                // Make the boss invisible
+                spriteRenderer.enabled = false;
+                bossCollider.enabled = false;
+
+                // Hide the shadow immediately
+                if (shadowRenderer != null)
+                {
+                    shadowRenderer.enabled = false;
+                }
+
+                // Wait for the specified invisibility duration
                 yield return new WaitForSeconds(invisibilityDuration);
 
-                // Reappear and teleport near the player
-                Debug.Log("Boss is reappearing near the player");
-                TeleportNearPlayer();  // Reposition near the player
-                spriteRenderer.enabled = true;  // Make the boss visible again
-                if (animator)
-                {
-                    animator.SetTrigger("Visible");
-                }
-
-                // Wait for a delay before the next sequence starts
-                yield return new WaitForSeconds(reappearanceDelay);
+                // Wait for the cycle time before repeating the sequence
+                yield return new WaitForSeconds(cycleTime);
             }
         }
         else
@@ -128,19 +161,22 @@ public class RedHoodBoss : MonoBehaviour
         Vector2 teleportPosition = Vector2.zero;
         bool positionFound = false;
 
-        int maxAttempts = 10; // Limit attempts to find a valid position to prevent infinite loops
+        int maxAttempts = 10;
         int attempt = 0;
+
+        // Determine the direction the player is facing
+        Vector2 playerFacingDirection = player.right;
 
         while (!positionFound && attempt < maxAttempts)
         {
             attempt++;
 
-            // Get a random direction and a distance much further than the current radius
-            Vector2 randomDirection = Random.insideUnitCircle.normalized;
-            float randomDistance = Random.Range(teleportRadius / 2, teleportRadius); // Adjusted to ensure further distance
+            // Get a random distance from the player
+            float randomDistance = Random.Range(teleportRadius / 2, teleportRadius);
 
-            // Calculate the new position
-            teleportPosition = (Vector2)player.position + randomDirection * randomDistance;
+            // Calculate a direction that is behind the player based on their facing direction
+            Vector2 behindPlayerDirection = -playerFacingDirection;
+            teleportPosition = (Vector2)player.position + behindPlayerDirection * randomDistance;
 
             // Debug output for teleport position
             Debug.Log($"Attempt {attempt}: Trying position {teleportPosition}");
@@ -152,10 +188,10 @@ public class RedHoodBoss : MonoBehaviour
             }
         }
 
-        // If no valid position is found, default to a position further away from the player
+        // If no valid position is found, default to a position behind the player
         if (!positionFound)
         {
-            teleportPosition = (Vector2)player.position + Random.insideUnitCircle.normalized * teleportRadius;
+            teleportPosition = (Vector2)player.position + -playerFacingDirection * teleportRadius;
         }
 
         // Set the boss's position to the calculated teleport position
@@ -163,96 +199,77 @@ public class RedHoodBoss : MonoBehaviour
 
         // Debug output for final teleport position
         Debug.Log($"Final teleport position: {teleportPosition}");
-
-        // Flip the boss to face the player
-        FlipBoss();
     }
 
-    void TeleportNearPlayer()
+
+    IEnumerator ChasePlayerUntilClose()
     {
-        // Calculate a position near the player
-        Vector2 nearPosition = (Vector2)player.position + Random.insideUnitCircle.normalized * (teleportRadius / 2);
-        // Set the boss's position to the calculated near position
-        transform.position = nearPosition;
+        float distanceToPlayer;
+        Vector2 previousPosition = transform.position;
 
-        // Debug output for final near position
-        Debug.Log($"Teleport near position: {nearPosition}");
-
-        // Flip the boss to face the player
-        FlipBoss();
-    }
-
-    IEnumerator MoveTowardsPlayerWhileInvisible()
-    {
-        float duration = 2f; // Time to move towards the player while invisible
-        Vector2 startPosition = transform.position;
-        Vector2 targetPosition = (Vector2)player.position - (Vector2)(player.position - transform.position).normalized;
-
-        // Move towards the player while invisible
-        float elapsed = 0f;
-        while (elapsed < duration)
+        // Continue chasing until within a threshold distance
+        do
         {
-            elapsed += Time.deltaTime;
-            transform.position = Vector2.Lerp(startPosition, targetPosition, elapsed / duration);
-            yield return null;
-        }
+            // Calculate distance to the player
+            distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-        transform.position = targetPosition;
+            // Move towards the player with chaseSpeed
+            transform.position = Vector2.MoveTowards(transform.position, player.position, chaseSpeed * Time.deltaTime);
+
+            // Flip the boss to face the player
+            FlipBoss(true);
+
+            yield return null;
+
+        } while (distanceToPlayer > chaseDistanceThreshold); // Continue chasing until close enough
+
+        // Ensure the boss is exactly at the target position
+        transform.position = player.position;
     }
 
     IEnumerator MoveAwayFromPlayer()
     {
-        float startTime = Time.time;
-        float journeyLength = runAwayDistance;
-        float journeyDuration = 2f; // Duration to move away from the player (adjust as needed)
-        float distanceCovered = 0f;
+        float journeyDuration = 2f; // Duration to move away from the player
+        float elapsed = 0f;
 
         Vector2 startPosition = transform.position;
         Vector2 targetPosition = (Vector2)transform.position + (Vector2)((transform.position - player.position).normalized * runAwayDistance);
 
-        // Ensure the target position is within dungeon bounds
-        if (!Physics2D.OverlapCircle(targetPosition, 0.5f, dungeonLayerMask))
+        while (elapsed < journeyDuration)
         {
-            // Adjust target position if not in bounds
-            targetPosition = (Vector2)transform.position + (Vector2)((transform.position - player.position).normalized * runAwayDistance);
-        }
-
-        while (distanceCovered < journeyLength)
-        {
-            float distance = (Time.time - startTime) * (journeyLength / journeyDuration);
-            distanceCovered = distance;
-            transform.position = Vector2.Lerp(startPosition, targetPosition, distanceCovered / journeyLength);
-
+            elapsed += Time.deltaTime;
+            transform.position = Vector2.Lerp(startPosition, targetPosition, elapsed / journeyDuration);
             yield return null;
         }
 
         transform.position = targetPosition;
     }
 
-    void FlipBoss()
+    void FlipBoss(bool facePlayer)
     {
-        // Check if the player is to the right or left of the boss
-        if (player.position.x < transform.position.x)
+        // Adjust shadow position to match the boss's feet
+        if (shadowRenderer != null)
         {
-            // Player is to the left, flip boss to face left
-            spriteRenderer.flipX = true;
+            Vector3 shadowOffset = new Vector3(0, -0.5f, 0); // Adjust this offset as needed
+            shadowRenderer.transform.position = transform.position + shadowOffset;
+        }
+
+        // Check if the player is to the right or left of the boss
+        if (facePlayer)
+        {
+            spriteRenderer.flipX = player.position.x < transform.position.x;
         }
         else
         {
-            // Player is to the right, flip boss to face right
-            spriteRenderer.flipX = false;
+            spriteRenderer.flipX = player.position.x >= transform.position.x;
         }
     }
 
-    // Helper function to wait for a specific animation to complete
-    IEnumerator WaitForAnimation(Animator animator, string triggerName)
+    IEnumerator WaitForAnimation(Animator animator, string stateName)
     {
-        // Play the animation
-        animator.SetTrigger(triggerName);
-
-        // Wait until the animation has finished
+        // Wait until the specified animation has finished
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-        while (stateInfo.IsName(triggerName) && stateInfo.normalizedTime < 1.0f)
+        while (stateInfo.IsName(stateName) && stateInfo.normalizedTime < 1.0f)
         {
             yield return null;
             stateInfo = animator.GetCurrentAnimatorStateInfo(0);
