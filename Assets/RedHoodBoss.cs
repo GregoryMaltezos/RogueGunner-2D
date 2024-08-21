@@ -178,6 +178,13 @@ public class RedHoodBoss : MonoBehaviour
             Vector2 behindPlayerDirection = -playerFacingDirection;
             teleportPosition = (Vector2)player.position + behindPlayerDirection * randomDistance;
 
+            // Ensure the calculated position is actually behind the player
+            if (Vector2.Dot((teleportPosition - (Vector2)player.position).normalized, playerFacingDirection) > 0)
+            {
+                // If the teleport position is not behind the player, adjust it
+                teleportPosition = (Vector2)player.position - playerFacingDirection * randomDistance;
+            }
+
             // Debug output for teleport position
             Debug.Log($"Attempt {attempt}: Trying position {teleportPosition}");
 
@@ -201,11 +208,9 @@ public class RedHoodBoss : MonoBehaviour
         Debug.Log($"Final teleport position: {teleportPosition}");
     }
 
-
     IEnumerator ChasePlayerUntilClose()
     {
         float distanceToPlayer;
-        Vector2 previousPosition = transform.position;
 
         // Continue chasing until within a threshold distance
         do
@@ -213,8 +218,26 @@ public class RedHoodBoss : MonoBehaviour
             // Calculate distance to the player
             distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-            // Move towards the player with chaseSpeed
-            transform.position = Vector2.MoveTowards(transform.position, player.position, chaseSpeed * Time.deltaTime);
+            // Calculate the direction to move towards the player
+            Vector2 directionToPlayer = (player.position - transform.position).normalized;
+
+            // Calculate the target position
+            Vector2 targetPosition = (Vector2)transform.position + directionToPlayer * chaseSpeed * Time.deltaTime;
+
+            // Check if the boss is trying to move in front of the player
+            if (Vector2.Dot(directionToPlayer, player.right) > 0 && targetPosition.x > player.position.x)
+            {
+                // Adjust target position to stop before moving in front of the player
+                targetPosition.x = player.position.x;
+            }
+            else if (Vector2.Dot(directionToPlayer, player.right) < 0 && targetPosition.x < player.position.x)
+            {
+                // Adjust target position to stop before moving in front of the player from the other side
+                targetPosition.x = player.position.x;
+            }
+
+            // Move towards the adjusted target position
+            transform.position = targetPosition;
 
             // Flip the boss to face the player
             FlipBoss(true);
@@ -223,9 +246,10 @@ public class RedHoodBoss : MonoBehaviour
 
         } while (distanceToPlayer > chaseDistanceThreshold); // Continue chasing until close enough
 
-        // Ensure the boss is exactly at the target position
-        transform.position = player.position;
+        // Ensure the boss is exactly at the target position, but not in front of the player
+        transform.position = new Vector2(Mathf.Clamp(transform.position.x, player.position.x - chaseDistanceThreshold, player.position.x + chaseDistanceThreshold), player.position.y);
     }
+
 
     IEnumerator MoveAwayFromPlayer()
     {

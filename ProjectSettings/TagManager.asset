@@ -7,6 +7,8 @@ TagManager:
   - FrBullet
   - PlayerGrenade
   - Arrow
+  - Redhood
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -25,7 +27,7 @@ TagManager:
   - Resource
   - Arrow
   - Floor
-  - 
+  - RedHood
   - 
   - 
   - 

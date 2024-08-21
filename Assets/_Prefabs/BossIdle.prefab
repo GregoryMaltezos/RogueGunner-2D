@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: -4214467099447750956}
   m_Layer: 9
   m_Name: BossIdle
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -137,13 +137,14 @@ MonoBehaviour:
   speed: 2
   changeDirectionTime: 1
   movementRadius: 5
-  attackRange: 3
+  attackRange: 5
   attackCooldown: 2
   attackDamage: 10
   projectilePrefab: {fileID: 9051951479836635146, guid: a692284f5a6b35c4a8bc02e79aa35f7d, type: 3}
   projectileCount: 8
   projectileSpeed: 5
   animator: {fileID: 7053402465255407045}
+  maxHealth: 100
 --- !u!50 &3443943286876380343
 Rigidbody2D:
   serializedVersion: 4

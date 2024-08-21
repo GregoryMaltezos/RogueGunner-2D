@@ -27,8 +27,8 @@ public class Ballista : MonoBehaviour
     private void DetectAndShoot()
     {
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-        Debug.Log($"Ballista Position: {transform.position}, Player Position: {player.position}");
-        Debug.Log($"Distance to player: {distanceToPlayer}");
+      //  Debug.Log($"Ballista Position: {transform.position}, Player Position: {player.position}");
+      //  Debug.Log($"Distance to player: {distanceToPlayer}");
 
         if (distanceToPlayer <= detectionRange)
         {

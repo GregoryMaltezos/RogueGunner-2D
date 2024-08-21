@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7551040319479195132}
   - component: {fileID: 5632789838422258754}
-  m_Layer: 9
+  m_Layer: 17
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -99,9 +99,9 @@ GameObject:
   - component: {fileID: -8040247705653738786}
   - component: {fileID: -8048581968402484557}
   - component: {fileID: 2789674032907862076}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: RedHoodBoss
-  m_TagString: Untagged
+  m_TagString: Redhood
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -222,6 +222,7 @@ MonoBehaviour:
   reappearanceDelay: 1
   cycleTime: 7
   chaseDistanceThreshold: 0.8
+  chaseSpeed: 2
 --- !u!210 &-8040247705653738786
 SortingGroup:
   m_ObjectHideFlags: 0

@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 1682872161877656746}
   - component: {fileID: 8394501395483440093}
   - component: {fileID: 9069523338901882249}
-  - component: {fileID: 6660019013901921286}
   - component: {fileID: -3436938416871749748}
   - component: {fileID: 434954841791181975}
   - component: {fileID: 2287606177832248037}
@@ -23,6 +22,7 @@ GameObject:
   - component: {fileID: -3442074339846405635}
   - component: {fileID: 816635509612752773}
   - component: {fileID: 318904316501267918}
+  - component: {fileID: -3596271313554946687}
   m_Layer: 8
   m_Name: Player 1
   m_TagString: Player
@@ -177,51 +177,6 @@ MonoBehaviour:
   acceleration: 50
   deacceleration: 100
   currentSpeed: 2
---- !u!114 &6660019013901921286
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 211133429621115189}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3348746951f94ee498308faae9a7cb70, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentHealth: 3
-  maxHealth: 3
-  OnHitWithReference:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 0
-  OnDeathWithReference:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 0
-  isDead: 0
 --- !u!114 &-3436938416871749748
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -315,7 +270,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 211133429621115189}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -450,6 +405,21 @@ MonoBehaviour:
   grenadePrefab: {fileID: 3391130231543258869, guid: b81ca350754174b469f8b616bd9093ea, type: 3}
   throwPoint: {fileID: 5925747776739956511}
   maxGrenades: 3
+--- !u!114 &-3596271313554946687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 211133429621115189}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3833fb319331be341ae7e8000e200c74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 100
+  respawnTime: 5
 --- !u!1 &514796420967624630
 GameObject:
   m_ObjectHideFlags: 0
