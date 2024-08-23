@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 272312785800103811}
   m_Layer: 6
   m_Name: All_Fire_Bullet_Pixel_16x16_00_243 (1)
-  m_TagString: Untagged
+  m_TagString: FrBullet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -141,6 +141,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bulletLifetime: 2
+  damage: 3
+  hasCollided: 0
 --- !u!95 &625207602063879234
 Animator:
   serializedVersion: 5

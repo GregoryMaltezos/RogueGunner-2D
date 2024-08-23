@@ -25,8 +25,9 @@ public class PrefabPlacer : MonoBehaviour
                     );
                 if (possiblePlacementSpot.HasValue)
                 {
-
-                    placedObjects.Add(CreateObject(placementData.enemyPrefab, possiblePlacementSpot.Value + new Vector2(0.5f, 0.5f))); //Instantiate(placementData.enemyPrefab,possiblePlacementSpot.Value + new Vector2(0.5f, 0.5f), Quaternion.identity)
+                    GameObject newObject = CreateObject(placementData.enemyPrefab, possiblePlacementSpot.Value + new Vector2(0.5f, 0.5f));
+                    TagAsObstacle(newObject);
+                    placedObjects.Add(newObject);
                 }
             }
         }
@@ -44,29 +45,29 @@ public class PrefabPlacer : MonoBehaviour
             for (int i = 0; i < placementData.Quantity; i++)
             {
                 Vector2? possiblePlacementSpot = itemPlacementHelper.GetItemPlacementPosition(
-                    placementData.itemData.placementType, 
-                    100, 
-                    placementData.itemData.size, 
+                    placementData.itemData.placementType,
+                    100,
+                    placementData.itemData.size,
                     placementData.itemData.addOffset);
-
 
                 if (possiblePlacementSpot.HasValue)
                 {
-
-                    placedObjects.Add(PlaceItem(placementData.itemData, possiblePlacementSpot.Value));
+                    GameObject newItem = PlaceItem(placementData.itemData, possiblePlacementSpot.Value);
+                    TagAsObstacle(newItem);
+                    placedObjects.Add(newItem);
                 }
             }
         }
         return placedObjects;
     }
+
     private GameObject PlaceItem(ItemData item, Vector2 placementPosition)
     {
-        GameObject newItem = CreateObject(itemPrefab,placementPosition);
-        //GameObject newItem = Instantiate(itemPrefab, placementPosition, Quaternion.identity);
+        GameObject newItem = CreateObject(itemPrefab, placementPosition);
         newItem.GetComponent<Item>().Initialize(item);
+        TagAsObstacle(newItem);
         return newItem;
     }
-
 
     public List<GameObject> PlaceBoss(BossPlacementData bossPlacementData, ItemPlacementHelper itemPlacementHelper)
     {
@@ -84,7 +85,9 @@ public class PrefabPlacer : MonoBehaviour
             if (possiblePlacementSpot.HasValue)
             {
                 Debug.Log("Boss placement spot found at: " + possiblePlacementSpot.Value);
-                placedObjects.Add(CreateObject(bossPlacementData.bossPrefab, possiblePlacementSpot.Value + new Vector2(0.5f, 0.5f)));
+                GameObject newObject = CreateObject(bossPlacementData.bossPrefab, possiblePlacementSpot.Value + new Vector2(0.5f, 0.5f));
+                TagAsObstacle(newObject);
+                placedObjects.Add(newObject);
             }
             else
             {
@@ -94,8 +97,6 @@ public class PrefabPlacer : MonoBehaviour
 
         return placedObjects;
     }
-
-
 
     public GameObject CreateObject(GameObject prefab, Vector3 placementPosition)
     {
@@ -129,7 +130,6 @@ public class PrefabPlacer : MonoBehaviour
         return newItem;
     }
 
-
     public GameObject PlaceSingleItem(GameObject prefab, Vector2 placementPosition)
     {
         if (prefab == null)
@@ -148,9 +148,15 @@ public class PrefabPlacer : MonoBehaviour
         {
             Debug.Log("Item instantiated successfully at: " + placementPosition);
         }
+        TagAsObstacle(newItem);
         return newItem;
     }
 
-
-
+    private void TagAsObstacle(GameObject gameObject)
+    {
+        if (gameObject != null)
+        {
+            gameObject.tag = "Obstacle";
+        }
+    }
 }

@@ -14,7 +14,11 @@ public class BossMovement : MonoBehaviour
     public float projectileSpeed = 5f;        // Speed of the projectiles
     public Animator animator;                 // Animator component for the boss
     public int maxHealth = 100;               // Maximum health of the boss
-    private int currentHealth;                // Current health of the boss
+    public Color flashColor = Color.red;      // Color to flash when health is low
+    public float flashDuration = 1f;          // Duration of the flash effect
+
+    public int currentHealth;                // Current health of the boss
+    private SpriteRenderer spriteRenderer;    // SpriteRenderer component for color changes
 
     private Rigidbody2D rb;
     private Vector2 direction;
@@ -24,10 +28,14 @@ public class BossMovement : MonoBehaviour
     private bool isFacingRight = true;
     private bool isAttacking = false;
 
+    private BossHp bossHpScript; // Reference to BossHp script
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         startPosition = transform.position;
+        spriteRenderer = GetComponent<SpriteRenderer>(); // Get the SpriteRenderer component
+        bossHpScript = GetComponent<BossHp>(); // Get the BossHp component
         currentHealth = maxHealth; // Initialize health
         StartCoroutine(ChangeDirection());
         FindPlayer();
@@ -37,7 +45,7 @@ public class BossMovement : MonoBehaviour
     {
         if (player != null)
         {
-            if (!isAttacking || currentHealth < maxHealth / 2) // Always move if HP is low
+            if (!isAttacking || currentHealth <= maxHealth / 2) // Always move if HP is low
             {
                 Move();
                 FacePlayer();
@@ -90,7 +98,7 @@ public class BossMovement : MonoBehaviour
     {
         while (true)
         {
-            if (!isAttacking || currentHealth < maxHealth / 2) // Change direction while moving
+            if (!isAttacking || currentHealth <= maxHealth / 2) // Change direction while moving
             {
                 direction = Random.insideUnitCircle.normalized;
             }
@@ -120,10 +128,12 @@ public class BossMovement : MonoBehaviour
 
     void FireProjectiles()
     {
-        float angleStep = 360f / projectileCount;
+        int effectiveProjectileCount = currentHealth <= maxHealth / 2 ? projectileCount * 2 : projectileCount; // Double projectiles if health is low
+
+        float angleStep = 360f / effectiveProjectileCount;
         float angle = 0f;
 
-        for (int i = 0; i < projectileCount; i++)
+        for (int i = 0; i < effectiveProjectileCount; i++)
         {
             float projectileDirXPosition = transform.position.x + Mathf.Sin((angle * Mathf.PI) / 180);
             float projectileDirYPosition = transform.position.y + Mathf.Cos((angle * Mathf.PI) / 180);
@@ -153,19 +163,18 @@ public class BossMovement : MonoBehaviour
         }
     }
 
-    // Method to take damage and update health
-    public void TakeDamage(int damage)
+    // Call this method to trigger the flashing effect
+    public void FlashRed()
     {
-        currentHealth -= damage;
-        if (currentHealth <= 0)
-        {
-            Die(); // Handle death if needed
-        }
+        StartCoroutine(FlashRedCoroutine());
     }
 
-    void Die()
+    // Coroutine to handle the red flash effect
+    IEnumerator FlashRedCoroutine()
     {
-        // Handle the boss's death (e.g., play death animation, drop loot, etc.)
-        Destroy(gameObject); // Example: destroy the boss
+        Color originalColor = spriteRenderer.color; // Store the original color
+        spriteRenderer.color = flashColor; // Set the flash color
+        yield return new WaitForSeconds(flashDuration); // Wait for the duration of the flash
+        spriteRenderer.color = originalColor; // Revert to the original color
     }
 }
