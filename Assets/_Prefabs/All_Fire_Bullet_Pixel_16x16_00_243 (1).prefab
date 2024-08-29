@@ -141,7 +141,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bulletLifetime: 2
-  damage: 3
+  damage: 6
   hasCollided: 0
 --- !u!95 &625207602063879234
 Animator:

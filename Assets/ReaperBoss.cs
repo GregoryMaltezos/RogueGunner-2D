@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
 public class ReaperBoss : MonoBehaviour
 {
@@ -21,6 +21,9 @@ public class ReaperBoss : MonoBehaviour
     [Range(0f, 1f)]
     public float invincibilityChance = 0.1f; // Chance of becoming invincible (0 to 1)
 
+    public float maxHealth = 100f;        // Maximum health of the boss
+    public float currentHealth;           // Current health of the boss
+
     private Transform player;             // Reference to the player's Transform
     private bool isAttacking = false;     // Flag to indicate if the boss is attacking
     private bool isFacingRight = true;    // Flag to check if the boss is facing right
@@ -30,6 +33,9 @@ public class ReaperBoss : MonoBehaviour
 
     private void Start()
     {
+        // Initialize health
+        currentHealth = maxHealth;
+
         // Automatically find the player in the scene
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
 
@@ -214,14 +220,79 @@ public class ReaperBoss : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmosSelected()
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        // Draw the detection radius in the editor as a blue wireframe sphere
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+        Debug.Log("Collision detected with: " + other.gameObject.tag);
 
-        // Draw the attack radius in the editor as a red wireframe sphere
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRadius);
+        // Check if the colliding object is the player
+        if (other.CompareTag("Player"))
+        {
+            if (!isInvincible)
+            {
+                // Damage the player if colliding
+                PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
+                if (playerHealth != null)
+                {
+                    playerHealth.TakeDamage(10f); // Adjust damage value as needed
+                }
+                else
+                {
+                    Debug.LogWarning("PlayerHealth component not found on the Player.");
+                }
+            }
+        }
+        // Check if the colliding object is a bullet
+        else if (other.CompareTag("FrBullet"))
+        {
+            if (!isInvincible)
+            {
+                // Send message to update health
+                SendMessage("HandleDamage", 10f);
+
+                // Optionally, you can also notify BossHp directly if needed
+                // Ensure the BossHp component is on the same GameObject or use FindObjectOfType<BossHp>()
+                SendMessage("TakeDamage", 10f);
+
+                Destroy(other.gameObject); // Destroy the bullet after hitting the boss
+            }
+        }
+        // If the collision is with something else, do nothing
+    }
+
+
+    // Method to handle health update via SendMessage
+    private void HandleDamage(float damage)
+    {
+        if (isInvincible) return;
+
+        currentHealth -= damage;
+        FlashRed(); // Trigger a visual effect
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        // Play death animation
+        animator.SetTrigger("DeathAnimation");
+
+        // Optionally destroy or deactivate the boss
+        Destroy(gameObject);
+    }
+
+    private void FlashRed()
+    {
+        StartCoroutine(FlashRedCoroutine());
+    }
+
+    private IEnumerator FlashRedCoroutine()
+    {
+        Color originalColor = spriteRenderer.color;
+        spriteRenderer.color = Color.red;
+        yield return new WaitForSeconds(0.1f); // Adjust flash duration as needed
+        spriteRenderer.color = originalColor;
     }
 }

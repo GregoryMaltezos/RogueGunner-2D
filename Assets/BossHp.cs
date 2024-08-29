@@ -6,15 +6,12 @@ public class BossHp : MonoBehaviour
     [SerializeField] private Slider slider; // Drag the Slider from the UI Canvas here
     [SerializeField] private float maxHp = 100f; // Default maximum HP
     private float currentHp;
-
-    private BossMovement bossMovementScript; // Reference to BossMovement script
     private bool hasFlashed = false; // To ensure the flash only happens once
 
     private void Start()
     {
         currentHp = maxHp; // Initialize HP
         UpdateHealthBar(); // Set initial slider value
-        bossMovementScript = GetComponent<BossMovement>(); // Get the BossMovement component
     }
 
     public void TakeDamage(int amount)
@@ -25,14 +22,14 @@ public class BossHp : MonoBehaviour
         if (currentHp < 0) currentHp = 0; // Prevent negative HP
         UpdateHealthBar(); // Update health bar
 
-        // Notify BossMovement of health change
-        bossMovementScript.currentHealth = (int)currentHp;
+        // Notify boss script of health change
+        SendMessage("SetCurrentHealth", (int)currentHp, SendMessageOptions.DontRequireReceiver);
 
         // Trigger the flash when health reaches 50% for the first time
         if (!hasFlashed && currentHp <= maxHp / 2)
         {
             hasFlashed = true; // Set the flag to true so it doesn't flash again
-            bossMovementScript.FlashRed();
+            SendMessage("FlashRed", SendMessageOptions.DontRequireReceiver);
         }
 
         if (currentHp <= 0)
@@ -41,7 +38,7 @@ public class BossHp : MonoBehaviour
         }
     }
 
-    private void UpdateHealthBar()
+    public void UpdateHealthBar()
     {
         slider.value = currentHp / maxHp; // Update slider value
     }

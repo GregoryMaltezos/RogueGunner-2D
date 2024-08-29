@@ -37,9 +37,15 @@ public class PlayerHealth : MonoBehaviour
         if (damageSource != null)
         {
             TakeDamage(damageSource.GetDamage());
-            Destroy(other.gameObject);
+
+            // Check the tag to decide whether to destroy the GameObject
+            if (other.CompareTag("Bullet") || other.CompareTag("Arrow"))
+            {
+                Destroy(other.gameObject);  // Destroy the bullet or arrow
+            }
         }
     }
+
 
     public void TakeDamage(float amount)
     {
@@ -98,3 +104,4 @@ public class PlayerHealth : MonoBehaviour
     }
 
 }
+ 
