@@ -10,6 +10,7 @@ TagManager:
   - Redhood
   - Enemy
   - Obstacle
+  - BodyAttackCollider
   layers:
   - Default
   - TransparentFX
@@ -29,7 +30,7 @@ TagManager:
   - Arrow
   - Floor
   - RedHood
-  - 
+  - BodyAttackCollider
   - 
   - 
   - 

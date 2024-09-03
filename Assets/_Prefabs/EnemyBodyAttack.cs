@@ -15,6 +15,18 @@ public class EnemyBodyAttack : MonoBehaviour
 
     public Transform attackOrigin;
     public float attackRadius;
+    public LayerMask playerLayer;
+
+    private DamageSource damageSource;
+
+    private void Start()
+    {
+        damageSource = GetComponent<DamageSource>();
+        if (damageSource == null)
+        {
+            Debug.LogError("DamageSource component not found on the enemy!");
+        }
+    }
 
     public void ResetIsAttacking()
     {
@@ -30,17 +42,8 @@ public class EnemyBodyAttack : MonoBehaviour
         transform.right = direction;
 
         Vector2 scale = transform.localScale;
-        if (direction.x < 0)
-        {
-            scale.y = -1;
-        }
-        else if (direction.x > 0)
-        {
-            scale.y = 1;
-        }
+        scale.y = direction.x < 0 ? -1 : 1;
         transform.localScale = scale;
-
-        // Adjust sorting order if needed, or remove if unnecessary
     }
 
     public void Attack()
@@ -63,22 +66,40 @@ public class EnemyBodyAttack : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
+        if (attackOrigin == null) return;
         Gizmos.color = Color.red;
-        Vector3 position = attackOrigin == null ? Vector3.zero : attackOrigin.position;
-        Gizmos.DrawWireSphere(position, attackRadius);
+        Gizmos.DrawWireSphere(attackOrigin.position, attackRadius);
     }
 
-    public void DetectColliders()
+    private void DetectColliders()
     {
-        foreach (Collider2D collider in Physics2D.OverlapCircleAll(attackOrigin.position, attackRadius))
+        if (attackOrigin == null) return;
+
+        Debug.Log($"Detecting colliders at position: {attackOrigin.position} with radius: {attackRadius}");
+
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(attackOrigin.position, attackRadius, playerLayer);
+        Debug.Log("Number of colliders detected: " + hitColliders.Length);
+
+        foreach (Collider2D collider in hitColliders)
         {
-            if (collider.isTrigger == false)
-                continue;
-            // Debug.Log(collider.name);
-            Health health;
-            if (health = collider.GetComponent<Health>())
+            Debug.Log("Hit collider: " + collider.name);
+            PlayerHealth playerHealth = collider.GetComponent<PlayerHealth>();
+            if (playerHealth != null)
             {
-                health.GetHit(1, gameObject);
+                if (damageSource != null)
+                {
+                    float damage = damageSource.GetDamage();
+                    Debug.Log("PlayerHealth component found. Dealing damage: " + damage);
+                    playerHealth.TakeDamage(damage);
+                }
+                else
+                {
+                    Debug.LogWarning("DamageSource component is missing.");
+                }
+            }
+            else
+            {
+                Debug.Log("PlayerHealth component not found on: " + collider.name);
             }
         }
     }

@@ -20,7 +20,7 @@ public class EnemyAI : MonoBehaviour
     [SerializeField]
     private float attackDistance = 0.5f;
 
-    //Inputs sent from the Enemy AI to the Enemy controller
+    // Inputs sent from the Enemy AI to the Enemy controller
     public UnityEvent OnAttackPressed;
     public UnityEvent<Vector2> OnMovementInput, OnPointerInput;
 
@@ -34,7 +34,7 @@ public class EnemyAI : MonoBehaviour
 
     private void Start()
     {
-        //Detecting Player and Obstacles around
+        // Detecting Player and Obstacles around
         InvokeRepeating("PerformDetection", 0, detectionDelay);
     }
 
@@ -48,12 +48,25 @@ public class EnemyAI : MonoBehaviour
 
     private void Update()
     {
-        //Enemy AI movement based on Target availability
         if (aiData.currentTarget != null)
         {
-            //Looking at the Target
-            OnPointerInput?.Invoke(aiData.currentTarget.position);
-            if (following == false)
+            // Calculate and adjust the target position to aim slightly below the player's collider center
+            BoxCollider2D playerCollider = aiData.currentTarget.GetComponent<BoxCollider2D>();
+            if (playerCollider != null)
+            {
+                // Calculate the center of the player's collider and apply the offset
+                Vector3 targetCenter = aiData.currentTarget.position;
+                targetCenter.y -= (playerCollider.size.y / 2) + 1.5f; // Adjust this value to set the desired offset
+
+                OnPointerInput?.Invoke(targetCenter);
+            }
+            else
+            {
+                // Fallback to the default position if the collider is not found
+                OnPointerInput?.Invoke(aiData.currentTarget.position);
+            }
+
+            if (!following)
             {
                 following = true;
                 StartCoroutine(ChaseAndAttack());
@@ -61,10 +74,11 @@ public class EnemyAI : MonoBehaviour
         }
         else if (aiData.GetTargetsCount() > 0)
         {
-            //Target acquisition logic
+            // Target acquisition logic
             aiData.currentTarget = aiData.targets[0];
         }
-        //Moving the Agent
+
+        // Moving the Agent
         OnMovementInput?.Invoke(movementInput);
     }
 
@@ -72,7 +86,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (aiData.currentTarget == null)
         {
-            //Stopping Logic
+            // Stopping Logic
             Debug.Log("Stopping");
             movementInput = Vector2.zero;
             following = false;
@@ -84,7 +98,7 @@ public class EnemyAI : MonoBehaviour
 
             if (distance < attackDistance)
             {
-                //Attack logic
+                // Attack logic
                 movementInput = Vector2.zero;
                 OnAttackPressed?.Invoke();
                 yield return new WaitForSeconds(attackDelay);
@@ -92,13 +106,26 @@ public class EnemyAI : MonoBehaviour
             }
             else
             {
-                //Chase logic
+                // Chase logic
                 movementInput = movementDirectionSolver.GetDirectionToMove(steeringBehaviours, aiData);
                 yield return new WaitForSeconds(aiUpdateDelay);
                 StartCoroutine(ChaseAndAttack());
             }
-
         }
+    }
 
+    // For debugging: visualize the target aiming in the Scene view
+    void OnDrawGizmos()
+    {
+        if (aiData.currentTarget != null)
+        {
+            BoxCollider2D playerCollider = aiData.currentTarget.GetComponent<BoxCollider2D>();
+            if (playerCollider != null)
+            {
+                Vector3 targetCenter = aiData.currentTarget.position - new Vector3(0, playerCollider.size.y / 2 + 1.5f, 0);
+                Gizmos.color = Color.red;
+                Gizmos.DrawLine(transform.position, targetCenter);
+            }
+        }
     }
 }
