@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -12,6 +11,19 @@ public class Health : MonoBehaviour
 
     [SerializeField]
     private bool isDead = false;
+
+    private AgentAnimations agentAnimations;
+    private AgentMover agentMover; // Reference to the component responsible for movement
+
+    [SerializeField]
+    private float deathAnimationDuration = 1.0f; // Duration of the death animation before destruction
+
+    private void Start()
+    {
+        // Get reference to the AgentAnimations script to control animations
+        agentAnimations = GetComponentInChildren<AgentAnimations>();
+        agentMover = GetComponent<AgentMover>();
+    }
 
     public void InitializeHealth(int healthValue)
     {
@@ -29,15 +41,80 @@ public class Health : MonoBehaviour
 
         currentHealth -= amount;
 
-        if (currentHealth > 0)
+        if (currentHealth <= 0)
         {
-            OnHitWithReference?.Invoke(sender);
+            if (!isDead)
+            {
+                isDead = true;
+                OnDeathWithReference?.Invoke(sender);
+
+                if (agentAnimations != null)
+                {
+                    // Stop movement
+                    if (agentMover != null)
+                    {
+                        agentMover.SetMovement(false); // Stop movement
+                    }
+
+                    // Trigger the "Die" animation and start the coroutine to destroy after a delay
+                    agentAnimations.TriggerDeathAnimation();
+                    StartCoroutine(DestroyAfterDelay(deathAnimationDuration));
+                }
+                else
+                {
+                    // If no animations, stop movement and destroy immediately
+                    if (agentMover != null)
+                    {
+                        agentMover.SetMovement(false); // Stop movement
+                    }
+                    Destroy(gameObject);
+                }
+            }
         }
         else
         {
-            OnDeathWithReference?.Invoke(sender);
-            isDead = true;
-            Destroy(gameObject);
+            if (agentAnimations != null)
+            {
+                // Trigger the "Hit" animation and start the coroutine to resume movement after it finishes
+                agentAnimations.TriggerHitAnimation();
+                StartCoroutine(ResumeMovementAfterDelay(0.5f));
+            }
+
+            OnHitWithReference?.Invoke(sender);
+        }
+    }
+
+    private IEnumerator ResumeMovementAfterDelay(float delay)
+    {
+        // Wait for the hit animation to finish (0.5 seconds)
+        yield return new WaitForSeconds(delay);
+
+        // Re-enable movement after the animation is done
+        if (agentMover != null && !isDead)
+        {
+            agentMover.SetMovement(true);
+        }
+    }
+
+    private IEnumerator DestroyAfterDelay(float delay)
+    {
+        // Wait for the death animation to finish
+        yield return new WaitForSeconds(delay);
+
+        // Destroy the game object
+        Destroy(gameObject);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("FrBullet"))
+        {
+            Bullet bullet = collision.gameObject.GetComponent<Bullet>();
+            if (bullet != null)
+            {
+                GetHit(bullet.damage, collision.gameObject);
+                Destroy(collision.gameObject);
+            }
         }
     }
 }

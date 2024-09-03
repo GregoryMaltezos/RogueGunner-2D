@@ -5,6 +5,7 @@ using UnityEngine;
 public class AgentAnimations : MonoBehaviour
 {
     private Animator animator;
+    private bool isDead = false;
 
     private void Awake()
     {
@@ -13,6 +14,8 @@ public class AgentAnimations : MonoBehaviour
 
     public void RotateToPointer(Vector2 lookDirection)
     {
+        if (isDead) return; // Prevent rotation when dead
+
         Vector3 scale = transform.localScale;
         if (lookDirection.x > 0)
         {
@@ -27,7 +30,32 @@ public class AgentAnimations : MonoBehaviour
 
     public void PlayAnimation(Vector2 movementInput)
     {
-        animator.SetBool("Running", movementInput.magnitude > 0);
+        if (isDead) return; // Prevent animation when dead
 
+        // Set the "Run" trigger if movement is detected
+        if (movementInput.magnitude > 0)
+        {
+            animator.SetTrigger("Run");
+        }
+        else
+        {
+            // Reset the "Run" trigger if not moving
+            animator.ResetTrigger("Run");
+        }
+    }
+
+    public void TriggerDeathAnimation()
+    {
+        if (isDead) return; // Prevent re-triggering death animation
+
+        isDead = true; // Set the dead flag
+        animator.SetTrigger("Die"); // Trigger the death animation
+    }
+
+    public void TriggerHitAnimation()
+    {
+        if (isDead) return; // Prevent hit animation when dead
+
+        animator.SetTrigger("Hit");
     }
 }

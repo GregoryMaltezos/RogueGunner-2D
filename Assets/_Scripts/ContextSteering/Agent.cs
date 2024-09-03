@@ -58,6 +58,6 @@ public class Agent : MonoBehaviour
     {
         Vector2 lookDirection = pointerInput - (Vector2)transform.position;
         agentAnimations.RotateToPointer(lookDirection);
-        agentAnimations.PlayAnimation(movementInput); // This will set the "Running" bool based on movement input
+        agentAnimations.PlayAnimation(movementInput); // This will set the "Run" trigger based on movement input
     }
 }

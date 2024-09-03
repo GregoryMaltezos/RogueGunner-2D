@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +13,9 @@ public class AgentMover : MonoBehaviour
     private Vector2 oldMovementInput;
     public Vector2 MovementInput { get; set; }
 
+    // Variable to control movement
+    private bool canMove = true;
+
     private void Awake()
     {
         rb2d = GetComponent<Rigidbody2D>();
@@ -21,19 +23,37 @@ public class AgentMover : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (MovementInput.magnitude > 0 && currentSpeed >= 0)
+        // Only process movement if the agent is allowed to move
+        if (canMove)
         {
-            oldMovementInput = MovementInput;
-            currentSpeed += acceleration * maxSpeed * Time.deltaTime;
+            if (MovementInput.magnitude > 0 && currentSpeed >= 0)
+            {
+                oldMovementInput = MovementInput;
+                currentSpeed += acceleration * maxSpeed * Time.deltaTime;
+            }
+            else
+            {
+                currentSpeed -= deacceleration * maxSpeed * Time.deltaTime;
+            }
+            currentSpeed = Mathf.Clamp(currentSpeed, 0, maxSpeed);
+            rb2d.velocity = oldMovementInput * currentSpeed;
         }
         else
         {
-            currentSpeed -= deacceleration * maxSpeed * Time.deltaTime;
+            // If the agent can't move, stop all movement
+            rb2d.velocity = Vector2.zero;
         }
-        currentSpeed = Mathf.Clamp(currentSpeed, 0, maxSpeed);
-        rb2d.velocity = oldMovementInput * currentSpeed;
-
     }
 
+    // Method to enable or disable movement
+    public void SetMovement(bool enabled)
+    {
+        canMove = enabled;
 
+        // If movement is disabled, immediately stop the Rigidbody2D's velocity
+        if (!enabled)
+        {
+            rb2d.velocity = Vector2.zero;
+        }
+    }
 }

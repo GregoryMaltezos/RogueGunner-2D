@@ -28,11 +28,16 @@ public class SFXPlayer : MonoBehaviour
     public void PlaySFX()
     {
         if (source == null || audioClips.Count == 0)
+        {
+            Debug.LogWarning("AudioSource is null or no AudioClips are assigned.");
             return;
+        }
 
         source.pitch = basePitch + Random.Range(-pitchOffset, pitchOffset);
         source.volume = baseVolume + Random.Range(-volumeOffset, volumeOffset);
         int randomClipIndex = Random.Range(0, audioClips.Count);
+        Debug.Log($"Playing clip: {audioClips[randomClipIndex].name}");
         source.PlayOneShot(audioClips[randomClipIndex]);
     }
+
 }

@@ -100,6 +100,7 @@ GameObject:
   - component: {fileID: -8048581968402484557}
   - component: {fileID: 2789674032907862076}
   - component: {fileID: 6844225386948889351}
+  - component: {fileID: 1713316692980930733}
   m_Layer: 17
   m_Name: RedHoodBoss
   m_TagString: Redhood
@@ -214,6 +215,8 @@ MonoBehaviour:
   spriteRenderer: {fileID: 5382279492904410793}
   bossCollider: {fileID: -8048581968402484557}
   shadowRenderer: {fileID: 5632789838422258754}
+  hpBarBackground: {fileID: 385557587399966906}
+  hpBarFill: {fileID: 8974839816686539747}
   teleportRadius: 5
   dungeonLayerMask:
     serializedVersion: 2
@@ -225,6 +228,7 @@ MonoBehaviour:
   cycleTime: 7
   chaseDistanceThreshold: 0.8
   chaseSpeed: 2
+  attackDamage: 10
 --- !u!210 &-8040247705653738786
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -313,6 +317,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slider: {fileID: 7638977412317626288}
   maxHp: 100
+--- !u!114 &1713316692980930733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8413174140314589448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3911d54646a30ac4f8f6f3af84e6a784, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 10
 --- !u!1001 &916147554209735567
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -519,6 +536,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cf1e40393331d2d4ba198cd94b371f16, type: 3}
+--- !u!114 &385557587399966906 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 715801644128609077, guid: cf1e40393331d2d4ba198cd94b371f16, type: 3}
+  m_PrefabInstance: {fileID: 916147554209735567}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &7053803710168570878 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7877616270389917809, guid: cf1e40393331d2d4ba198cd94b371f16, type: 3}
@@ -533,5 +561,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8974839816686539747 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8087275377541623916, guid: cf1e40393331d2d4ba198cd94b371f16, type: 3}
+  m_PrefabInstance: {fileID: 916147554209735567}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
