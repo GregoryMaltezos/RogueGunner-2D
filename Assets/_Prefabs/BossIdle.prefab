@@ -152,6 +152,9 @@ MonoBehaviour:
   lowHealthFlashColor: {r: 0, g: 0, b: 0, a: 1}
   lowHealthFlashDuration: 0.5
   currentHealth: 0
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 2048
 --- !u!50 &3443943286876380343
 Rigidbody2D:
   serializedVersion: 4
@@ -238,7 +241,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slider: {fileID: 6551645746339622492}
   maxHp: 100
-  knockbackForce: 20
 --- !u!1001 &4348728172090143331
 PrefabInstance:
   m_ObjectHideFlags: 0

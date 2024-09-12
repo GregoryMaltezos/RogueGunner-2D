@@ -13,9 +13,11 @@ GameObject:
   - component: {fileID: 1646694447314996466}
   - component: {fileID: 7535382313781493831}
   - component: {fileID: 4214453542482992367}
-  m_Layer: 0
+  - component: {fileID: 1416648297275621663}
+  - component: {fileID: 7928518845597105366}
+  m_Layer: 9
   m_Name: Bow and Arrows_0
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -139,6 +141,73 @@ SortingGroup:
   m_SortingLayer: 0
   m_SortingOrder: 28
   m_SortAtRoot: 0
+--- !u!61 &1416648297275621663
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 281607840164832092}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.09, y: 0.16}
+    newSize: {x: 0.09, y: 0.16}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.09, y: 0.16}
+  m_EdgeRadius: 0
+--- !u!114 &7928518845597105366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 281607840164832092}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3348746951f94ee498308faae9a7cb70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentHealth: 10
+  maxHealth: 10
+  OnHitWithReference:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDeathWithReference:
+    m_PersistentCalls:
+      m_Calls: []
+  isDead: 0
+  deathAnimationDuration: 1
 --- !u!1 &4346766088942835507
 GameObject:
   m_ObjectHideFlags: 0
@@ -148,7 +217,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2640777415857791256}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: FP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -181,7 +250,7 @@ GameObject:
   - component: {fileID: 5302961767118727234}
   - component: {fileID: 8445716805734649864}
   - component: {fileID: 4107841326143552613}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Bow and Arrows_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}

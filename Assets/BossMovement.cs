@@ -3,24 +3,25 @@ using UnityEngine;
 
 public class BossMovement : MonoBehaviour
 {
-    public float speed = 2f;                  // Movement speed of the boss
-    public float changeDirectionTime = 2f;    // Time in seconds before changing direction
-    public float movementRadius = 5f;         // Radius of the movement area
-    public float attackRange = 3f;            // Distance within which the boss attacks the player
-    public float attackCooldown = 2f;         // Cooldown time between attacks
-    public int attackDamage = 10;             // Damage dealt by the boss
-    public GameObject projectilePrefab;       // The projectile prefab to be instantiated
-    public int projectileCount = 8;           // Number of projectiles to fire in a circle
-    public float projectileSpeed = 5f;        // Speed of the projectiles
-    public Animator animator;                 // Animator component for the boss
-    public int maxHealth = 100;               // Maximum health of the boss
-    public Color flashColor = Color.red;      // Color to flash when health is low
-    public float flashDuration = 1f;          // Duration of the flash effect
-    public Color lowHealthFlashColor = Color.black; // Flash black color when at low health
-    public float lowHealthFlashDuration = 0.5f; // Flash duration when at low health
+    // Existing variables
+    public float speed = 2f;
+    public float changeDirectionTime = 2f;
+    public float movementRadius = 5f;
+    public float attackRange = 3f;
+    public float attackCooldown = 2f;
+    public int attackDamage = 10;
+    public GameObject projectilePrefab;
+    public int projectileCount = 8;
+    public float projectileSpeed = 5f;
+    public Animator animator;
+    public int maxHealth = 100;
+    public Color flashColor = Color.red;
+    public float flashDuration = 1f;
+    public Color lowHealthFlashColor = Color.black;
+    public float lowHealthFlashDuration = 0.5f;
 
-    public int currentHealth;                // Current health of the boss
-    private SpriteRenderer spriteRenderer;    // SpriteRenderer component for color changes
+    public int currentHealth;
+    private SpriteRenderer spriteRenderer;
 
     private Rigidbody2D rb;
     private Vector2 direction;
@@ -30,17 +31,18 @@ public class BossMovement : MonoBehaviour
     private bool isFacingRight = true;
     private bool isAttacking = false;
 
-    private bool hasEnteredHalfHealthPhase = false;  // Flag to check if half-health phase has started
-    private bool hasEnteredLowHealthPhase = false;   // Flag to check if low-health phase has started
+    private bool hasEnteredHalfHealthPhase = false;
+    private bool hasEnteredLowHealthPhase = false;
+
+    public LayerMask obstacleLayer; // New variable for obstacle layer mask
 
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         startPosition = transform.position;
-        spriteRenderer = GetComponent<SpriteRenderer>(); // Get the SpriteRenderer component
-        currentHealth = maxHealth; // Initialize health
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        currentHealth = maxHealth;
 
-        // Set Rigidbody2D to Kinematic to avoid knockback
         rb.bodyType = RigidbodyType2D.Kinematic;
 
         StartCoroutine(ChangeDirection());
@@ -51,7 +53,7 @@ public class BossMovement : MonoBehaviour
     {
         if (player != null)
         {
-            if (!isAttacking || currentHealth <= maxHealth / 2) // Always move if HP is low
+            if (!isAttacking || currentHealth <= maxHealth / 2)
             {
                 Move();
                 FacePlayer();
@@ -82,29 +84,26 @@ public class BossMovement : MonoBehaviour
         {
             Vector2 nextPosition = rb.position + direction * speed * Time.fixedDeltaTime;
 
-            // Check for collisions
-            RaycastHit2D hit = Physics2D.Raycast(rb.position, direction, speed * Time.fixedDeltaTime, LayerMask.GetMask("Wall"));
+            // Check for collisions with obstacles
+            RaycastHit2D hit = Physics2D.Raycast(rb.position, direction, speed * Time.fixedDeltaTime, obstacleLayer);
             if (hit.collider == null)
             {
-                // Ensure that the boss stays within the movement radius
                 if (Vector2.Distance(nextPosition, startPosition) <= movementRadius)
                 {
                     rb.MovePosition(nextPosition);
                 }
                 else
                 {
-                    direction = -direction; // Change direction if out of bounds
+                    direction = -direction;
                 }
             }
             else
             {
-                // Stop movement if collision is detected
                 direction = Vector2.Reflect(direction, hit.normal);
             }
         }
         else
         {
-            // For non-kinematic Rigidbody2D, just control velocity
             Vector2 movement = direction * speed * Time.fixedDeltaTime;
             rb.velocity = movement;
         }
@@ -136,7 +135,7 @@ public class BossMovement : MonoBehaviour
     {
         while (true)
         {
-            if (!isAttacking || currentHealth <= maxHealth / 2) // Change direction while moving
+            if (!isAttacking || currentHealth <= maxHealth / 2)
             {
                 direction = Random.insideUnitCircle.normalized;
             }
@@ -148,20 +147,18 @@ public class BossMovement : MonoBehaviour
     {
         canAttack = false;
         isAttacking = true;
-        animator.SetTrigger("Attack"); // Trigger the attack animation
+        animator.SetTrigger("Attack");
 
-        // Wait for the attack animation to finish
-        float animationDuration = 2.01f; // Replace with your animation length
+        float animationDuration = 2.01f;
         yield return new WaitForSeconds(animationDuration);
 
         FireProjectiles();
 
-        // Wait for cooldown before allowing the next attack
         yield return new WaitForSeconds(attackCooldown);
 
         canAttack = true;
         isAttacking = false;
-        animator.SetTrigger("Idle"); // Trigger transition to idle/patrol animation
+        animator.SetTrigger("Idle");
     }
 
     private void FireProjectiles()
@@ -197,10 +194,8 @@ public class BossMovement : MonoBehaviour
 
             GameObject proj = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
 
-            // Set the velocity of the projectile
             proj.GetComponent<Rigidbody2D>().velocity = new Vector2(projectileMoveDirection.x, projectileMoveDirection.y);
 
-            // Rotate the projectile to match the direction
             float angleToPlayer = Mathf.Atan2(projectileMoveDirection.y, projectileMoveDirection.x) * Mathf.Rad2Deg;
             proj.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angleToPlayer));
 
@@ -224,40 +219,37 @@ public class BossMovement : MonoBehaviour
     private void EnterHalfHealthPhase()
     {
         hasEnteredHalfHealthPhase = true;
-        projectileCount = 16; // Increase projectile count to 16
+        projectileCount = 16;
         Debug.Log("Half Health Phase Active: Projectile Count increased.");
     }
 
     private void EnterLowHealthPhase()
     {
         hasEnteredLowHealthPhase = true;
-        attackCooldown = 1f; // Reduce cooldown to 1 second
-        attackRange = 8f; // Increase attack range to 8
-        projectileCount = 22; // Increase projectile count to 22
-        projectileSpeed = 7f; // Increase projectile speed to 7
-        movementRadius = 7f; // Increase movement radius to 7
-        changeDirectionTime = 0.6f; // Decrease direction change time to 0.6 seconds
-        StartCoroutine(FlashBlack()); // Flash black
+        attackCooldown = 1f;
+        attackRange = 8f;
+        projectileCount = 22;
+        projectileSpeed = 7f;
+        movementRadius = 7f;
+        changeDirectionTime = 0.6f;
+        StartCoroutine(FlashBlack());
         Debug.Log("Low Health Phase Active: Adjusted parameters and flashing black.");
     }
 
-    // Coroutine to flash black when entering the low health phase
     private IEnumerator FlashBlack()
     {
-        Color originalColor = spriteRenderer.color; // Store the original color
-        spriteRenderer.color = lowHealthFlashColor; // Set the black flash color
-        yield return new WaitForSeconds(lowHealthFlashDuration); // Wait for the duration of the flash
-        spriteRenderer.color = originalColor; // Revert to the original color
+        Color originalColor = spriteRenderer.color;
+        spriteRenderer.color = lowHealthFlashColor;
+        yield return new WaitForSeconds(lowHealthFlashDuration);
+        spriteRenderer.color = originalColor;
     }
 
-    // Called by BossHp script to update current health
     private void SetCurrentHealth(int health)
     {
         currentHealth = health;
         Debug.Log($"Boss current health set to: {currentHealth}");
     }
 
-    // Called by BossHp script to flash red
     private void FlashRed()
     {
         StartCoroutine(FlashRedCoroutine());

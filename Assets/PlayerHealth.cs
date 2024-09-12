@@ -39,7 +39,7 @@ public class PlayerHealth : MonoBehaviour
             TakeDamage(damageSource.GetDamage());
 
             // Check the tag to decide whether to destroy the GameObject
-            if (other.CompareTag("Bullet") || other.CompareTag("Arrow"))
+            if (other.CompareTag("Arrow"))
             {
                 Destroy(other.gameObject);  // Destroy the bullet or arrow
             }

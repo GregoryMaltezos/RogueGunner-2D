@@ -8,10 +8,19 @@ public class BossHp : MonoBehaviour
     private float currentHp;
     private bool hasFlashed = false; // To ensure the flash only happens once
 
+    private CorridorFirstDungeonGenerator dungeonGenerator; // Reference to the dungeon generator
+
     private void Start()
     {
         currentHp = maxHp; // Initialize HP
         UpdateHealthBar(); // Set initial slider value
+
+        // Find the dungeon generator in the scene (if it exists)
+        dungeonGenerator = FindObjectOfType<CorridorFirstDungeonGenerator>();
+        if (dungeonGenerator == null)
+        {
+            Debug.LogError("Dungeon Generator not found in the scene.");
+        }
     }
 
     public void TakeDamage(int amount)
@@ -61,6 +70,13 @@ public class BossHp : MonoBehaviour
     private void Die()
     {
         Debug.Log("Boss is dead!");
-        Destroy(gameObject); // Destroy boss
+
+        // Trigger dungeon regeneration
+        if (dungeonGenerator != null)
+        {
+            dungeonGenerator.OnBossDefeated(); // Call the method to generate a new dungeon
+        }
+
+        Destroy(gameObject); // Destroy the boss object
     }
 }

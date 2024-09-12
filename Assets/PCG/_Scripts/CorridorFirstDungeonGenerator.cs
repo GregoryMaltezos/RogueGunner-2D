@@ -1,29 +1,47 @@
-﻿
-using System;
+﻿using UnityEngine;
+using TMPro; // Import TextMeshPro namespace
+using UnityEngine.UI; // For UI components
+using UnityEngine.Events; // For UnityEvent
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-using Cinemachine;
-using UnityEngine.Events;
+using System.Linq; // For Linq methods
+using System; // For Guid
 
-    public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
+public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
 {
-      
-
-
     // PCG parameters
     [SerializeField]
-    private int corridorLength = 14, corridorCount = 5;
+    private int corridorLength = 14; // Corridor length stays constant
+    [SerializeField]
+    private int corridorCount = 5;   // Corridor count will increase by 4 each time
     [SerializeField]
     [Range(0.1f, 1)]
     private float roomPercent = 0.8f;
     public RoomContentGenerator roomContentGenerator;
 
+    // UI
+    [SerializeField]
+    private TextMeshProUGUI floorNotificationText; // Updated to TextMeshProUGUI
+    [SerializeField]
+    private CanvasGroup floorNotificationCanvasGroup; // Reference to the CanvasGroup component
+
+    [SerializeField]
+    [Range(0, 1920)] // Adjust to screen width range
+    private float finalPositionX = 100f; // Final position X
+
+    [SerializeField]
+    [Range(0, 1080)] // Adjust to screen height range
+    private float finalPositionY = 100f; // Final position Y
+
+    // Manually set start position
+    [SerializeField]
+    private Vector2 startNotificationPosition = new Vector2(0, 0); // Default to top middle
+
+    private RectTransform floorNotificationRectTransform; // For UI positioning and scaling
+    private int currentFloor = 1; // Starting floor number
+
     // PCG Data
-    private Dictionary<Vector2Int, HashSet<Vector2Int>> roomsDictionary 
-        = new Dictionary<Vector2Int, HashSet<Vector2Int>>();
-    
+    private Dictionary<Vector2Int, HashSet<Vector2Int>> roomsDictionary = new Dictionary<Vector2Int, HashSet<Vector2Int>>();
     private HashSet<Vector2Int> floorPositions, corridorPositions;
 
     // Gizmos Data
@@ -33,9 +51,11 @@ using UnityEngine.Events;
 
     // Events
     public UnityEvent<DungeonData> OnDungeonFloorReady;
+    public UnityEvent OnBossKilled;  // Event to trigger on boss kill
 
+    private int bossKills = 0; // To keep track of how many times the boss was killed
 
-        protected override void RunProceduralGeneration()
+    protected override void RunProceduralGeneration()
     {
         CorridorFirstGeneration();
         DungeonData data = new DungeonData
@@ -45,19 +65,93 @@ using UnityEngine.Events;
             floorPositions = this.floorPositions
         };
         OnDungeonFloorReady?.Invoke(data);
-
-
     }
+
     private void CorridorFirstGeneration()
     {
         floorPositions = new HashSet<Vector2Int>();
         HashSet<Vector2Int> potentialRoomPositions = new HashSet<Vector2Int>();
 
         CreateCorridors(floorPositions, potentialRoomPositions);
-
         GenerateRooms(potentialRoomPositions);
+
+        // Show floor notification with effects
+        StartCoroutine(ShowFloorNotification());
     }
 
+    private IEnumerator ShowFloorNotification()
+    {
+        // Initialize CanvasGroup and TextMeshProUGUI
+        floorNotificationCanvasGroup.alpha = 0; // Start with alpha at 0 for fade-in effect
+        TextMeshProUGUI tmpText = floorNotificationText; // Ensure this is assigned correctly
+        tmpText.text = $"Floor {currentFloor}";
+        floorNotificationText.gameObject.SetActive(true); // Ensure the text is active
+
+        RectTransform rt = tmpText.GetComponent<RectTransform>();
+        Vector2 startSize = rt.sizeDelta; // Keep the original size as the start size
+        Vector2 targetSize = startSize * 0.5f; // 50% reduction for a less drastic shrinkage
+
+        // Use the manually set start position
+        Vector2 startPos = startNotificationPosition;
+        Vector2 endPos = new Vector2(finalPositionX, finalPositionY); // Final position from sliders
+
+        // Clamp end position to screen bounds
+        endPos.x = Mathf.Clamp(endPos.x, startSize.x / 2, Screen.width - startSize.x / 2);
+        endPos.y = Mathf.Clamp(endPos.y, startSize.y / 2, Screen.height - startSize.y / 2);
+
+        float fadeDuration = 2f; // Duration of the fade-in effect
+        float moveDuration = 2f; // Duration of the move
+        float scaleDuration = 1f; // Duration for scaling down
+        float elapsed = 0f;
+
+        // Reset position to initial before starting animation
+        rt.anchoredPosition = startPos;
+        rt.sizeDelta = startSize;
+        tmpText.fontSize = 30; // Set an initial font size, adjust if needed
+
+        // Fade in the text
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / fadeDuration);
+            floorNotificationCanvasGroup.alpha = t;
+            yield return null;
+        }
+
+        // Ensure fully opaque at the end of fade
+        floorNotificationCanvasGroup.alpha = 1;
+
+        // Move the text to the target position and scale it down
+        Vector2 initialSize = rt.sizeDelta; // Store the initial size
+        Vector2 initialPos = rt.anchoredPosition; // Store the initial position
+        elapsed = 0f;
+
+        while (elapsed < moveDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / moveDuration);
+
+            // Interpolate position
+            rt.anchoredPosition = Vector2.Lerp(initialPos, endPos, t);
+
+            // Interpolate size and font size
+            rt.sizeDelta = Vector2.Lerp(initialSize, targetSize, t);
+            tmpText.fontSize = Mathf.RoundToInt(Mathf.Lerp(30, 15, t)); // Adjust starting and ending font sizes
+
+            yield return null;
+        }
+
+        // Ensure the final position and size are set
+        rt.anchoredPosition = endPos;
+        rt.sizeDelta = targetSize;
+        tmpText.fontSize = Mathf.RoundToInt(15); // Final font size
+
+        // Ensure the CanvasGroup alpha remains at 1
+        floorNotificationCanvasGroup.alpha = 1;
+
+        // Ensure the text stays visible
+        floorNotificationText.gameObject.SetActive(true);
+    }
 
     private void GenerateRooms(HashSet<Vector2Int> potentialRoomPositions)
     {
@@ -78,7 +172,6 @@ using UnityEngine.Events;
         List<Vector2Int> deadEnds = FindAllDeadEnds(floorPositions);
 
         CreateRoomsAtDeadEnd(deadEnds, roomPositions);
-
         floorPositions.UnionWith(roomPositions);
 
         tilemapVisualizer.PaintFloorTiles(floorPositions);
@@ -122,7 +215,7 @@ using UnityEngine.Events;
             {
                 if (floorPositions.Contains(position + direction))
                     neighboursCount++;
-                
+
             }
             if (neighboursCount == 1)
                 deadEnds.Add(position);
@@ -140,7 +233,7 @@ using UnityEngine.Events;
         foreach (var roomPosition in roomsToCreate)
         {
             var roomFloor = RunRandomWalk(randomWalkParameters, roomPosition);
-            
+
             SaveRoomData(roomPosition, roomFloor);
             roomPositions.UnionWith(roomFloor);
         }
@@ -159,7 +252,7 @@ using UnityEngine.Events;
         roomColors.Add(UnityEngine.Random.ColorHSV());
     }
 
-    private void CreateCorridors(HashSet<Vector2Int> floorPositions, 
+    private void CreateCorridors(HashSet<Vector2Int> floorPositions,
         HashSet<Vector2Int> potentialRoomPositions)
     {
         var currentPosition = startPosition;
@@ -173,6 +266,33 @@ using UnityEngine.Events;
             floorPositions.UnionWith(corridor);
         }
         corridorPositions = new HashSet<Vector2Int>(floorPositions);
+    }
+
+    // Call this when the boss is defeated
+    public void OnBossDefeated()
+    {
+        bossKills++; // Increment boss kill count
+        corridorCount += 4; // Increase corridor count by 4 each time
+
+        // Increment the floor number
+        currentFloor++;
+
+        // Regenerate the dungeon
+        StartCoroutine(RegenerateDungeon());
+    }
+
+    private IEnumerator RegenerateDungeon()
+    {
+        yield return new WaitForSeconds(1); // A brief delay to simulate transition
+
+        // Clear current dungeon
+        tilemapVisualizer.Clear();
+
+        // Run procedural generation with updated corridor count
+        RunProceduralGeneration();
+
+        // Show floor notification with effects
+        StartCoroutine(ShowFloorNotification());
     }
 
     private void OnDrawGizmosSelected()
@@ -202,5 +322,4 @@ using UnityEngine.Events;
             }
         }
     }
-
 }
