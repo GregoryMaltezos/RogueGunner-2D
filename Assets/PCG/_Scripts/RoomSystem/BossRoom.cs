@@ -9,6 +9,9 @@ public class BossRoom : RoomGenerator
 
     public List<EnemyPlacementData> bossPlacementData; // List should contain only the boss data
 
+    private Queue<EnemyPlacementData> recentBosses = new Queue<EnemyPlacementData>();
+    private const int MaxRecentBosses = 2; // Number of previous bosses to keep track of
+
     public override List<GameObject> ProcessRoom(Vector2Int roomCenter, HashSet<Vector2Int> roomFloor, HashSet<Vector2Int> roomFloorNoCorridors)
     {
         ItemPlacementHelper itemPlacementHelper =
@@ -20,23 +23,54 @@ public class BossRoom : RoomGenerator
         // Ensure we have at least one boss to place
         if (bossPlacementData != null && bossPlacementData.Count > 0)
         {
-            // Get the boss data (assuming the first entry is the boss)
-            EnemyPlacementData bossData = bossPlacementData[0];
+            // Choose a boss that hasn't been recently spawned
+            EnemyPlacementData bossData = ChooseBoss();
 
-            // Attempt to place the boss
-            Vector2Int positionToPlace = FindValidPositionNearCenter(roomCenter, roomFloor);
-            if (positionToPlace != null)
+            if (bossData != null)
             {
-                // Use the PlaceSingleItem method to place the boss
-                GameObject boss = prefabPlacer.PlaceSingleItem(bossData.enemyPrefab, positionToPlace);
-                if (boss != null)
+                // Attempt to place the boss
+                Vector2Int positionToPlace = FindValidPositionNearCenter(roomCenter, roomFloor);
+                if (positionToPlace != null)
                 {
-                    placedObjects.Add(boss);
+                    // Use the PlaceSingleItem method to place the boss
+                    GameObject boss = prefabPlacer.PlaceSingleItem(bossData.enemyPrefab, positionToPlace);
+                    if (boss != null)
+                    {
+                        placedObjects.Add(boss);
+                    }
                 }
             }
         }
 
         return placedObjects;
+    }
+
+    private EnemyPlacementData ChooseBoss()
+    {
+        // Get a list of available bosses excluding the recent ones
+        List<EnemyPlacementData> availableBosses = new List<EnemyPlacementData>(bossPlacementData);
+        foreach (var recentBoss in recentBosses)
+        {
+            availableBosses.Remove(recentBoss);
+        }
+
+        // If no bosses are available, fallback to all bosses
+        if (availableBosses.Count == 0)
+        {
+            availableBosses = new List<EnemyPlacementData>(bossPlacementData);
+        }
+
+        // Choose a random boss from the available ones
+        EnemyPlacementData chosenBoss = availableBosses[UnityEngine.Random.Range(0, availableBosses.Count)];
+
+        // Update the recent bosses queue
+        if (recentBosses.Count >= MaxRecentBosses)
+        {
+            recentBosses.Dequeue();
+        }
+        recentBosses.Enqueue(chosenBoss);
+
+        return chosenBoss;
     }
 
     private Vector2Int FindValidPositionNearCenter(Vector2Int center, HashSet<Vector2Int> validPositions)

@@ -172,6 +172,7 @@ MonoBehaviour:
   - {fileID: 5141202351538643788, guid: f15a722adceb2c54285065954d88ec30, type: 3}
   - {fileID: 2837518685893780112, guid: a87d756d76d7c3d47a8b71a101492b64, type: 3}
   - {fileID: 1820405049787079124, guid: e05377fad637bd745b642aa42ed65548, type: 3}
+  - {fileID: 5480294149958017964, guid: 44b7b3b2c5255604abd902b4deb71a51, type: 3}
   spawnPoint: {fileID: 6450105357964119813}
   interactionDistance: 1.2
   hoverHeight: 0.2

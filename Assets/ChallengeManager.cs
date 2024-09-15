@@ -68,11 +68,13 @@ public class ChallengeManager : MonoBehaviour
             challenges.Add(new Challenge("WalkDistance", 1000f, 0, 0f, 1, false)); // Requires walking 1000 units
             challenges.Add(new Challenge("DefeatEnemiesQuickly", 0f, 3, 3f, 2, false)); // Defeat 3 enemies within 3 seconds
             challenges.Add(new Challenge("GrenadeKills", 0f, 15, 0f, 3, false)); // Get 15 grenade kills
+            challenges.Add(new Challenge("DefeatBoss1", 0f, 1, 0f, 4, false)); // New challenge to defeat boss with ID 1
 
             // Save initialized challenges
             SaveChallenges();
         }
     }
+
 
     public void CompleteChallenge(string challengeId, float distance = 0f, int kills = 0, float time = 0f)
     {
@@ -95,11 +97,24 @@ public class ChallengeManager : MonoBehaviour
             {
                 CompleteGrenadeKillsChallenge(challengeToComplete);
             }
+            else if (challengeId == "DefeatBoss1") // Handle the new challenge
+            {
+                CompleteDefeatBoss1Challenge(challengeToComplete);
+            }
         }
         else
         {
             Debug.LogWarning("Challenge not found or already completed: " + challengeId);
         }
+    }
+
+    void CompleteDefeatBoss1Challenge(Challenge challenge)
+    {
+        challenge.completed = true;
+        SaveChallenges();
+        Debug.Log("Challenge completed: " + challenge.challengeId);
+        Debug.Log("Weapon unlocked: " + challenge.weaponIndexToUnlock);
+        GameProgressManager.instance.UnlockWeapon(challenge.weaponIndexToUnlock); // Unlock the weapon
     }
 
     void CompleteDieOnceChallenge(Challenge challenge)
@@ -143,6 +158,7 @@ public class ChallengeManager : MonoBehaviour
         File.WriteAllText(saveFilePath, json);
     }
 
+
     public void LoadChallenges()
     {
         if (File.Exists(saveFilePath))
@@ -157,6 +173,7 @@ public class ChallengeManager : MonoBehaviour
             challenges = new List<Challenge>();
         }
     }
+
 
     public void IncrementGrenadeKills()
     {

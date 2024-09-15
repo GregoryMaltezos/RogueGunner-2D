@@ -241,6 +241,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slider: {fileID: 6551645746339622492}
   maxHp: 100
+  bossId: 1
 --- !u!1001 &4348728172090143331
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -195,6 +195,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slider: {fileID: 7253115964904793906}
   maxHp: 100
+  bossId: 3
 --- !u!61 &8125896018060994580
 BoxCollider2D:
   m_ObjectHideFlags: 0

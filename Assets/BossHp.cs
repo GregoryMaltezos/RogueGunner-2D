@@ -8,6 +8,8 @@ public class BossHp : MonoBehaviour
     private float currentHp;
     private bool hasFlashed = false; // To ensure the flash only happens once
 
+    public string bossId; // Add this field for the boss ID
+
     private CorridorFirstDungeonGenerator dungeonGenerator; // Reference to the dungeon generator
 
     private void Start()
@@ -75,6 +77,12 @@ public class BossHp : MonoBehaviour
         if (dungeonGenerator != null)
         {
             dungeonGenerator.OnBossDefeated(); // Call the method to generate a new dungeon
+        }
+
+        // Complete challenge if this is the boss with ID "1"
+        if (bossId == "1")
+        {
+            ChallengeManager.instance.CompleteChallenge("DefeatBoss1");
         }
 
         Destroy(gameObject); // Destroy the boss object

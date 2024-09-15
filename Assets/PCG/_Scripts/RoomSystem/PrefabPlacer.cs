@@ -124,7 +124,7 @@ public class PrefabPlacer : MonoBehaviour
         }
         else
         {
-            Debug.Log("Item instantiated successfully at: " + placementPosition);
+    //        Debug.Log("Item instantiated successfully at: " + placementPosition);
         }
 
         return newItem;
