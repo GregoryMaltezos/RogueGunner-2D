@@ -43,40 +43,93 @@ public class ItemRoom : RoomGenerator
 
     private Vector3 GetAdjustedPosition(Vector3 originalPosition, HashSet<Vector2Int> roomFloorNoCorridors)
     {
-        Vector3 adjustedPosition = originalPosition;
-        RaycastHit2D hit = Physics2D.Raycast(originalPosition, Vector2.zero);
-
-        if (hit.collider != null)
+        // First, check if the original position and surroundings are valid
+        if (!IsPositionObstructedWithSurroundings(originalPosition, roomFloorNoCorridors))
         {
-            // If the original position is obstructed, find a nearby valid position
-            Vector2Int nearbyPosition = FindNearbyValidPosition(originalPosition, roomFloorNoCorridors);
-            if (nearbyPosition != Vector2Int.zero)
+            return originalPosition; // Return the original position if it's valid
+        }
+
+        // If obstructed, search for the nearest valid position
+        Vector2Int nearbyPosition = FindNearbyValidPosition(originalPosition, roomFloorNoCorridors);
+        if (nearbyPosition != Vector2Int.zero)
+        {
+            return new Vector3(nearbyPosition.x + 0.5f, nearbyPosition.y + 0.5f, 0);
+        }
+
+        // If no valid position is found, return Vector3.zero as a signal of failure
+        return Vector3.zero;
+    }
+
+    private bool IsPositionObstructed(Vector3 position)
+    {
+        // Check if there's an obstacle at the specified position
+        Collider2D hit = Physics2D.OverlapCircle(position, 0.3f); // Check with a small radius
+        return hit != null;
+    }
+
+    private bool IsPositionObstructedWithSurroundings(Vector3 position, HashSet<Vector2Int> roomFloorNoCorridors)
+    {
+        Vector2Int gridPos = new Vector2Int(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y));
+
+        // Check if the center position is valid
+        if (!roomFloorNoCorridors.Contains(gridPos) || IsPositionObstructed(position))
+        {
+            return true; // If the center is obstructed or outside valid room area
+        }
+
+        // Check all 8 surrounding positions (up, down, left, right, diagonals)
+        Vector2Int[] directions = {
+            new Vector2Int(-1, 0),  // Left
+            new Vector2Int(1, 0),   // Right
+            new Vector2Int(0, -1),  // Down
+            new Vector2Int(0, 1),   // Up
+            new Vector2Int(-1, -1), // Bottom-left
+            new Vector2Int(1, -1),  // Bottom-right
+            new Vector2Int(-1, 1),  // Top-left
+            new Vector2Int(1, 1)    // Top-right
+        };
+
+        foreach (Vector2Int dir in directions)
+        {
+            Vector2Int adjacentPos = gridPos + dir;
+            Vector3 adjacentWorldPos = new Vector3(adjacentPos.x + 0.5f, adjacentPos.y + 0.5f, 0);
+
+            // If any surrounding position is obstructed or outside the room bounds
+            if (!roomFloorNoCorridors.Contains(adjacentPos) || IsPositionObstructed(adjacentWorldPos))
             {
-                adjustedPosition = new Vector3(nearbyPosition.x + 0.5f, nearbyPosition.y + 0.5f, 0);
+                return true; // Invalid if any surrounding tile is blocked
             }
         }
 
-        return adjustedPosition;
+        // If the position and all surroundings are valid
+        return false;
     }
 
     private Vector2Int FindNearbyValidPosition(Vector3 originalPosition, HashSet<Vector2Int> roomFloorNoCorridors)
     {
-        Vector2Int nearbyPosition = Vector2Int.zero;
-        float maxDistance = 1f; // Maximum distance to search for a nearby valid position
+        Vector2Int originalGridPos = new Vector2Int(Mathf.RoundToInt(originalPosition.x), Mathf.RoundToInt(originalPosition.y));
 
-        for (float x = -maxDistance; x <= maxDistance; x++)
+        // Expand search radius dynamically
+        for (int radius = 1; radius <= 5; radius++) // Adjust 5 based on the room size
         {
-            for (float y = -maxDistance; y <= maxDistance; y++)
+            // Check positions around the original point in an expanding square
+            for (int x = -radius; x <= radius; x++)
             {
-                Vector2Int positionToCheck = new Vector2Int(Mathf.RoundToInt(originalPosition.x + x), Mathf.RoundToInt(originalPosition.y + y));
-                if (roomFloorNoCorridors.Contains(positionToCheck))
+                for (int y = -radius; y <= radius; y++)
                 {
-                    nearbyPosition = positionToCheck;
-                    break;
+                    Vector2Int positionToCheck = originalGridPos + new Vector2Int(x, y);
+
+                    // Ensure the position is part of the room, has no obstructions, and is surrounded by free space
+                    if (roomFloorNoCorridors.Contains(positionToCheck) &&
+                        !IsPositionObstructedWithSurroundings(new Vector3(positionToCheck.x + 0.5f, positionToCheck.y + 0.5f, 0), roomFloorNoCorridors))
+                    {
+                        return positionToCheck;
+                    }
                 }
             }
         }
 
-        return nearbyPosition;
+        // No valid position found within a reasonable radius
+        return Vector2Int.zero;
     }
 }

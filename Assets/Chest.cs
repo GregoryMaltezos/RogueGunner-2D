@@ -14,7 +14,20 @@ public class Chest : MonoBehaviour
     private GameObject spawnedWeapon; // Reference to the spawned weapon
     private Vector3 originalWeaponPosition; // Original position of the spawned weapon
 
-    void Update()
+    private CorridorFirstDungeonGenerator dungeonGenerator;
+
+    private void Start()
+    {
+        // Find the CorridorFirstDungeonGenerator in the scene
+        dungeonGenerator = FindObjectOfType<CorridorFirstDungeonGenerator>();
+
+        if (dungeonGenerator != null && dungeonGenerator.CurrentFloor == 1)
+        {
+            ResetChest(); // Reset the chest contents if on the first floor
+        }
+    }
+
+    private void Update()
     {
         // Check if the player is near and presses 'E' to open the chest
         if (Vector3.Distance(PlayerController.instance.transform.position, transform.position) < interactionDistance && Input.GetKeyDown(KeyCode.E) && !isOpen)
@@ -32,6 +45,8 @@ public class Chest : MonoBehaviour
 
     void OpenChest()
     {
+        if (isOpen) return; // If already open, do nothing
+
         isOpen = true;
         chestAnimator.SetTrigger("Open"); // Play the opening animation
 
@@ -44,19 +59,32 @@ public class Chest : MonoBehaviour
             return; // Exit without spawning anything
         }
 
-        // Check if there are unlocked weapons available
+        // Get the list of unlocked weapons and picked-up weapons
         List<int> unlockedWeapons = GameProgressManager.instance.GetUnlockedWeapons();
-        Debug.Log($"Unlocked weapons count: {unlockedWeapons.Count}");
-        Debug.Log("Unlocked weapons: " + string.Join(", ", unlockedWeapons));
+        List<int> pickedUpWeapons = WeaponManager.instance.GetPickedUpWeapons();
 
-        if (unlockedWeapons.Count > 0)
+        // Filter out weapons that the player has already picked up
+        List<int> availableWeapons = new List<int>();
+        foreach (int weaponIndex in unlockedWeapons)
         {
-            SpawnRandomWeapon(); // Spawn a random weapon
+            if (!pickedUpWeapons.Contains(weaponIndex)) // Only add weapons that have not been picked up yet
+            {
+                availableWeapons.Add(weaponIndex);
+            }
+        }
+
+        Debug.Log($"Available weapons count: {availableWeapons.Count}");
+
+        if (availableWeapons.Count > 0)
+        {
+            // Spawn a random weapon that hasn't been picked up yet
+            SpawnRandomWeapon(availableWeapons);
         }
         else
         {
-            Debug.LogWarning("No unlocked weapons available to spawn.");
-            // Optionally, you can play a different animation or effect for an empty chest
+            // If all weapons have been picked up, spawn from the full pool of unlocked weapons
+            Debug.Log("All weapons have been picked up. Resetting weapon pool to unlocked weapons.");
+            SpawnRandomWeapon(unlockedWeapons); // Spawn from all unlocked weapons
         }
     }
 
@@ -73,51 +101,37 @@ public class Chest : MonoBehaviour
         return false; // Return false if no challenges are completed
     }
 
-    void SpawnRandomWeapon()
+    void SpawnRandomWeapon(List<int> availableWeapons)
     {
-        List<int> unlockedWeapons = GameProgressManager.instance.GetUnlockedWeapons();
-        List<GameObject> availableWeapons = new List<GameObject>();
+        // Select a random weapon from the available weapons
+        int randomIndex = Random.Range(0, availableWeapons.Count);
+        int weaponIndex = availableWeapons[randomIndex];
+        GameObject spawnedWeaponPrefab = weaponPrefabs[weaponIndex];
 
-        // Collect unlocked weapon prefabs
-        foreach (int weaponIndex in unlockedWeapons)
-        {
-            if (weaponIndex < weaponPrefabs.Length)
-            {
-                availableWeapons.Add(weaponPrefabs[weaponIndex]);
-            }
-            else
-            {
-                Debug.LogWarning("Weapon index " + weaponIndex + " exceeds the number of weapon prefabs.");
-            }
-        }
+        // Spawn the weapon at the specified spawn point
+        spawnedWeapon = Instantiate(spawnedWeaponPrefab, spawnPoint.position, spawnPoint.rotation);
 
-        if (availableWeapons.Count > 0)
-        {
-            int randomIndex = Random.Range(0, availableWeapons.Count);
-            GameObject spawnedWeaponPrefab = availableWeapons[randomIndex];
+        // Ensure the weapon is initially active when spawned
+        spawnedWeapon.SetActive(true);
 
-            // Spawn the weapon at the specified spawn point
-            spawnedWeapon = Instantiate(spawnedWeaponPrefab, spawnPoint.position, spawnPoint.rotation);
+        // Store the original position for hovering effect
+        originalWeaponPosition = spawnedWeapon.transform.position;
 
-            // Ensure the weapon is initially active when spawned
-            spawnedWeapon.SetActive(true);
-
-            // Store the original position for hovering effect
-            originalWeaponPosition = spawnedWeapon.transform.position;
-
-            // Notify the WeaponManager or other relevant systems about the spawned weapon
-            NotifyWeaponPickedUp(spawnedWeapon);
-        }
-        else
-        {
-            Debug.LogWarning("No unlocked weapons available to spawn.");
-        }
+        // Notify the WeaponManager or other relevant systems about the spawned weapon
+        NotifyWeaponPickedUp(weaponIndex);
     }
 
     // Method to handle when a weapon is picked up from the chest
-    void NotifyWeaponPickedUp(GameObject weapon)
+    void NotifyWeaponPickedUp(int weaponIndex)
     {
-        // Implement any specific logic here if needed
-        Debug.Log("Weapon picked up from chest: " + weapon.name);
+        WeaponManager.instance.AddPickedUpWeapon(weaponIndex); // Add the weapon to the picked-up list
+        Debug.Log("Weapon picked up from chest: " + weaponPrefabs[weaponIndex].name);
+    }
+
+    // Method to reset chest contents for the first floor
+    private void ResetChest()
+    {
+        Debug.Log("Chest reset for the first floor.");
+        WeaponManager.instance.ResetPickedUpWeapons(); // Reset the list of picked-up weapons
     }
 }

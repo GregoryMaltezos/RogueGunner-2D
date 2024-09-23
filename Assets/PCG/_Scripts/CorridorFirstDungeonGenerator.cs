@@ -54,6 +54,8 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     public UnityEvent OnBossKilled;  // Event to trigger on boss kill
 
     private int bossKills = 0; // To keep track of how many times the boss was killed
+    private bool isFirstFloorGenerated = false; // Flag to check if the first floor is generated
+    public int CurrentFloor => currentFloor;
 
     protected override void RunProceduralGeneration()
     {
@@ -69,6 +71,12 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
 
     private void CorridorFirstGeneration()
     {
+        if (!isFirstFloorGenerated && currentFloor == 1)
+        {
+            ResetGunPreferences(); // Reset player prefs for guns when the first floor is generated
+            isFirstFloorGenerated = true; // Ensure the reset happens only once
+        }
+
         floorPositions = new HashSet<Vector2Int>();
         HashSet<Vector2Int> potentialRoomPositions = new HashSet<Vector2Int>();
 
@@ -215,7 +223,6 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
             {
                 if (floorPositions.Contains(position + direction))
                     neighboursCount++;
-
             }
             if (neighboursCount == 1)
                 deadEnds.Add(position);
@@ -277,8 +284,27 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         // Increment the floor number
         currentFloor++;
 
+        // Trigger the OnBossKilled event if needed
+        OnBossKilled?.Invoke();
+
+        // Save gun ammo data before regenerating the dungeon
+        WeaponManager.instance.SaveAllGunAmmoData();
+
         // Regenerate the dungeon
         StartCoroutine(RegenerateDungeon());
+    }
+
+    // Method to reset player preferences for guns
+    private void ResetGunPreferences()
+    {
+        PlayerPrefs.DeleteKey(WeaponManager.UnlockedGunsKey); // Remove the unlocked guns key
+        PlayerPrefs.DeleteKey(WeaponManager.EquippedGunIndicesKey); // Remove the equipped guns key
+        PlayerPrefs.DeleteKey(WeaponManager.PickedUpWeaponsKey); // Remove the picked-up weapons key
+        PlayerPrefs.DeleteKey(WeaponManager.GunAmmoKey); // Remove gun ammo key
+        PlayerPrefs.DeleteKey(WeaponManager.GunClipsKey); // Remove gun clips key
+        PlayerPrefs.DeleteKey(WeaponManager.GunClipAmmoKey); // Remove gun clip ammo key
+        PlayerPrefs.Save(); // Save changes
+        Debug.Log("Player gun preferences reset.");
     }
 
     private IEnumerator RegenerateDungeon()
@@ -291,6 +317,9 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         // Run procedural generation with updated corridor count
         RunProceduralGeneration();
 
+        // Restore guns for the new dungeon
+        WeaponManager.instance.RestoreAllGunAmmoData();
+
         // Show floor notification with effects
         StartCoroutine(ShowFloorNotification());
     }
@@ -302,6 +331,9 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
             int i = 0;
             foreach (var roomData in roomsDictionary)
             {
+                if (i >= roomColors.Count)
+                    break;
+
                 Color color = roomColors[i];
                 color.a = 0.5f;
                 Gizmos.color = color;

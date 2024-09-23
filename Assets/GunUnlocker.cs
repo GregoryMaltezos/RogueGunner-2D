@@ -46,8 +46,24 @@ public class GunUnlocker : MonoBehaviour
 
     void UnlockGun()
     {
-        weaponManager.UnlockGun(gunIndexToUnlock); // Call UnlockGun method in WeaponManager with specified gun index
-        Debug.Log("Gun unlocked!");
+        weaponManager.UnlockGun(gunIndexToUnlock); // Unlock the gun
+
+        // Check if the gun is already unlocked
+        if (!weaponManager.guns[gunIndexToUnlock].locked)
+        {
+            Gun gunComponent = weaponManager.guns[gunIndexToUnlock].gunObject.GetComponent<Gun>();
+            if (gunComponent != null)
+            {
+                gunComponent.RestoreAmmo(); // Restore all ammo including clips
+                Debug.Log("Ammo restored for unlocked gun!");
+            }
+        }
+        else
+        {
+            Debug.Log("Gun unlocked!");
+        }
+
         Destroy(gameObject); // Destroy the pickup item after unlocking the gun (optional)
     }
+
 }

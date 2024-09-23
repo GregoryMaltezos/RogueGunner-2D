@@ -1,33 +1,93 @@
 using UnityEngine;
+using System.Collections;
 
 public class Gun : MonoBehaviour
 {
-    public GameObject projectilePrefab; // The projectile prefab to instantiate
-    public Transform firePoint; // The point where the projectile will be spawned
-    public float projectileSpeed = 20f; // Speed of the projectile (adjustable in Inspector)
-    public bool isShotgun = false; // Indicates whether the gun should fire as a shotgun
-    public int shotgunPelletCount = 5; // Number of pellets for shotgun weapons (adjustable in Inspector)
-    public float shotgunSpreadAngle = 20f; // Spread angle for shotgun weapons (adjustable in Inspector)
-    public bool isAutomatic = false; // Indicates whether the gun should be automatic
-    public float fireRate = 0.1f; // Rate of fire for automatic weapons (adjustable in Inspector)
-    private bool facingRight = true; // Variable to track character's facing direction
-    private float nextFireTime = 0f; // Time until the next shot can be fired
+    public GameObject projectilePrefab;
+    public Transform firePoint;
+    public float projectileSpeed = 20f;
+    public bool isShotgun = false;
+    public int shotgunPelletCount = 5;
+    public float shotgunSpreadAngle = 20f;
+    public bool isAutomatic = false;
+    public float fireRate = 0.1f;
+    public int maxAmmo = 90;
+    public int ammoPerClip = 30;
+    public float reloadTime = 2f;
+    public bool infiniteAmmo = false;
+
+    [HideInInspector] public int currentClipAmmo;
+    [HideInInspector] public int bulletsRemaining;
+    [HideInInspector] public int clipsRemaining;
+
+    private bool isReloading = false;
+    private float nextFireTime = 0f;
+    private bool facingRight = true;
+    private int gunIndex;
+
+    void Start()
+    {
+        gunIndex = WeaponManager.instance.GetGunIndex(this.gameObject);
+        if (gunIndex != -1)
+        {
+            bulletsRemaining = WeaponManager.instance.GetGunBulletsRemaining(gunIndex);
+            clipsRemaining = WeaponManager.instance.GetGunClipsRemaining(gunIndex);
+            currentClipAmmo = WeaponManager.instance.GetGunClipAmmo(gunIndex);
+
+            if (currentClipAmmo <= 0 && !infiniteAmmo)
+            {
+                currentClipAmmo = ammoPerClip;
+                WeaponManager.instance.SetGunClipAmmo(gunIndex, currentClipAmmo);
+            }
+
+            Debug.Log($"Gun Initialized: GunIndex={gunIndex}, CurrentClipAmmo={currentClipAmmo}, BulletsRemaining={bulletsRemaining}, ClipsRemaining={clipsRemaining}");
+        }
+        else
+        {
+            Debug.LogWarning("Gun index not found in WeaponManager");
+        }
+    }
 
     void Update()
     {
+        if (isReloading)
+            return;
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            if (clipsRemaining > 0 || infiniteAmmo)
+            {
+                StartCoroutine(Reload());
+            }
+        }
+
         if (isAutomatic)
         {
             if (Input.GetButton("Fire1") && Time.time >= nextFireTime)
             {
-                nextFireTime = Time.time + fireRate;
-                Fire(); // Call the Fire method
+                if (infiniteAmmo || currentClipAmmo > 0)
+                {
+                    nextFireTime = Time.time + fireRate;
+                    Fire();
+                }
+                else if (clipsRemaining > 0)
+                {
+                    StartCoroutine(Reload());
+                }
             }
         }
         else
         {
             if (Input.GetButtonDown("Fire1"))
             {
-                Fire(); // Call the Fire method
+                if (infiniteAmmo || currentClipAmmo > 0)
+                {
+                    Fire();
+                }
+                else if (clipsRemaining > 0)
+                {
+                    StartCoroutine(Reload());
+                }
             }
         }
     }
@@ -36,10 +96,9 @@ public class Gun : MonoBehaviour
     {
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector3 shootDirection = mousePosition - firePoint.position;
-        shootDirection.z = 0; // Ensure the direction is 2D
-        shootDirection = shootDirection.normalized; // Normalize the shootDirection
+        shootDirection.z = 0;
+        shootDirection = shootDirection.normalized;
 
-        // Determine if the character should be facing right or left based on the mouse position
         if (shootDirection.x > 0 && !facingRight)
         {
             FlipCharacter();
@@ -51,44 +110,45 @@ public class Gun : MonoBehaviour
 
         if (!isShotgun)
         {
-            // Fire a single projectile without spread
             FireProjectile(shootDirection);
         }
         else
         {
-            // Fire multiple projectiles with spread for shotgun weapons
             for (int i = 0; i < shotgunPelletCount; i++)
             {
-                // Calculate spread angle for each pellet
                 float spreadAngle = Random.Range(-shotgunSpreadAngle / 2f, shotgunSpreadAngle / 2f);
                 Vector3 spreadDirection = Quaternion.Euler(0, 0, spreadAngle) * shootDirection;
-
-                // Fire projectile with spread
                 FireProjectile(spreadDirection);
+            }
+        }
+
+        if (!infiniteAmmo)
+        {
+            currentClipAmmo--;
+            Debug.Log($"Fired! Current Clip Ammo: {currentClipAmmo}");
+
+            if (currentClipAmmo <= 0 && clipsRemaining > 0)
+            {
+                StartCoroutine(Reload());
             }
         }
     }
 
     void FireProjectile(Vector3 shootDirection)
     {
-        // Instantiate the projectile
         GameObject projectileInstance = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
-        Rigidbody2D rb = projectileInstance.GetComponent<Rigidbody2D>(); // Get the Rigidbody2D component
+        Rigidbody2D rb = projectileInstance.GetComponent<Rigidbody2D>();
 
-        if (rb != null) // Ensure Rigidbody2D component exists
+        if (rb != null)
         {
-            // Set collision detection mode to continuous for fast-moving projectiles
             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-
-            // Adjust velocity based on player's facing direction
             Vector2 velocity = shootDirection * projectileSpeed;
             rb.velocity = velocity;
 
-            // Flip the projectile's local scale if the player is facing left
             if (!facingRight)
             {
                 Vector3 projectileScale = projectileInstance.transform.localScale;
-                projectileScale.x = Mathf.Abs(projectileScale.x) * -1; // Ensure X scale is negative
+                projectileScale.x = Mathf.Abs(projectileScale.x) * -1;
                 projectileInstance.transform.localScale = projectileScale;
             }
         }
@@ -100,12 +160,95 @@ public class Gun : MonoBehaviour
 
     void FlipCharacter()
     {
-        // Flip the character's facing direction
         facingRight = !facingRight;
-
-        // Multiply the player's x local scale by -1
         Vector3 theScale = transform.parent.localScale;
         theScale.x *= -1;
         transform.parent.localScale = theScale;
+    }
+
+    IEnumerator Reload()
+    {
+        if (isReloading) yield break;
+
+        isReloading = true;
+        Debug.Log("Reloading...");
+
+        yield return new WaitForSeconds(reloadTime);
+
+        if (infiniteAmmo)
+        {
+            currentClipAmmo = ammoPerClip;
+            Debug.Log($"Reloaded! Current Clip Ammo: {currentClipAmmo}");
+        }
+        else
+        {
+            if (clipsRemaining > 0)
+            {
+                int ammoToLoad = Mathf.Min(ammoPerClip, bulletsRemaining);
+                currentClipAmmo = ammoToLoad;
+                bulletsRemaining -= ammoToLoad;
+                clipsRemaining = bulletsRemaining / ammoPerClip;
+                Debug.Log($"Reloaded! Current Clip Ammo: {currentClipAmmo}, Bullets Remaining: {bulletsRemaining}, Clips Remaining: {clipsRemaining}");
+            }
+            else
+            {
+                Debug.Log("No clips remaining to reload.");
+            }
+        }
+
+        if (gunIndex != -1)
+        {
+            WeaponManager.instance.SetGunBulletsRemaining(gunIndex, bulletsRemaining);
+            WeaponManager.instance.SetGunClipsRemaining(gunIndex, clipsRemaining);
+            WeaponManager.instance.SetGunClipAmmo(gunIndex, currentClipAmmo);
+        }
+
+        isReloading = false;
+    }
+
+    void OnDisable()
+    {
+        // Store ammo when the gun is disabled
+        if (gunIndex != -1)
+        {
+            WeaponManager.instance.SetGunBulletsRemaining(gunIndex, bulletsRemaining);
+            WeaponManager.instance.SetGunClipsRemaining(gunIndex, clipsRemaining);
+            WeaponManager.instance.SetGunClipAmmo(gunIndex, currentClipAmmo);
+        }
+    }
+
+    public void RestoreAmmo()
+    {
+        if (!infiniteAmmo)
+        {
+            // Set the current clip ammo to the maximum per clip
+            currentClipAmmo = ammoPerClip;
+
+            // Calculate the total bullets remaining correctly
+            // Assuming bulletsRemaining should not be recalculated like this:
+            bulletsRemaining = (clipsRemaining * ammoPerClip) + bulletsRemaining - ammoPerClip; // Adjusting for the clip we just set
+
+            // Update clips remaining based on the new bullets remaining
+            clipsRemaining = Mathf.Clamp((maxAmmo - bulletsRemaining) / ammoPerClip, 0, maxAmmo / ammoPerClip); // Clamp to ensure it doesn't go negative
+            Debug.Log($"Ammo Restored - CurrentClipAmmo: {currentClipAmmo}, BulletsRemaining: {bulletsRemaining}, ClipsRemaining: {clipsRemaining}");
+        }
+        else
+        {
+            currentClipAmmo = ammoPerClip;
+        }
+
+        if (gunIndex != -1)
+        {
+            WeaponManager.instance.SetGunClipAmmo(gunIndex, currentClipAmmo);
+            WeaponManager.instance.SetGunBulletsRemaining(gunIndex, bulletsRemaining);
+            WeaponManager.instance.SetGunClipsRemaining(gunIndex, clipsRemaining);
+        }
+    }
+
+
+    // This method can be called when switching to this weapon to reset states
+    public void ResetReloadingState()
+    {
+        isReloading = false;
     }
 }

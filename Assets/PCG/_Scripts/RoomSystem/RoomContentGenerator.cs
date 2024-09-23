@@ -62,13 +62,13 @@ public class RoomContentGenerator : MonoBehaviour
     public void SetBossRoomPosition(Vector2Int position)
     {
         bossRoomPosition = position;
-        Debug.Log("Boss room position set to: " + position);
+      //  Debug.Log("Boss room position set to: " + position);
     }
 
     public void SetItemRoomPosition(Vector2Int position)
     {
         itemRoomPosition = position;
-        Debug.Log("Item room position set to: " + position);
+       // Debug.Log("Item room position set to: " + position);
     }
 
     private void SelectPlayerSpawnPoint(DungeonData dungeonData)
@@ -120,18 +120,21 @@ public class RoomContentGenerator : MonoBehaviour
 
     private void SpawnBossRoom(DungeonData dungeonData)
     {
-        // Debugging: Log dungeon data contents
-        foreach (var entry in dungeonData.roomsDictionary)
-        {
-            Debug.Log("Dungeon data entry: " + entry.Key);
-        }
-
-        // Find the farthest room from any room
         float maxDistance = float.MinValue;
         Vector2Int selectedBossRoomPosition = new Vector2Int();
 
+        // Get adjacent positions to the player room
+        List<Vector2Int> adjacentPositions = GetAdjacentPositions(playerRoomPosition);
+
         foreach (var roomData in dungeonData.roomsDictionary)
         {
+            // Skip if the room is adjacent to the player room
+            if (adjacentPositions.Contains(roomData.Key))
+            {
+                continue;
+            }
+
+            // Find the farthest room from any room (you can keep this logic or modify it)
             foreach (var otherRoomData in dungeonData.roomsDictionary)
             {
                 if (roomData.Key != otherRoomData.Key)
@@ -149,23 +152,16 @@ public class RoomContentGenerator : MonoBehaviour
         // Set the boss room position
         SetBossRoomPosition(selectedBossRoomPosition);
 
-        // Check if the boss room position exists in the dictionary
+        // Spawn the boss room (existing logic)
         if (dungeonData.roomsDictionary.ContainsKey(bossRoomPosition))
         {
-            // Debugging: Log boss room position found in dungeon data
-            Debug.Log("Boss room position found in dungeon data.");
-
-            // Spawn the boss room
             List<GameObject> bossRoomObjects = bossRoom.ProcessRoom(
                 bossRoomPosition,
                 dungeonData.roomsDictionary[bossRoomPosition], // Pass room floor data
                 dungeonData.GetRoomFloorWithoutCorridors(bossRoomPosition) // Pass room floor without corridors data
             );
 
-            // Add spawned boss room objects to the list of spawned objects
             spawnedObjects.AddRange(bossRoomObjects);
-
-            // Remove the boss room from the dictionary to avoid spawning it again
             dungeonData.roomsDictionary.Remove(bossRoomPosition);
         }
         else
@@ -173,6 +169,24 @@ public class RoomContentGenerator : MonoBehaviour
             Debug.LogWarning("Boss room position not found in dungeon data.");
         }
     }
+
+
+
+    private List<Vector2Int> GetAdjacentPositions(Vector2Int roomPosition)
+    {
+        List<Vector2Int> adjacentPositions = new List<Vector2Int>
+    {
+        roomPosition + Vector2Int.up,    // Above
+        roomPosition + Vector2Int.down,  // Below
+        roomPosition + Vector2Int.left,  // Left
+        roomPosition + Vector2Int.right  // Right
+    };
+
+        return adjacentPositions;
+    }
+
+
+
 
     private void SpawnItemRoom(DungeonData dungeonData)
     {
@@ -187,7 +201,7 @@ public class RoomContentGenerator : MonoBehaviour
         if (dungeonData.roomsDictionary.ContainsKey(itemRoomPosition))
         {
             // Debugging: Log item room position found in dungeon data
-            Debug.Log("Item room position found in dungeon data.");
+           // Debug.Log("Item room position found in dungeon data.");
 
             // Spawn the item room
             List<GameObject> itemRoomObjects = itemRoom.ProcessRoom(
@@ -204,7 +218,7 @@ public class RoomContentGenerator : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("Item room position not found in dungeon data.");
+          //  Debug.LogWarning("Item room position not found in dungeon data.");
         }
     }
 }
