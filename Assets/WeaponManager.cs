@@ -63,6 +63,7 @@ public class WeaponManager : MonoBehaviour
         }
 
         UpdateGunsVisibility();
+        GunUIManager.instance.UpdateUI(); // Update UI at the start of the game
     }
 
     void Update()
@@ -77,7 +78,7 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-    public void SwitchWeapon(int slotIndex)
+  public void SwitchWeapon(int slotIndex)
     {
         if (slotIndex >= 0 && slotIndex < equippedGunIndices.Count)
         {
@@ -100,10 +101,10 @@ public class WeaponManager : MonoBehaviour
                 // Update the current gun index to the new weapon
                 currentGunIndex = weaponIndex;
                 UpdateGunsVisibility();
+                GunUIManager.instance.UpdateUI(); // Update UI when weapon is switched
             }
         }
     }
-
 
 
     public void UnlockGun(int gunIndex)
@@ -189,11 +190,10 @@ public class WeaponManager : MonoBehaviour
 
             // Optionally add the gun to the picked-up weapons list
             AddPickedUpWeapon(gunIndex);
+            SwitchWeapon(equippedGunIndices.IndexOf(gunIndex));
+            GunUIManager.instance.OnWeaponPickup(gunIndex);
         }
     }
-
-
-
 
 
 
@@ -324,6 +324,7 @@ public class WeaponManager : MonoBehaviour
             SaveGunAmmoData();
             Debug.Log("Initialized default gun ammo data.");
         }
+        GunUIManager.instance.UpdateUI();
     }
 
     // Helper methods to serialize and deserialize dictionaries
@@ -363,6 +364,13 @@ public class WeaponManager : MonoBehaviour
         }
         return -1; // Return -1 if gun is not found
     }
+
+
+    public int GetCurrentGunIndex()
+    {
+        return currentGunIndex;
+    }
+
 
     void UpdateGunsVisibility()
     {
@@ -425,6 +433,17 @@ public class WeaponManager : MonoBehaviour
             }
         }
     }
+
+    public Gun GetGun(int gunIndex)
+    {
+        if (gunIndex >= 0 && gunIndex < guns.Count)
+        {
+            return guns[gunIndex].gunObject.GetComponent<Gun>();
+        }
+        return null;
+    }
+
+
 
     // Call this when the dungeon is regenerated to restore ammo data
     public void OnDungeonGenerated()

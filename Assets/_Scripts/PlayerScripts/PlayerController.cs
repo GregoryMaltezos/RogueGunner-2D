@@ -6,15 +6,14 @@ public class PlayerController : MonoBehaviour
 {
     public static PlayerController instance;
 
-
     public static event Action OnPlayerDeath;
     public static event Action<float> OnPlayerWalkDistance;
 
     public float moveSpeed = 5f;
-    public float dashSpeed = 10f; // Speed of the dash
-    public float dashDuration = 0.2f; // Duration of the dash in seconds
-    public float dashCooldown = 1f; // Cooldown between dashes in seconds
-    public float invincibilityDuration = 0.5f; // Duration of invincibility after dashing
+    public float dashSpeed = 10f;
+    public float dashDuration = 0.2f;
+    public float dashCooldown = 1f;
+    public float invincibilityDuration = 0.5f;
 
     private Rigidbody2D rb;
     private Vector2 movement;
@@ -25,8 +24,9 @@ public class PlayerController : MonoBehaviour
     private bool canDash = true;
     private bool isInvincible = false;
 
-
-
+    private Camera mainCamera; // For getting mouse position
+    private bool facingRight = true; // To track the player’s facing direction
+    public Transform weaponParent;
 
     void Awake()
     {
@@ -40,18 +40,19 @@ public class PlayerController : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponentInChildren<Animator>();
         spriteTransform = GetComponentInChildren<SpriteRenderer>().transform;
+        mainCamera = Camera.main;
 
         if (animator == null)
         {
             Debug.LogError("Animator not found. Make sure your character prefab has a child with an Animator component.");
         }
 
-        // Store the original scale
         originalScale = spriteTransform.localScale;
     }
 
@@ -73,28 +74,94 @@ public class PlayerController : MonoBehaviour
             Attack();
         }
 
-        // Flip the sprite based on the movement direction
-        if (movement.x < 0)
-        {
-            spriteTransform.localScale = new Vector3(-originalScale.x, originalScale.y, originalScale.z);
-        }
-        else if (movement.x > 0)
-        {
-            spriteTransform.localScale = originalScale;
-        }
+        // Flip the sprite based on the mouse position
+        Vector3 mousePos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        FlipPlayerBasedOnMouse(mousePos);
+
+        // Correct weapon orientation based on mouse position
+        CorrectWeaponOrientation(mousePos);
 
         // Update the Speed parameter in the Animator
         if (animator != null)
         {
-            // Check if the player is moving
             bool isMoving = movement.sqrMagnitude > 0;
             animator.SetBool("IsMoving", isMoving);
         }
     }
 
+    void FlipPlayerBasedOnMouse(Vector3 mousePos)
+    {
+        if (mousePos.x < transform.position.x && facingRight)
+        {
+            Flip();
+        }
+        else if (mousePos.x > transform.position.x && !facingRight)
+        {
+            Flip();
+        }
+    }
+
+    void Flip()
+    {
+        // Toggle the facing direction
+        facingRight = !facingRight;
+
+        // Flip the player sprite
+        Vector3 playerScale = transform.localScale;
+        playerScale.x *= -1; // Flip the player's scale
+        transform.localScale = playerScale;
+
+        // Ensure all gun objects under this GunRotation are flipped
+        if (weaponParent != null)
+        {
+            foreach (Transform gun in weaponParent)
+            {
+                // Reset the gun's scale before flipping
+                Vector3 gunScale = new Vector3(Mathf.Abs(gun.localScale.x), gun.localScale.y, gun.localScale.z);
+
+                // Flip the gun's scale
+                gunScale.x *= -1; // Flip the gun's scale
+                gun.localScale = gunScale;
+
+                // Call the UpdateGunRotation method on the gun scripts
+                GunRotation gunRotation = gun.GetComponent<GunRotation>();
+                if (gunRotation != null)
+                {
+                    gunRotation.UpdateGunRotation(); // Ensure the gun's rotation is updated immediately
+                }
+
+                // Debug: Log each gun's scale after setting
+                Debug.Log($"Gun Scale after Flip: {gun.localScale}");
+            }
+        }
+
+        // Debug: Log the player scale after flipping
+        Debug.Log($"Player Scale after Flip: {transform.localScale}");
+    }
+
+    // Method to correct the weapon orientation
+    void CorrectWeaponOrientation(Vector3 mousePos)
+    {
+        if (weaponParent != null)
+        {
+            foreach (Transform child in weaponParent)
+            {
+                GunRotation gunRotation = child.GetComponent<GunRotation>();
+                if (gunRotation != null)
+                {
+                    // Calculate the angle to rotate the gun towards the mouse
+                    Vector3 direction = mousePos - child.position;
+                    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+
+                    // Update the gun's rotation based on the angle
+                    child.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
+                }
+            }
+        }
+    }
+
     void Attack()
     {
-        // Trigger the attack animation
         if (animator != null)
         {
             animator.SetTrigger("Attack");
@@ -110,13 +177,13 @@ public class PlayerController : MonoBehaviour
         // Trigger Dash animation
         animator.SetTrigger("Dash");
 
-        // Wait for the duration of the dash
+        // Wait for the dash duration
         yield return new WaitForSeconds(dashDuration);
 
         isDashing = false;
         isInvincible = false;
 
-        // Start cooldown
+        // Start dash cooldown
         StartCoroutine(DashCooldown());
     }
 
@@ -130,15 +197,18 @@ public class PlayerController : MonoBehaviour
     {
         if (!isDashing)
         {
-            // Smooth Movement
             rb.velocity = movement * moveSpeed;
         }
     }
 
     public void Die()
     {
-        Debug.Log("Player died!"); // Example: Log message
-                                   // Add logic here to handle player death
+        Debug.Log("Player died!");
         OnPlayerDeath?.Invoke();
+    }
+
+    public bool IsFacingRight()
+    {
+        return facingRight;
     }
 }

@@ -9,8 +9,7 @@ public class BossRoom : RoomGenerator
 
     public List<EnemyPlacementData> bossPlacementData; // List should contain only the boss data
 
-    private Queue<EnemyPlacementData> recentBosses = new Queue<EnemyPlacementData>();
-    private const int MaxRecentBosses = 2; // Number of previous bosses to keep track of
+    private List<EnemyPlacementData> unusedBosses = new List<EnemyPlacementData>(); // Bosses yet to spawn
 
     public override List<GameObject> ProcessRoom(Vector2Int roomCenter, HashSet<Vector2Int> roomFloor, HashSet<Vector2Int> roomFloorNoCorridors)
     {
@@ -30,7 +29,7 @@ public class BossRoom : RoomGenerator
             {
                 // Attempt to place the boss
                 Vector2Int positionToPlace = FindValidPositionNearCenter(roomCenter, roomFloor);
-                if (positionToPlace != null)
+                if (positionToPlace != null && CanPlaceBoss(positionToPlace, roomFloor)) // Add the check here
                 {
                     // Use the PlaceSingleItem method to place the boss
                     GameObject boss = prefabPlacer.PlaceSingleItem(bossData.enemyPrefab, positionToPlace);
@@ -47,28 +46,17 @@ public class BossRoom : RoomGenerator
 
     private EnemyPlacementData ChooseBoss()
     {
-        // Get a list of available bosses excluding the recent ones
-        List<EnemyPlacementData> availableBosses = new List<EnemyPlacementData>(bossPlacementData);
-        foreach (var recentBoss in recentBosses)
+        // Initialize the unusedBosses list if it's empty
+        if (unusedBosses.Count == 0)
         {
-            availableBosses.Remove(recentBoss);
+            unusedBosses = new List<EnemyPlacementData>(bossPlacementData);
         }
 
-        // If no bosses are available, fallback to all bosses
-        if (availableBosses.Count == 0)
-        {
-            availableBosses = new List<EnemyPlacementData>(bossPlacementData);
-        }
+        // Choose a random boss from the unused ones
+        EnemyPlacementData chosenBoss = unusedBosses[UnityEngine.Random.Range(0, unusedBosses.Count)];
 
-        // Choose a random boss from the available ones
-        EnemyPlacementData chosenBoss = availableBosses[UnityEngine.Random.Range(0, availableBosses.Count)];
-
-        // Update the recent bosses queue
-        if (recentBosses.Count >= MaxRecentBosses)
-        {
-            recentBosses.Dequeue();
-        }
-        recentBosses.Enqueue(chosenBoss);
+        // Remove the chosen boss from the unused list so it doesn't spawn again
+        unusedBosses.Remove(chosenBoss);
 
         return chosenBoss;
     }
@@ -104,5 +92,33 @@ public class BossRoom : RoomGenerator
         }
 
         return nearestPosition;
+    }
+
+    // New method to check if the boss can be placed
+    private bool CanPlaceBoss(Vector2Int position, HashSet<Vector2Int> validPositions)
+    {
+        int emptySpaces = 0;
+
+        // Check all 8 surrounding positions
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                if (x == 0 && y == 0) continue; // Skip the center position
+                Vector2Int adjacentPosition = position + new Vector2Int(x, y);
+                if (validPositions.Contains(adjacentPosition))
+                {
+                    emptySpaces++;
+                }
+
+                // If we already found 2 empty spaces, we can return true
+                if (emptySpaces >= 2)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false; // Not enough empty spaces
     }
 }

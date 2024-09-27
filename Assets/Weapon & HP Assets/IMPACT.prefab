@@ -94,9 +94,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93444dd71c618ad4e835540edfa5d228, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  throwForce: 10
+  throwForce: 80
   spinForce: 100
   explosionEffectPrefab: {fileID: 5583357990724408602, guid: 56e93fce7891e9d43adf5d0f50a6dc18, type: 3}
   explosionLayers:
     serializedVersion: 2
     m_Bits: 32503
+  explosionRadius: 4.67
+  explosionDamage: 30

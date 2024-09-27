@@ -100,10 +100,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21a084ca384611d4297dde89f0fa93d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  throwForce: 5
+  throwForce: 7
   explosionDelay: 3
-  spinForce: 100
+  spinForce: 40
   explosionEffectPrefab: {fileID: 5583357990724408602, guid: 56e93fce7891e9d43adf5d0f50a6dc18, type: 3}
+  explosionRadius: 2.1
+  explosionDamage: 18
+  playerIgnoreDuration: 1
+  speedReductionRate: 1
+  bounceSpeedReductionFactor: 1
 --- !u!50 &-1694565066842884045
 Rigidbody2D:
   serializedVersion: 4
@@ -176,5 +181,5 @@ SortingGroup:
   m_Enabled: 1
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 5
+  m_SortingOrder: 26
   m_SortAtRoot: 0
