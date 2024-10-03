@@ -62,6 +62,10 @@ public class Gun : MonoBehaviour
 
     void Update()
     {
+        // Check if the game is paused; if so, skip any firing logic
+        if (FindObjectOfType<PauseMenu>().IsPaused) // Check pause state
+            return;
+
         if (isReloading)
             return;
 
@@ -89,6 +93,7 @@ public class Gun : MonoBehaviour
         }
     }
 
+
     void AttemptToFire()
     {
         if (infiniteAmmo || currentClipAmmo > 0)
@@ -111,7 +116,7 @@ public class Gun : MonoBehaviour
         shootDirection = shootDirection.normalized;
 
         // Determine if the gun should flip based on shoot direction
-       
+
 
         // Fire the projectile(s)
         if (!isShotgun)
@@ -155,7 +160,7 @@ public class Gun : MonoBehaviour
                 // Decrement for display purposes
                 currentClipAmmo--; // Decrement the visual clip ammo
                 shotsFired++; // Increase shots fired count
-                Debug.Log($"Fired! Current Clip Ammo: {currentClipAmmo}");
+                              //  Debug.Log($"Fired! Current Clip Ammo: {currentClipAmmo}");
 
                 // Update the WeaponManager with the new ammo state
                 WeaponManager.instance.SetGunClipAmmo(WeaponManager.instance.GetCurrentGunIndex(), currentClipAmmo);

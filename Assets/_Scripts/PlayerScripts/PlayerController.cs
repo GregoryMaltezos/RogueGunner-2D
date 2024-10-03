@@ -22,8 +22,9 @@ public class PlayerController : MonoBehaviour
     private Vector3 originalScale;
     private bool isDashing = false;
     private bool canDash = true;
-    private bool isInvincible = false;
+    public bool isInvincible = false;
 
+    private BoxCollider2D playerCollider; // Reference to the player's BoxCollider2D
     private Camera mainCamera; // For getting mouse position
     private bool facingRight = true; // To track the player’s facing direction
     public Transform weaponParent;
@@ -47,6 +48,7 @@ public class PlayerController : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
         spriteTransform = GetComponentInChildren<SpriteRenderer>().transform;
         mainCamera = Camera.main;
+        playerCollider = GetComponent<BoxCollider2D>(); // Get the player's BoxCollider2D
 
         if (animator == null)
         {
@@ -129,14 +131,8 @@ public class PlayerController : MonoBehaviour
                 {
                     gunRotation.UpdateGunRotation(); // Ensure the gun's rotation is updated immediately
                 }
-
-                // Debug: Log each gun's scale after setting
-                Debug.Log($"Gun Scale after Flip: {gun.localScale}");
             }
         }
-
-        // Debug: Log the player scale after flipping
-        Debug.Log($"Player Scale after Flip: {transform.localScale}");
     }
 
     // Method to correct the weapon orientation
@@ -172,15 +168,26 @@ public class PlayerController : MonoBehaviour
     {
         isDashing = true;
         canDash = false;
+
+        // Disable collider and make the player invincible
+        playerCollider.enabled = false;
         isInvincible = true;
 
         // Trigger Dash animation
         animator.SetTrigger("Dash");
 
+        // Dash movement
+        rb.velocity = movement * dashSpeed;
+
         // Wait for the dash duration
         yield return new WaitForSeconds(dashDuration);
 
+        // End dash
         isDashing = false;
+        rb.velocity = Vector2.zero; // Stop dash movement
+
+        // Re-enable the collider after dash and end invincibility
+        playerCollider.enabled = true;
         isInvincible = false;
 
         // Start dash cooldown

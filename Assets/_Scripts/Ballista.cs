@@ -32,7 +32,7 @@ public class Ballista : MonoBehaviour
 
         if (distanceToPlayer <= detectionRange)
         {
-            Debug.Log("Player detected");
+           // Debug.Log("Player detected");
 
             Vector2 direction = (player.position - transform.position).normalized;
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
@@ -49,13 +49,13 @@ public class Ballista : MonoBehaviour
         }
         else
         {
-            Debug.Log("Player out of range");
+         //   Debug.Log("Player out of range");
         }
     }
 
     private void Shoot()
     {
-        Debug.Log("Shooting projectile");
+      //  Debug.Log("Shooting projectile");
 
         GameObject projectile = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
         Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
@@ -69,7 +69,7 @@ public class Ballista : MonoBehaviour
         if (animator != null)
         {
             animator.SetTrigger("Shoot");
-            Debug.Log("Shoot trigger set");
+          //  Debug.Log("Shoot trigger set");
         }
         else
         {

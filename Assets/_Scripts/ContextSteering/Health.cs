@@ -107,6 +107,7 @@ public class Health : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        // Check for collision with a bullet
         if (collision.gameObject.CompareTag("FrBullet"))
         {
             Bullet bullet = collision.gameObject.GetComponent<Bullet>();
@@ -115,6 +116,13 @@ public class Health : MonoBehaviour
                 GetHit(bullet.damage, collision.gameObject);
                 Destroy(collision.gameObject);
             }
+        }
+
+        // Check for collision with a sword
+        if (collision.gameObject.CompareTag("Sword"))
+        {
+            // Apply 10 damage when hit by a sword
+            GetHit(10, collision.gameObject);
         }
     }
 }

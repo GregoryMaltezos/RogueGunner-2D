@@ -11,6 +11,7 @@ TagManager:
   - Enemy
   - Obstacle
   - BodyAttackCollider
+  - Sword
   layers:
   - Default
   - TransparentFX
@@ -31,7 +32,7 @@ TagManager:
   - Floor
   - RedHood
   - BodyAttackCollider
-  - 
+  - Sword
   - 
   - 
   - 

@@ -38,6 +38,19 @@ public class BossRoom : RoomGenerator
                         placedObjects.Add(boss);
                     }
                 }
+                else
+                {
+                    // If the initial position is invalid, try to find another valid position
+                    positionToPlace = RetryFindValidPosition(roomCenter, roomFloor);
+                    if (positionToPlace != null && CanPlaceBoss(positionToPlace, roomFloor))
+                    {
+                        GameObject boss = prefabPlacer.PlaceSingleItem(bossData.enemyPrefab, positionToPlace);
+                        if (boss != null)
+                        {
+                            placedObjects.Add(boss);
+                        }
+                    }
+                }
             }
         }
 
@@ -94,31 +107,73 @@ public class BossRoom : RoomGenerator
         return nearestPosition;
     }
 
-    // New method to check if the boss can be placed
+    // New method to retry finding a valid position if the initial one fails
+    private Vector2Int RetryFindValidPosition(Vector2Int center, HashSet<Vector2Int> validPositions)
+    {
+        int retries = 0;
+        Vector2Int validPosition = center; // Start checking from the center
+
+        while (retries < 5) // Limit the number of retries to avoid potential infinite loops
+        {
+            validPosition = FindValidPositionNearCenter(center + new Vector2Int(UnityEngine.Random.Range(-3, 3), UnityEngine.Random.Range(-3, 3)), validPositions);
+            if (validPositions.Contains(validPosition))
+            {
+                return validPosition;
+            }
+            retries++;
+        }
+
+        return validPosition; // Return the last attempted position (which may not be valid)
+    }
+
     private bool CanPlaceBoss(Vector2Int position, HashSet<Vector2Int> validPositions)
     {
         int emptySpaces = 0;
+        float checkRadius = 1.0f; // Define a small radius to check for obstacles
 
         // Check all 8 surrounding positions
         for (int x = -1; x <= 1; x++)
         {
             for (int y = -1; y <= 1; y++)
             {
-                if (x == 0 && y == 0) continue; // Skip the center position
+                if (x == 0 && y == 0) continue; // Skip the center position (the boss's intended position)
+
                 Vector2Int adjacentPosition = position + new Vector2Int(x, y);
+
+                // Check if the adjacent position is within valid positions (room floor)
                 if (validPositions.Contains(adjacentPosition))
                 {
                     emptySpaces++;
                 }
-
-                // If we already found 2 empty spaces, we can return true
-                if (emptySpaces >= 2)
-                {
-                    return true;
-                }
             }
         }
 
-        return false; // Not enough empty spaces
+        // Perform a physics check for obstacles around the boss's intended position
+        if (!IsAreaFreeOfObstacles(position, checkRadius))
+        {
+            return false; // If any obstacles are found, the boss cannot be placed
+        }
+
+        // Boss can be placed if there are enough empty spaces and no obstacles
+        return emptySpaces >= 2;
+    }
+
+    private bool IsAreaFreeOfObstacles(Vector2Int position, float radius)
+    {
+        // Convert the Vector2Int position to a Vector3 or Vector2, depending on your setup
+        Vector2 positionInWorld = new Vector2(position.x, position.y);
+
+        // Check for colliders within the specified radius
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(positionInWorld, radius);
+
+        foreach (Collider2D collider in colliders)
+        {
+            if (collider.CompareTag("Obstacle"))
+            {
+                return false; // An obstacle was found
+            }
+        }
+
+        return true; // No obstacles found
     }
 }

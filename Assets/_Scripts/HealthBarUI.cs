@@ -31,7 +31,7 @@ public class HealthBarUI : MonoBehaviour
 
             if (playerHealth != null)
             {
-                Debug.Log($"PlayerHealth reference found: Current Health = {playerHealth.currentHealth}, Max Health = {playerHealth.maxHealth}");
+               // Debug.Log($"PlayerHealth reference found: Current Health = {playerHealth.currentHealth}, Max Health = {playerHealth.maxHealth}");
                 StartCoroutine(UpdateHealthBarSmoothly());  // Start coroutine for smooth update
             }
         }
@@ -45,7 +45,7 @@ public class HealthBarUI : MonoBehaviour
             float targetValue = Mathf.Clamp01(playerHealth.currentHealth / playerHealth.maxHealth);
             float elapsedTime = 0f;
 
-            Debug.Log($"Starting health bar update: Start Value = {startValue}, Target Value = {targetValue}");
+          //  Debug.Log($"Starting health bar update: Start Value = {startValue}, Target Value = {targetValue}");
 
             while (elapsedTime < animationDuration)
             {
@@ -56,7 +56,7 @@ public class HealthBarUI : MonoBehaviour
             }
 
             healthBarFill.fillAmount = targetValue;  // Ensure the final value is set
-            Debug.Log("Health bar update complete.");
+         //   Debug.Log("Health bar update complete.");
         }
         else
         {

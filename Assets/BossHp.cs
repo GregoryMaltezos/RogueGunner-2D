@@ -12,6 +12,8 @@ public class BossHp : MonoBehaviour
 
     private CorridorFirstDungeonGenerator dungeonGenerator; // Reference to the dungeon generator
 
+    [SerializeField] private GameObject portalPrefab; // Drag the Portal prefab here in the Inspector
+
     private void Start()
     {
         currentHp = maxHp; // Initialize HP
@@ -73,11 +75,8 @@ public class BossHp : MonoBehaviour
     {
         Debug.Log("Boss is dead!");
 
-        // Trigger dungeon regeneration
-        if (dungeonGenerator != null)
-        {
-            dungeonGenerator.OnBossDefeated(); // Call the method to generate a new dungeon
-        }
+        // Spawn the portal instead of immediately triggering the next floor
+        SpawnPortal();
 
         // Complete challenge if this is the boss with ID "1"
         if (bossId == "1")
@@ -86,5 +85,18 @@ public class BossHp : MonoBehaviour
         }
 
         Destroy(gameObject); // Destroy the boss object
+    }
+
+    private void SpawnPortal()
+    {
+        if (portalPrefab != null)
+        {
+            // Instantiate the portal at the boss's position or another suitable location
+            Instantiate(portalPrefab, transform.position, Quaternion.identity);
+        }
+        else
+        {
+            Debug.LogError("Portal prefab not assigned in the Inspector.");
+        }
     }
 }

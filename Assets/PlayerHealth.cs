@@ -11,7 +11,6 @@ public class PlayerHealth : MonoBehaviour
     public float respawnTime = 5f;  // Time before respawning the player
 
     private bool isDead = false;
-
     private HealthBarUI healthBarUI;  // Reference to the HealthBarUI script
 
     private void Start()
@@ -29,10 +28,15 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-
-
     private void OnTriggerEnter2D(Collider2D other)
     {
+        // Check if the player is invincible in PlayerController before applying damage
+        if (PlayerController.instance != null && PlayerController.instance.isInvincible)
+        {
+            // Player is invincible, so don't apply damage
+            return;
+        }
+
         DamageSource damageSource = other.GetComponent<DamageSource>();
         if (damageSource != null)
         {
@@ -45,7 +49,6 @@ public class PlayerHealth : MonoBehaviour
             }
         }
     }
-
 
     public void TakeDamage(float amount)
     {
@@ -102,5 +105,4 @@ public class PlayerHealth : MonoBehaviour
             healthBarUI.UpdateHealthBarSmoothly();
         }
     }
-
 }

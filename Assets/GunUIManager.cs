@@ -44,7 +44,7 @@ public class GunUIManager : MonoBehaviour
                 ammoText.text = $"{clipAmmo}/{bulletsRemaining}"; // Normal display
             }
 
-            Debug.Log($"Updating UI: Current Clip Ammo: {clipAmmo}, Total Bullets Remaining: {bulletsRemaining}");
+         //   Debug.Log($"Updating UI: Current Clip Ammo: {clipAmmo}, Total Bullets Remaining: {bulletsRemaining}");
         }
         else
         {
