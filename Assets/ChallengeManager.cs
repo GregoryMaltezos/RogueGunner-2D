@@ -104,7 +104,7 @@ public class ChallengeManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("Challenge not found or already completed: " + challengeId);
+           // Debug.LogWarning("Challenge not found or already completed: " + challengeId);
         }
     }
 

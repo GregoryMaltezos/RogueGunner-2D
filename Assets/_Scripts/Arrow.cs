@@ -26,15 +26,6 @@ public class Arrow : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-      
-
-        // Check if the arrow hits the player
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            Debug.Log("Hit the player! No damage taken.");
-            return; // Exit to prevent further checks
-        }
-
         // Handle collision with other objects
         Debug.Log("Arrow stuck on: " + collision.gameObject.name);
         StickToSurface(collision);
@@ -59,4 +50,3 @@ public class Arrow : MonoBehaviour
         transform.SetParent(collision.transform);
     }
 }
-

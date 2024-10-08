@@ -37,7 +37,7 @@ public class MainMenu : MonoBehaviour
         // Check if the mapRuntimeGenerator is set and call the StartDungeonGeneration method
         if (mapRuntimeGenerator != null)
         {
-            mapRuntimeGenerator.StartDungeonGeneration(); // Start dungeon generation
+           // mapRuntimeGenerator.StartDungeonGeneration(); // Start dungeon generation
         }
         else
         {

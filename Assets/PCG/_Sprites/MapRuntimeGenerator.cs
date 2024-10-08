@@ -6,20 +6,10 @@ using UnityEngine.Events;
 public class MapRuntimeGenerator : MonoBehaviour
 {
     public UnityEvent OnStart;
-
-    // Remove the Start method to prevent automatic invocation
-    // void Start() 
-    // {
-    //     OnStart?.Invoke();
-    // }
-
-    // Method to start dungeon generation, to be called from MainMenu
-    public void StartDungeonGeneration()
+    // Start is called before the first frame update
+    void Start()
     {
-        // Call the OnStart event when dungeon generation starts
         OnStart?.Invoke();
-
-        // Implement your dungeon generation logic here
-        Debug.Log("Dungeon generation started");
     }
+
 }

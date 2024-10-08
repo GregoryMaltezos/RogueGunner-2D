@@ -1,11 +1,11 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.SceneManagement; // Make sure to include this namespace
 
 public class PauseMenu : MonoBehaviour
 {
     public GameObject pauseMenuUI; // Reference to the pause menu UI
     public GameObject settingsPanel; // Reference to the settings panel UI
-    public GameObject otherCanvas; // Reference to the other canvas to disable
+    public GameObject otherCanvas; // Reference to the gameplay canvas
     private bool isPaused = false; // Track the pause state
     private GunController gunController; // Reference to the GunController
     private PlayerController playerController; // Reference to the PlayerController
@@ -27,7 +27,6 @@ public class PauseMenu : MonoBehaviour
         // Check if the Escape key is pressed
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            Debug.Log("Escape key pressed"); // Debug log
             if (isPaused)
             {
                 Resume(); // Resume the game
@@ -41,7 +40,6 @@ public class PauseMenu : MonoBehaviour
 
     public void Resume()
     {
-        Debug.Log("Resume button clicked");
         pauseMenuUI.SetActive(false); // Hide the pause menu
         settingsPanel.SetActive(false); // Hide the settings panel
         Time.timeScale = 1f; // Resume the game time
@@ -49,15 +47,11 @@ public class PauseMenu : MonoBehaviour
         SetCursorState(false); // Hide cursor in gameplay
         EnableGunController(true); // Enable GunController when resuming
         EnablePlayerController(true); // Enable PlayerController when resuming
-        if (otherCanvas != null) otherCanvas.SetActive(true); // Enable the other canvas
+        if (otherCanvas != null) otherCanvas.SetActive(true); // Enable the gameplay canvas
     }
 
     public void Pause()
     {
-        gunController = FindObjectOfType<GunController>();
-        playerController = FindObjectOfType<PlayerController>();
-
-        Debug.Log("Pause Menu Activated");
         pauseMenuUI.SetActive(true); // Show the pause menu
         settingsPanel.SetActive(false); // Ensure settings panel is hidden
         Time.timeScale = 0f; // Freeze the game time
@@ -65,19 +59,17 @@ public class PauseMenu : MonoBehaviour
         SetCursorState(true); // Show cursor in pause menu
         EnableGunController(false); // Disable GunController when paused
         EnablePlayerController(false); // Disable PlayerController when paused
-        if (otherCanvas != null) otherCanvas.SetActive(false); // Disable the other canvas
+        if (otherCanvas != null) otherCanvas.SetActive(false); // Disable the gameplay canvas
     }
 
     public void OpenSettings()
     {
-        Debug.Log("Settings button clicked");
         pauseMenuUI.SetActive(false); // Hide the pause menu UI
         settingsPanel.SetActive(true); // Show the settings panel
     }
 
     public void BackToPauseMenu()
     {
-        Debug.Log("Back to pause menu clicked");
         settingsPanel.SetActive(false); // Hide the settings panel
         pauseMenuUI.SetActive(true); // Show the pause menu UI
     }
@@ -85,19 +77,21 @@ public class PauseMenu : MonoBehaviour
     public void Restart()
     {
         Time.timeScale = 1f; // Reset time scale
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name); // Reload current scene
+        // Reload current scene
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    public void Quit()
+    public void QuitToMenu()
     {
-        Time.timeScale = 1f; // Reset time scale
-        Application.Quit(); // Quit the game
+        Time.timeScale = 1f; // Reset time scale to normal in case the game is paused
+
+        // Load the main menu scene
+        SceneManager.LoadScene("MainMenuScene"); // Replace "MainMenuScene" with the name of your main menu scene
     }
 
     private void SetCursorState(bool isVisible)
     {
         Cursor.visible = isVisible; // Set cursor visibility
-        // Cursor.lockState = isVisible ? CursorLockMode.None : CursorLockMode.Locked; // Lock or unlock cursor
     }
 
     private void EnableGunController(bool enable)

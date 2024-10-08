@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class DungeonData
 {
     public Dictionary<Vector2Int, HashSet<Vector2Int>> roomsDictionary;

@@ -29,6 +29,10 @@ public class WeaponManager : MonoBehaviour
     private Dictionary<int, int> gunClipsRemaining = new Dictionary<int, int>(); // Clips remaining for each gun
     private Dictionary<int, int> gunClipAmmo = new Dictionary<int, int>(); // Current clip ammo for each gun
 
+
+
+
+
     void Awake()
     {
         if (instance == null)

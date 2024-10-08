@@ -29,6 +29,10 @@ public class PlayerController : MonoBehaviour
     private bool facingRight = true; // To track the player’s facing direction
     public Transform weaponParent;
 
+    // Reference to PlayerHealth
+    public PlayerHealth playerHealth; // Reference to the PlayerHealth script
+    public int currentAmmo = 30; // Player's current ammo
+
     void Awake()
     {
         if (instance == null)
@@ -49,6 +53,8 @@ public class PlayerController : MonoBehaviour
         spriteTransform = GetComponentInChildren<SpriteRenderer>().transform;
         mainCamera = Camera.main;
         playerCollider = GetComponent<BoxCollider2D>(); // Get the player's BoxCollider2D
+
+        playerHealth = GetComponent<PlayerHealth>(); // Initialize PlayerHealth reference
 
         if (animator == null)
         {
@@ -169,12 +175,14 @@ public class PlayerController : MonoBehaviour
         isDashing = true;
         canDash = false;
 
-        // Disable collider and make the player invincible
-        playerCollider.enabled = false;
+        // Make the player invincible
         isInvincible = true;
 
         // Trigger Dash animation
         animator.SetTrigger("Dash");
+
+        // Set up layer collision ignoring
+        Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Arrow"), true);
 
         // Dash movement
         rb.velocity = movement * dashSpeed;
@@ -186,9 +194,11 @@ public class PlayerController : MonoBehaviour
         isDashing = false;
         rb.velocity = Vector2.zero; // Stop dash movement
 
-        // Re-enable the collider after dash and end invincibility
-        playerCollider.enabled = true;
+        // End invincibility after dash
         isInvincible = false;
+
+        // Restore layer collision
+        Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Arrow"), false);
 
         // Start dash cooldown
         StartCoroutine(DashCooldown());
@@ -208,6 +218,23 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // Method to detect collisions
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        // Check if colliding with obstacles while dashing
+        if (isDashing && collision.gameObject.CompareTag("Obstacle"))
+        {
+            // Handle collision with the obstacle
+            // You can add any specific behavior here if needed, like bouncing or stopping
+            // For now, we just let the physics engine handle it naturally.
+        }
+        else if (!isInvincible)
+        {
+            // Handle regular damage logic if not dashing and not invincible
+            // Call the player health logic or other behaviors here.
+        }
+    }
+
     public void Die()
     {
         Debug.Log("Player died!");
@@ -217,5 +244,9 @@ public class PlayerController : MonoBehaviour
     public bool IsFacingRight()
     {
         return facingRight;
+    }
+    public bool IsDashing()
+    {
+        return isDashing;
     }
 }

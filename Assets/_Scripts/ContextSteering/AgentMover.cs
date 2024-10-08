@@ -44,6 +44,15 @@ public class AgentMover : MonoBehaviour
             rb2d.velocity = Vector2.zero;
         }
     }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            // Check if the enemy is about to push the player away
+            // You could reset the enemy's velocity when colliding with the player.
+            rb2d.velocity = Vector2.zero; // Stops the enemy's movement when colliding with the player
+        }
+    }
 
     // Method to enable or disable movement
     public void SetMovement(bool enabled)

@@ -12,7 +12,7 @@ public class PlayerHealth : MonoBehaviour
 
     private bool isDead = false;
     private HealthBarUI healthBarUI;  // Reference to the HealthBarUI script
-
+    public const string PlayerHealthKey = "PlayerHealth";
     private void Start()
     {
         currentHealth = maxHealth;
@@ -97,7 +97,8 @@ public class PlayerHealth : MonoBehaviour
         UpdateHealthBar();  // Update health bar
     }
 
-    private void UpdateHealthBar()
+    // Make this method public
+    public void UpdateHealthBar()
     {
         if (healthBarUI != null)
         {
@@ -105,4 +106,28 @@ public class PlayerHealth : MonoBehaviour
             healthBarUI.UpdateHealthBarSmoothly();
         }
     }
+
+
+
+    public void SavePlayerHealth()
+    {
+        PlayerPrefs.SetFloat(PlayerHealthKey, currentHealth); // Save the current health
+        PlayerPrefs.Save(); // Save changes
+    }
+
+    public void LoadPlayerHealth()
+    {
+        if (PlayerPrefs.HasKey(PlayerHealthKey))
+        {
+            currentHealth = PlayerPrefs.GetFloat(PlayerHealthKey); // Load health from PlayerPrefs
+        }
+        else
+        {
+            currentHealth = maxHealth; // Default to max health if no data exists
+        }
+        UpdateHealthBar(); // Update the health bar to reflect loaded health
+    }
+
+
+
 }
