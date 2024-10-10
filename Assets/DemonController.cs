@@ -5,33 +5,41 @@ using UnityEngine;
 public class DemonController : MonoBehaviour
 {
     private Rigidbody2D rb2d;
+    private Agent agent;  // Reference to the Agent component
+    private Transform spriteTransform; // Reference to the sprite transform
+    private Health health; // Reference to the Health component
 
     [SerializeField]
     private float speed = 2f;                // Base speed of the enemy
     [SerializeField]
     private float maxSpeed = 2f;             // Maximum speed
     [SerializeField]
-    private float acceleration = 50f;         // Acceleration rate
-    [SerializeField]
-    private float deacceleration = 100f;      // Deceleration rate
+    private float acceleration = 50f;        // Acceleration rate
     [SerializeField]
     private float stopDistance = 2f;         // Distance from the player to maintain
-    [SerializeField]
-    private float avoidanceDistance = 1f;     // Distance to check for walls
     [SerializeField]
     private float minMovementTime = 0.5f;    // Minimum movement time
     [SerializeField]
     private float maxMovementTime = 1.5f;    // Maximum movement time
+    [SerializeField]
+    private float attackCooldown = 2f;       // Time between attacks
+    [SerializeField]
+    private float attackDuration = 1f;       // How long the attack lasts
 
     private Transform player;                // Reference to the player's transform
     private float currentSpeed = 0f;         // Current speed of the enemy
-    private Vector2 randomDirection;          // Direction to move in randomly
-    private float movementTimer;              // Timer to track random movement change
-    private bool canMove = true;              // Variable to control movement
+    private Vector2 randomDirection;         // Direction to move in randomly
+    private float movementTimer;             // Timer to track random movement change
+    private bool canMove = true;             // Variable to control movement
+    private bool isAttacking = false;        // Is the enemy currently attacking
+    private bool attackOnCooldown = false;   // Is the attack on cooldown
 
     void Awake()
     {
         rb2d = GetComponent<Rigidbody2D>();    // Get the Rigidbody2D component
+        agent = GetComponent<Agent>();         // Get the Agent component
+        health = GetComponent<Health>();       // Get the Health component
+        spriteTransform = transform.GetChild(0); // Assuming the sprite is the first child
     }
 
     void Start()
@@ -43,6 +51,13 @@ public class DemonController : MonoBehaviour
 
     void FixedUpdate()
     {
+        // Check if the demon is dead
+        if (health != null && health.isDead)
+        {
+            rb2d.velocity = Vector2.zero; // Stop all movement
+            return; // Exit the method if dead
+        }
+
         if (player == null)
         {
             FindPlayer();                      // If the player is null, keep trying to find them
@@ -51,7 +66,12 @@ public class DemonController : MonoBehaviour
 
         float distanceToPlayer = Vector2.Distance(rb2d.position, player.position);
 
-        if (canMove)
+        if (distanceToPlayer <= stopDistance && !isAttacking && !attackOnCooldown)
+        {
+            StartCoroutine(AttackPlayer());    // Start attack coroutine
+        }
+
+        if (canMove && !isAttacking)           // Move only if not attacking
         {
             if (distanceToPlayer > stopDistance)
             {
@@ -67,9 +87,9 @@ public class DemonController : MonoBehaviour
             // Apply velocity based on current speed
             rb2d.velocity = randomDirection * currentSpeed;
         }
-        else
+        else if (isAttacking)
         {
-            // If the agent can't move, stop all movement
+            // If attacking, stop movement
             rb2d.velocity = Vector2.zero;
         }
     }
@@ -93,15 +113,6 @@ public class DemonController : MonoBehaviour
         Vector2 directionToPlayer = ((Vector2)player.position - rb2d.position).normalized; // Calculate direction to the player
         randomDirection = Vector2.Lerp(randomDirection, directionToPlayer, 0.3f); // Blend between random direction and direction to player
 
-        // Check for wall collision ahead in the direction towards the player
-        RaycastHit2D hit = Physics2D.Raycast(rb2d.position, randomDirection, avoidanceDistance, LayerMask.GetMask("Obstacle"));
-
-        if (hit.collider != null) // If there's an obstacle in front
-        {
-            // Increase the weight of direction towards player
-            randomDirection = directionToPlayer * 1.5f; // Adjust the weight of the player's direction
-        }
-
         // Accelerate in the semi-random direction
         currentSpeed += acceleration * speed * Time.fixedDeltaTime;
         currentSpeed = Mathf.Clamp(currentSpeed, 0, maxSpeed);
@@ -115,16 +126,6 @@ public class DemonController : MonoBehaviour
         {
             SetRandomDirection(); // Set a new random direction
             movementTimer = Random.Range(minMovementTime, maxMovementTime); // Reset the timer
-        }
-
-        // Check for wall collision in the random movement direction
-        RaycastHit2D hit = Physics2D.Raycast(rb2d.position, randomDirection, avoidanceDistance, LayerMask.GetMask("Obstacle"));
-
-        if (hit.collider != null) // If there's an obstacle in front
-        {
-            // Increase the weight of direction towards player
-            Vector2 directionToPlayer = ((Vector2)player.position - rb2d.position).normalized; // Calculate direction to the player
-            randomDirection = directionToPlayer * 1.5f; // Adjust the weight of the player's direction
         }
 
         // Accelerate in the random direction
@@ -142,35 +143,35 @@ public class DemonController : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        // Optional: Visualize the stopDistance and avoidanceDistance for debugging
+        // Optional: Visualize the stopDistance for debugging
         if (player != null)
         {
             Gizmos.color = Color.green;
             Gizmos.DrawWireSphere(player.position, stopDistance);
         }
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(rb2d.position, avoidanceDistance); // Visualize the avoidance distance
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    // Coroutine to handle attack behavior
+    IEnumerator AttackPlayer()
     {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            // Check if the enemy is about to push the player away
-            rb2d.velocity = Vector2.zero; // Stops the enemy's movement when colliding with the player
-        }
+        isAttacking = true;                      // Set the attacking state
+        rb2d.velocity = Vector2.zero;            // Stop the enemy movement
+
+        // Make the agent perform the attack
+        agent.PerformAttack();                   // Trigger the attack using Agent script
+
+        // Wait for the attack duration
+        yield return new WaitForSeconds(attackDuration);
+
+        isAttacking = false;                     // End the attack
+        attackOnCooldown = true;                 // Set cooldown
+        StartCoroutine(AttackCooldown());
     }
 
-    // Method to enable or disable movement
-    public void SetMovement(bool enabled)
+    // Coroutine for attack cooldown
+    IEnumerator AttackCooldown()
     {
-        canMove = enabled;
-
-        // If movement is disabled, immediately stop the Rigidbody2D's velocity
-        if (!enabled)
-        {
-            rb2d.velocity = Vector2.zero;
-        }
+        yield return new WaitForSeconds(attackCooldown);
+        attackOnCooldown = false;
     }
 }

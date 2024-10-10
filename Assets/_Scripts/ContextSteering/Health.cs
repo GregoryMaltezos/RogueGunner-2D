@@ -10,7 +10,7 @@ public class Health : MonoBehaviour
     public UnityEvent<GameObject> OnHitWithReference, OnDeathWithReference;
 
     [SerializeField]
-    private bool isDead = false;
+    public bool isDead = false;
 
     private AgentAnimations agentAnimations;
     private AgentMover agentMover; // Reference to the component responsible for movement

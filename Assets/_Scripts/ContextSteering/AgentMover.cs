@@ -16,6 +16,10 @@ public class AgentMover : MonoBehaviour
     // Variable to control movement
     private bool canMove = true;
 
+    // Adjustable knockback force in the inspector
+    [SerializeField]
+    private float bulletKnockbackForce = 5f; // Default value, adjustable in inspector
+
     private void Awake()
     {
         rb2d = GetComponent<Rigidbody2D>();
@@ -44,13 +48,32 @@ public class AgentMover : MonoBehaviour
             rb2d.velocity = Vector2.zero;
         }
     }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            // Check if the enemy is about to push the player away
-            // You could reset the enemy's velocity when colliding with the player.
-            rb2d.velocity = Vector2.zero; // Stops the enemy's movement when colliding with the player
+            // Handle collision with the player
+            Vector2 knockbackDirection = (transform.position - collision.transform.position).normalized;
+            float knockbackForce = 5f; // Adjust as necessary
+            rb2d.velocity = Vector2.zero; // Reset velocity
+            rb2d.AddForce(knockbackDirection * knockbackForce, ForceMode2D.Impulse);
+        }
+        else if (collision.gameObject.CompareTag("FrBullet"))
+        {
+            // Handle collision with the bullet
+            Vector2 bulletVelocity = collision.relativeVelocity; // Get the bullet's velocity
+            float knockbackMagnitude = bulletVelocity.magnitude * 0.5f; // Adjust multiplier as necessary
+
+            // Calculate the knockback direction as the opposite of the bullet's velocity
+            Vector2 knockbackDirection = (transform.position - collision.transform.position).normalized; // Push away from the bullet
+            rb2d.velocity = Vector2.zero; // Reset enemy velocity before applying knockback
+
+            // Use the adjustable knockback force from the inspector
+            rb2d.AddForce(knockbackDirection * (bulletKnockbackForce + knockbackMagnitude), ForceMode2D.Impulse);
+
+            // Optional: Destroy the bullet upon impact
+            Destroy(collision.gameObject);
         }
     }
 

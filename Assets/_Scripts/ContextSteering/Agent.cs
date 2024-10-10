@@ -15,12 +15,16 @@ public class Agent : MonoBehaviour
     public Vector2 PointerInput { get => pointerInput; set => pointerInput = value; }
     public Vector2 MovementInput { get => movementInput; set => movementInput = value; }
 
+    [SerializeField]
+    private bool reverseFlipping = false; // Variable to control flipping logic
+
     private void Update()
     {
-        // pointerInput = GetPointerInput();
-        // movementInput = movement.action.ReadValue<Vector2>().normalized;
-
-        agentMover.MovementInput = MovementInput;
+        // Null-checks to avoid errors if components are missing
+        if (agentMover != null)
+        {
+            agentMover.MovementInput = MovementInput;
+        }
 
         if (weaponParent != null)
         {
@@ -52,12 +56,25 @@ public class Agent : MonoBehaviour
         weaponParent = GetComponentInChildren<WeaponParent>();
         bodyAttack = GetComponentInChildren<EnemyBodyAttack>();
         agentMover = GetComponent<AgentMover>();
+
+        // Debugging help: Log warnings if components are missing
+        if (agentMover == null) Debug.LogWarning("AgentMover not assigned or missing!");
+        if (weaponParent == null && bodyAttack == null) Debug.LogWarning("WeaponParent and EnemyBodyAttack are both missing!");
     }
 
     private void AnimateCharacter()
     {
+        if (agentAnimations == null) return;
+
         Vector2 lookDirection = pointerInput - (Vector2)transform.position;
+
+        // Reverse the look direction if reverseFlipping is true
+        if (reverseFlipping)
+        {
+            lookDirection = new Vector2(-lookDirection.x, lookDirection.y);
+        }
+
         agentAnimations.RotateToPointer(lookDirection);
-        agentAnimations.PlayAnimation(movementInput); // This will set the "Run" trigger based on movement input
+        agentAnimations.PlayAnimation(movementInput);
     }
 }

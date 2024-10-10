@@ -41,6 +41,8 @@ public class AgentAnimations : MonoBehaviour
         {
             // Reset the "Run" trigger if not moving
             animator.ResetTrigger("Run");
+            // Trigger idle animation
+            animator.SetTrigger("Idle"); // Transition to idle
         }
     }
 
@@ -57,5 +59,15 @@ public class AgentAnimations : MonoBehaviour
         if (isDead) return; // Prevent hit animation when dead
 
         animator.SetTrigger("Hit");
+
+        // Optionally, you can use a coroutine to wait for the hit animation duration before transitioning to idle
+        StartCoroutine(TransitionToIdleAfterHit());
+    }
+
+    private IEnumerator TransitionToIdleAfterHit()
+    {
+        // Assuming the hit animation duration is set to 0.5 seconds in the Animator
+        yield return new WaitForSeconds(0.2f); // Wait for the duration of the hit animation
+        animator.SetTrigger("IdleD"); // Transition to idle
     }
 }
