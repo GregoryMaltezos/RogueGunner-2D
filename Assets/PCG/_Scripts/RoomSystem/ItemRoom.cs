@@ -26,7 +26,7 @@ public class ItemRoom : RoomGenerator
             if (treasure != null)
             {
                 placedObjects.Add(treasure);
-                Debug.Log("Treasure spawned at: " + adjustedTreasurePosition);
+               // Debug.Log("Treasure spawned at: " + adjustedTreasurePosition);
             }
             else
             {

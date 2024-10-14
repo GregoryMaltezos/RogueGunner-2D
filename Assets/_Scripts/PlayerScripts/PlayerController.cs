@@ -15,6 +15,11 @@ public class PlayerController : MonoBehaviour
     public float dashCooldown = 1f;
     public float invincibilityDuration = 0.5f;
 
+    public float attackCooldown = 0.5f;  // Cooldown time between attacks
+    private bool canAttack = true;       // Flag to prevent spamming
+    public bool isAttacking = false;    // Flag to check if the player is attacking
+    private bool canFireWeapon = true;   // New flag to control if the player can fire the weapon
+
     private Rigidbody2D rb;
     private Vector2 movement;
     private Animator animator;
@@ -24,14 +29,18 @@ public class PlayerController : MonoBehaviour
     private bool canDash = true;
     public bool isInvincible = false;
 
-    private BoxCollider2D playerCollider; // Reference to the player's BoxCollider2D
-    private Camera mainCamera; // For getting mouse position
-    private bool facingRight = true; // To track the player’s facing direction
+    private BoxCollider2D playerCollider;
+    private Camera mainCamera;
+    private bool facingRight = true;
     public Transform weaponParent;
 
     // Reference to PlayerHealth
-    public PlayerHealth playerHealth; // Reference to the PlayerHealth script
-    public int currentAmmo = 30; // Player's current ammo
+    public PlayerHealth playerHealth;
+    public int currentAmmo = 30;
+
+    // New variables to handle manual delay
+    public float attackDelay = 1.0f; // Time delay before the next attack can be initiated
+    private bool isAttackDelayActive = false; // Flag to check if the delay is active
 
     void Awake()
     {
@@ -52,9 +61,8 @@ public class PlayerController : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
         spriteTransform = GetComponentInChildren<SpriteRenderer>().transform;
         mainCamera = Camera.main;
-        playerCollider = GetComponent<BoxCollider2D>(); // Get the player's BoxCollider2D
-
-        playerHealth = GetComponent<PlayerHealth>(); // Initialize PlayerHealth reference
+        playerCollider = GetComponent<BoxCollider2D>();
+        playerHealth = GetComponent<PlayerHealth>();
 
         if (animator == null)
         {
@@ -76,10 +84,16 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(Dash());
         }
 
-        // Attack input
-        if (Input.GetKeyDown(KeyCode.V))
+        // Attack input (V key)
+        if (Input.GetKeyDown(KeyCode.V) && canAttack && !isAttacking && !isAttackDelayActive)
         {
-            Attack();
+            StartCoroutine(Attack());
+        }
+
+        // Weapon fire input (left-click)
+        if (Input.GetMouseButtonDown(0) && canFireWeapon && !isAttacking)
+        {
+            FireWeapon();
         }
 
         // Flip the sprite based on the mouse position
@@ -124,24 +138,19 @@ public class PlayerController : MonoBehaviour
         {
             foreach (Transform gun in weaponParent)
             {
-                // Reset the gun's scale before flipping
                 Vector3 gunScale = new Vector3(Mathf.Abs(gun.localScale.x), gun.localScale.y, gun.localScale.z);
-
-                // Flip the gun's scale
-                gunScale.x *= -1; // Flip the gun's scale
+                gunScale.x *= -1;
                 gun.localScale = gunScale;
 
-                // Call the UpdateGunRotation method on the gun scripts
                 GunRotation gunRotation = gun.GetComponent<GunRotation>();
                 if (gunRotation != null)
                 {
-                    gunRotation.UpdateGunRotation(); // Ensure the gun's rotation is updated immediately
+                    gunRotation.UpdateGunRotation();
                 }
             }
         }
     }
 
-    // Method to correct the weapon orientation
     void CorrectWeaponOrientation(Vector3 mousePos)
     {
         if (weaponParent != null)
@@ -151,22 +160,57 @@ public class PlayerController : MonoBehaviour
                 GunRotation gunRotation = child.GetComponent<GunRotation>();
                 if (gunRotation != null)
                 {
-                    // Calculate the angle to rotate the gun towards the mouse
                     Vector3 direction = mousePos - child.position;
                     float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-
-                    // Update the gun's rotation based on the angle
                     child.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
                 }
             }
         }
     }
 
-    void Attack()
+    IEnumerator Attack()
     {
+        canAttack = false;    // Prevent further attacks until cooldown ends
+        isAttacking = true;   // Prevent actions during the attack animation
+        canFireWeapon = false;  // Prevent weapon firing during attack
+
         if (animator != null)
         {
             animator.SetTrigger("Attack");
+        }
+
+        // Wait for the attack animation duration (adjust this duration as needed)
+        yield return new WaitForSeconds(1.4f); // Increase duration for the attack animation
+
+        isAttacking = false;  // Allow other actions after the attack animation finishes
+        canFireWeapon = true;  // Allow weapon fire after attack
+
+        // Start the manual delay after the attack is complete
+        yield return StartCoroutine(AttackDelay());
+
+        // Wait for the cooldown period before allowing another attack
+        yield return new WaitForSeconds(attackCooldown);
+        canAttack = true; // Reset attack flag after cooldown
+    }
+
+
+    IEnumerator AttackDelay()
+    {
+        isAttackDelayActive = true; // Set the flag to indicate the delay is active
+        yield return new WaitForSeconds(attackDelay); // Wait for the specified attack delay
+        isAttackDelayActive = false; // Reset the flag after the delay
+    }
+
+    void FireWeapon()
+    {
+        if (currentAmmo > 0)
+        {
+            Debug.Log("Weapon fired!");
+            currentAmmo--;
+        }
+        else
+        {
+            Debug.Log("Out of ammo!");
         }
     }
 
@@ -174,33 +218,20 @@ public class PlayerController : MonoBehaviour
     {
         isDashing = true;
         canDash = false;
-
-        // Make the player invincible
         isInvincible = true;
-
-        // Trigger Dash animation
         animator.SetTrigger("Dash");
 
-        // Set up layer collision ignoring
         Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Arrow"), true);
 
-        // Dash movement
         rb.velocity = movement * dashSpeed;
-
-        // Wait for the dash duration
         yield return new WaitForSeconds(dashDuration);
 
-        // End dash
         isDashing = false;
-        rb.velocity = Vector2.zero; // Stop dash movement
-
-        // End invincibility after dash
+        rb.velocity = Vector2.zero;
         isInvincible = false;
 
-        // Restore layer collision
         Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Arrow"), false);
 
-        // Start dash cooldown
         StartCoroutine(DashCooldown());
     }
 
@@ -218,20 +249,15 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // Method to detect collisions
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Check if colliding with obstacles while dashing
         if (isDashing && collision.gameObject.CompareTag("Obstacle"))
         {
-            // Handle collision with the obstacle
-            // You can add any specific behavior here if needed, like bouncing or stopping
-            // For now, we just let the physics engine handle it naturally.
+            // Handle collision with obstacles during dash
         }
         else if (!isInvincible)
         {
-            // Handle regular damage logic if not dashing and not invincible
-            // Call the player health logic or other behaviors here.
+            // Regular damage logic
         }
     }
 
@@ -245,6 +271,7 @@ public class PlayerController : MonoBehaviour
     {
         return facingRight;
     }
+
     public bool IsDashing()
     {
         return isDashing;

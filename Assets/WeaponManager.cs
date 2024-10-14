@@ -278,7 +278,7 @@ public class WeaponManager : MonoBehaviour
                     gunComponent.bulletsRemaining = GetGunBulletsRemaining(gunIndex);
                     gunComponent.clipsRemaining = GetGunClipsRemaining(gunIndex);
                     gunComponent.currentClipAmmo = GetGunClipAmmo(gunIndex);
-                    Debug.Log($"Restored Ammo Data - GunIndex: {gunIndex}, BulletsRemaining: {gunComponent.bulletsRemaining}, ClipsRemaining: {gunComponent.clipsRemaining}, CurrentClipAmmo: {gunComponent.currentClipAmmo}");
+                   // Debug.Log($"Restored Ammo Data - GunIndex: {gunIndex}, BulletsRemaining: {gunComponent.bulletsRemaining}, ClipsRemaining: {gunComponent.clipsRemaining}, CurrentClipAmmo: {gunComponent.currentClipAmmo}");
                 }
             }
         }

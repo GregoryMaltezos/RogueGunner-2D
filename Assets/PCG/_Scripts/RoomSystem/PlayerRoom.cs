@@ -53,11 +53,15 @@ public class ItemPlacementData : PlacementData
     public ItemData itemData;
 }
 
-[Serializable]
-public class EnemyPlacementData : PlacementData
+[System.Serializable]
+public class EnemyPlacementData
 {
     public GameObject enemyPrefab;
-    public Vector2Int enemySize = Vector2Int.one;
+    public Vector2Int enemySize;
+    public int Quantity;
+
+    // List of floors where the enemy is allowed to spawn
+    public List<int> allowedFloors;
 }
 
 [Serializable]

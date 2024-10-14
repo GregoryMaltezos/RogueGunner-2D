@@ -9,12 +9,16 @@ public class PrefabPlacer : MonoBehaviour
     [SerializeField]
     private GameObject itemPrefab;
 
-    public List<GameObject> PlaceEnemies(List<EnemyPlacementData> enemyPlacementData, ItemPlacementHelper itemPlacementHelper)
+    public List<GameObject> PlaceEnemies(List<EnemyPlacementData> enemyPlacementData, ItemPlacementHelper itemPlacementHelper, int currentFloor)
     {
         List<GameObject> placedObjects = new List<GameObject>();
 
         foreach (var placementData in enemyPlacementData)
         {
+            // Check if the current floor is in the list of allowed floors for this enemy
+            if (!placementData.allowedFloors.Contains(currentFloor))
+                continue;
+
             for (int i = 0; i < placementData.Quantity; i++)
             {
                 Vector2? possiblePlacementSpot = itemPlacementHelper.GetItemPlacementPosition(
@@ -22,10 +26,13 @@ public class PrefabPlacer : MonoBehaviour
                     100,
                     placementData.enemySize,
                     false
-                    );
+                );
+
                 if (possiblePlacementSpot.HasValue)
                 {
-                    GameObject newObject = CreateObject(placementData.enemyPrefab, possiblePlacementSpot.Value + new Vector2(0.5f, 0.5f));
+                    // Convert Vector2Int to Vector3 by adding a 0 for the z-axis
+                    Vector2Int placementPosition = Vector2Int.RoundToInt(possiblePlacementSpot.Value + new Vector2(0.5f, 0.5f));
+                    GameObject newObject = CreateObject(placementData.enemyPrefab, new Vector3(placementPosition.x, placementPosition.y, 0f));
                     TagAsObstacle(newObject);
                     placedObjects.Add(newObject);
                 }
@@ -33,6 +40,7 @@ public class PrefabPlacer : MonoBehaviour
         }
         return placedObjects;
     }
+
 
     public List<GameObject> PlaceAllItems(List<ItemPlacementData> itemPlacementData, ItemPlacementHelper itemPlacementHelper)
     {
@@ -97,6 +105,7 @@ public class PrefabPlacer : MonoBehaviour
 
         return placedObjects;
     }
+
 
     public GameObject CreateObject(GameObject prefab, Vector3 placementPosition)
     {

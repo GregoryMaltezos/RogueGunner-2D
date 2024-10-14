@@ -51,7 +51,7 @@ public class Gun : MonoBehaviour
             }
             WeaponManager.instance.SetGunClipAmmo(gunIndex, currentClipAmmo);
 
-            Debug.Log($"Gun Initialized: GunIndex={gunIndex}, CurrentClipAmmo={currentClipAmmo}, BulletsRemaining={bulletsRemaining}, ClipsRemaining={clipsRemaining}");
+          //  Debug.Log($"Gun Initialized: GunIndex={gunIndex}, CurrentClipAmmo={currentClipAmmo}, BulletsRemaining={bulletsRemaining}, ClipsRemaining={clipsRemaining}");
             UpdateAmmoState(); // Initialize the UI state
         }
         else
@@ -96,6 +96,13 @@ public class Gun : MonoBehaviour
 
     void AttemptToFire()
     {
+        // Check if the player is currently attacking
+        if (PlayerController.instance != null && PlayerController.instance.isAttacking)
+        {
+            // If attacking, do not fire
+            return;
+        }
+
         if (infiniteAmmo || currentClipAmmo > 0)
         {
             Fire();
@@ -107,6 +114,7 @@ public class Gun : MonoBehaviour
             StartCoroutine(Reload());
         }
     }
+
 
     void Fire()
     {

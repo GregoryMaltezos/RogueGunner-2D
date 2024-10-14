@@ -1,7 +1,4 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class FightingPitRoom : RoomGenerator
@@ -14,13 +11,22 @@ public class FightingPitRoom : RoomGenerator
 
     public override List<GameObject> ProcessRoom(Vector2Int roomCenter, HashSet<Vector2Int> roomFloor, HashSet<Vector2Int> roomFloorNoCorridors)
     {
-        ItemPlacementHelper itemPlacementHelper =
-            new ItemPlacementHelper(roomFloor, roomFloorNoCorridors);
+        ItemPlacementHelper itemPlacementHelper = new ItemPlacementHelper(roomFloor, roomFloorNoCorridors);
 
-        List<GameObject> placedObjects =
-            prefabPlacer.PlaceAllItems(itemData, itemPlacementHelper);
+        List<GameObject> placedObjects = prefabPlacer.PlaceAllItems(itemData, itemPlacementHelper);
 
-        placedObjects.AddRange(prefabPlacer.PlaceEnemies(enemyPlacementData, itemPlacementHelper));
+        // Dynamically find the CorridorFirstDungeonGenerator instance
+        CorridorFirstDungeonGenerator dungeonGenerator = FindObjectOfType<CorridorFirstDungeonGenerator>();
+
+        if (dungeonGenerator != null)
+        {
+            // Access the currentFloor from the found dungeonGenerator instance
+            placedObjects.AddRange(prefabPlacer.PlaceEnemies(enemyPlacementData, itemPlacementHelper, dungeonGenerator.currentFloor));
+        }
+        else
+        {
+            Debug.LogWarning("CorridorFirstDungeonGenerator not found in the scene!");
+        }
 
         return placedObjects;
     }

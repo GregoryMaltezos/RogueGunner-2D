@@ -33,15 +33,32 @@ public class bossPortal : MonoBehaviour
     private void Update()
     {
         // Check if player is near and presses the "E" key
-        if (isPlayerNearby && Input.GetKeyDown(KeyCode.E))
+        if (isPlayerNearby)
         {
-            StartCoroutine(FadeToBlackAndProceed());
-
+         //   Debug.Log("Player is nearby and can interact.");
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                Debug.Log("E key pressed. Starting fade process.");
+                StartCoroutine(FadeToBlackAndProceed());
+            }
         }
     }
 
     private IEnumerator FadeToBlackAndProceed()
     {
+        Debug.Log("FadeToBlackAndProceed called"); // Debugging line
+
+        // Ensure the transition canvas is active
+        if (fadeManager != null && fadeManager.transitionCanvas != null)
+        {
+            Debug.Log("Activating transition canvas");
+            fadeManager.transitionCanvas.gameObject.SetActive(true);
+        }
+        else
+        {
+            Debug.LogWarning("FadeManager or transitionCanvas is null");
+        }
+
         // Fade to black
         if (fadeManager != null)
         {
@@ -61,6 +78,7 @@ public class bossPortal : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
 
     private void GoToNextFloor()
     {

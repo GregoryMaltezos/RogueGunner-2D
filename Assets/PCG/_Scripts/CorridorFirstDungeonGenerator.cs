@@ -38,7 +38,7 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     private Vector2 startNotificationPosition = new Vector2(0, 0); // Default to top middle
 
     private RectTransform floorNotificationRectTransform; // For UI positioning and scaling
-    private int currentFloor = 1; // Starting floor number
+    public int currentFloor = 1; // Starting floor number
 
     // PCG Data
     private Dictionary<Vector2Int, HashSet<Vector2Int>> roomsDictionary = new Dictionary<Vector2Int, HashSet<Vector2Int>>();
@@ -56,6 +56,11 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     private int bossKills = 0; // To keep track of how many times the boss was killed
     private bool isFirstFloorGenerated = false; // Flag to check if the first floor is generated
     public int CurrentFloor => currentFloor;
+    public static int urrentFloor { get; set; }
+    void Start()
+    {
+        currentFloor = 1; // Example starting value
+    }
 
     protected override void RunProceduralGeneration()
     {
@@ -169,11 +174,16 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
             return;
         }
 
-        // Ensure boss room position is selected and reserved
-        Vector2Int bossRoomPosition = potentialRoomPositions.ElementAt(UnityEngine.Random.Range(0, potentialRoomPositions.Count));
-        potentialRoomPositions.Remove(bossRoomPosition); // Remove boss room position from potential rooms
+        // Ensure the boss room position is selected and reserved
+        Vector2Int bossRoomPosition = new Vector2Int(0, 0); // Set your desired square room position here
+        roomContentGenerator.SetBossRoomPosition(bossRoomPosition); // Pass the boss room position to RoomContentGenerator
 
-        roomContentGenerator.SetBossRoomPosition(bossRoomPosition);
+        // Generate a square boss room at the specified position
+        HashSet<Vector2Int> bossRoomFloor = CreateSquareRoom(bossRoomPosition, 20); // Assuming a 5x5 square room
+        floorPositions.UnionWith(bossRoomFloor); // Add boss room floor positions to overall floor positions
+
+        // Remove boss room position from potential rooms
+        potentialRoomPositions.Remove(bossRoomPosition);
 
         // Generate other rooms
         HashSet<Vector2Int> roomPositions = CreateRooms(potentialRoomPositions);
@@ -185,6 +195,24 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         tilemapVisualizer.PaintFloorTiles(floorPositions);
         WallGenerator.CreateWalls(floorPositions, tilemapVisualizer);
     }
+
+    // New method to create a square room
+    private HashSet<Vector2Int> CreateSquareRoom(Vector2Int centerPosition, int size)
+    {
+        HashSet<Vector2Int> squareRoomPositions = new HashSet<Vector2Int>();
+
+        for (int x = -size / 2; x < size / 2; x++)
+        {
+            for (int y = -size / 2; y < size / 2; y++)
+            {
+                squareRoomPositions.Add(centerPosition + new Vector2Int(x, y));
+            }
+        }
+
+        return squareRoomPositions;
+    }
+
+
 
     private IEnumerator GenerateRoomsCoroutine(HashSet<Vector2Int> potentialRoomPositions)
     {
@@ -279,7 +307,7 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     public void OnBossDefeated()
     {
         bossKills++; // Increment boss kill count
-        corridorCount += 4; // Increase corridor count by 4 each time
+        corridorCount += 10; // Increase corridor count by 4 each time
 
         // Increment the floor number
         currentFloor++;
@@ -354,4 +382,5 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
             }
         }
     }
+
 }

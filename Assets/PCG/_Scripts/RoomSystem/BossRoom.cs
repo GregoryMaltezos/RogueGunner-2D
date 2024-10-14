@@ -13,49 +13,31 @@ public class BossRoom : RoomGenerator
 
     public override List<GameObject> ProcessRoom(Vector2Int roomCenter, HashSet<Vector2Int> roomFloor, HashSet<Vector2Int> roomFloorNoCorridors)
     {
-        ItemPlacementHelper itemPlacementHelper =
-            new ItemPlacementHelper(roomFloor, roomFloorNoCorridors);
-
-        // Initialize the list of placed objects
+        ItemPlacementHelper itemPlacementHelper = new ItemPlacementHelper(roomFloor, roomFloorNoCorridors);
         List<GameObject> placedObjects = new List<GameObject>();
 
-        // Ensure we have at least one boss to place
         if (bossPlacementData != null && bossPlacementData.Count > 0)
         {
-            // Choose a boss that hasn't been recently spawned
             EnemyPlacementData bossData = ChooseBoss();
 
             if (bossData != null)
             {
-                // Attempt to place the boss
-                Vector2Int positionToPlace = FindValidPositionNearCenter(roomCenter, roomFloor);
-                if (positionToPlace != null && CanPlaceBoss(positionToPlace, roomFloor)) // Add the check here
+                // Set boss's position directly to (0, 0)
+                Vector2Int bossPosition = Vector2Int.zero; // (0, 0)
+
+                // Remove the check for placement restrictions
+                GameObject boss = prefabPlacer.PlaceSingleItem(bossData.enemyPrefab, bossPosition);
+                if (boss != null)
                 {
-                    // Use the PlaceSingleItem method to place the boss
-                    GameObject boss = prefabPlacer.PlaceSingleItem(bossData.enemyPrefab, positionToPlace);
-                    if (boss != null)
-                    {
-                        placedObjects.Add(boss);
-                    }
-                }
-                else
-                {
-                    // If the initial position is invalid, try to find another valid position
-                    positionToPlace = RetryFindValidPosition(roomCenter, roomFloor);
-                    if (positionToPlace != null && CanPlaceBoss(positionToPlace, roomFloor))
-                    {
-                        GameObject boss = prefabPlacer.PlaceSingleItem(bossData.enemyPrefab, positionToPlace);
-                        if (boss != null)
-                        {
-                            placedObjects.Add(boss);
-                        }
-                    }
+                    placedObjects.Add(boss);
                 }
             }
         }
 
         return placedObjects;
     }
+
+
 
     private EnemyPlacementData ChooseBoss()
     {

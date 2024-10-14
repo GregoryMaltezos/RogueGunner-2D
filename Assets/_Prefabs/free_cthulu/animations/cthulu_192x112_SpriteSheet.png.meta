@@ -1,0 +1,1566 @@
+fileFormatVersion: 2
+guid: bbfe788f6240ad34b96847193f4578ce
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 12
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_0
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 686
+        width: 63
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 999f2ded8f873ed45aaabbaf5961f55d
+      internalID: 2134506009
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_1
+      rect:
+        serializedVersion: 2
+        x: 254
+        y: 686
+        width: 63
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ecf2838be9712a34db30bc8cc374900f
+      internalID: 1478513485
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_2
+      rect:
+        serializedVersion: 2
+        x: 446
+        y: 686
+        width: 64
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 94fb7c576ccb2f54f9b79a2afc7d35dc
+      internalID: 1500440935
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_3
+      rect:
+        serializedVersion: 2
+        x: 638
+        y: 686
+        width: 64
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 02ad50f68caa95c47aa7b97c159d5b93
+      internalID: 830429170
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_4
+      rect:
+        serializedVersion: 2
+        x: 830
+        y: 686
+        width: 64
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dcb8f2460de8e084d9e063acff1672f7
+      internalID: 1802857831
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_5
+      rect:
+        serializedVersion: 2
+        x: 1022
+        y: 686
+        width: 64
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d4ce385f65a96a2498c2e04ba23a8fb5
+      internalID: 870156504
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_6
+      rect:
+        serializedVersion: 2
+        x: 1214
+        y: 686
+        width: 64
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f4075bd65e2fe054a9caefec8cef9f2b
+      internalID: -1782777876
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_7
+      rect:
+        serializedVersion: 2
+        x: 1406
+        y: 686
+        width: 64
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a423a71e9f0c1ec41a850d39ecc815df
+      internalID: 2024507272
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_8
+      rect:
+        serializedVersion: 2
+        x: 1598
+        y: 686
+        width: 63
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6612b227f25d68440bc7b9a5ecba8b74
+      internalID: 1353856599
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_9
+      rect:
+        serializedVersion: 2
+        x: 1791
+        y: 686
+        width: 63
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 029bd9a59f0f95d4ab13c87da4705898
+      internalID: 363862649
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_10
+      rect:
+        serializedVersion: 2
+        x: 1982
+        y: 686
+        width: 63
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c4e17cd04e04cd348be580b884ba2cc0
+      internalID: 1389496488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_11
+      rect:
+        serializedVersion: 2
+        x: 2175
+        y: 686
+        width: 63
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 50c7812fcb1b368478b73ebdd873a9ae
+      internalID: -1324947893
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_12
+      rect:
+        serializedVersion: 2
+        x: 2366
+        y: 686
+        width: 63
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0cdf8f687abc94341b67bc3f3a1dfef5
+      internalID: 2133497889
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_13
+      rect:
+        serializedVersion: 2
+        x: 2559
+        y: 686
+        width: 63
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 136888a635a65394f8e5141d65b8fb5f
+      internalID: 1592588115
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_14
+      rect:
+        serializedVersion: 2
+        x: 2750
+        y: 686
+        width: 63
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 49175293e9fabfd4e8ad31aee82cb50f
+      internalID: 1915659938
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_15
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 574
+        width: 63
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f968f95b1386a4d4ca9b8fd5110e672d
+      internalID: 1190690447
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_16
+      rect:
+        serializedVersion: 2
+        x: 257
+        y: 574
+        width: 59
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e1b965119a80bcf48bd26d06e1fbe91c
+      internalID: 18701825
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_17
+      rect:
+        serializedVersion: 2
+        x: 449
+        y: 574
+        width: 58
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 950fde0a04949524183dd543c952b8ca
+      internalID: -172325348
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_18
+      rect:
+        serializedVersion: 2
+        x: 641
+        y: 574
+        width: 57
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0489715093fbbe44fbf6bcd9a92b1fd9
+      internalID: 65321672
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_19
+      rect:
+        serializedVersion: 2
+        x: 832
+        y: 574
+        width: 60
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: de7ae2155f198e14b96476fce7a6a47a
+      internalID: 1906464789
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_20
+      rect:
+        serializedVersion: 2
+        x: 1022
+        y: 574
+        width: 64
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5904ef0cb6186aa4bb77a707b1788fa4
+      internalID: 431687534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_21
+      rect:
+        serializedVersion: 2
+        x: 1214
+        y: 574
+        width: 65
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 48f4e9dc5fb53a0409f33468f4a86e2f
+      internalID: -1983909514
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_22
+      rect:
+        serializedVersion: 2
+        x: 1406
+        y: 574
+        width: 64
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a181b2d5cf0306a448c9fb48cb82170f
+      internalID: -1891654506
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_23
+      rect:
+        serializedVersion: 2
+        x: 1597
+        y: 574
+        width: 66
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 56f8acff04ddb2441adf660ca70f00d7
+      internalID: -347835226
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_24
+      rect:
+        serializedVersion: 2
+        x: 1791
+        y: 574
+        width: 63
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fc48d342f2e00cc40b5600333319c8fe
+      internalID: 1739593263
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_25
+      rect:
+        serializedVersion: 2
+        x: 1982
+        y: 574
+        width: 63
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 899d55db2b29a334ea155847e0ab89dd
+      internalID: -1872853454
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_26
+      rect:
+        serializedVersion: 2
+        x: 2175
+        y: 574
+        width: 63
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4a34a12d4aa9f064582f1ce94c5cadf8
+      internalID: 1308421237
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_27
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 466
+        width: 98
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 51631af8b7b68f44db5d89edf42c7bdc
+      internalID: -1747596516
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_28
+      rect:
+        serializedVersion: 2
+        x: 233
+        y: 466
+        width: 108
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 214322c9eee80574fac69888181b4f3e
+      internalID: 1735172830
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_29
+      rect:
+        serializedVersion: 2
+        x: 430
+        y: 464
+        width: 97
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3712202567532ab4cb3cca5631b594a4
+      internalID: -573577778
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_30
+      rect:
+        serializedVersion: 2
+        x: 621
+        y: 466
+        width: 104
+        height: 63
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 92ac8b55ab6c35146bcac9f83b1ae27a
+      internalID: -1054136478
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_31
+      rect:
+        serializedVersion: 2
+        x: 825
+        y: 466
+        width: 77
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b21811fa64dec714ba8d66ddd8fe288b
+      internalID: 536455019
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_32
+      rect:
+        serializedVersion: 2
+        x: 1008
+        y: 467
+        width: 95
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9874c4d68c6a5c9438cb5811e5e5adc0
+      internalID: -1215315316
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_33
+      rect:
+        serializedVersion: 2
+        x: 65
+        y: 351
+        width: 65
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 28cb43c11dd93664fa6d7f112f26af79
+      internalID: -853246062
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_34
+      rect:
+        serializedVersion: 2
+        x: 250
+        y: 351
+        width: 67
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 816d5a8548b3d03479bbf5c1d06d5e9d
+      internalID: 1846460370
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_35
+      rect:
+        serializedVersion: 2
+        x: 437
+        y: 351
+        width: 136
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a27ac2451126c8049abdb3ee08472f11
+      internalID: 1876486182
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_36
+      rect:
+        serializedVersion: 2
+        x: 635
+        y: 351
+        width: 128
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 79180700ac94d3f4fafea198765f5829
+      internalID: 1912805949
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_37
+      rect:
+        serializedVersion: 2
+        x: 837
+        y: 351
+        width: 107
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6a1a656c29a9a8c4d93fc075f594fc1b
+      internalID: 1716407234
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_38
+      rect:
+        serializedVersion: 2
+        x: 1029
+        y: 351
+        width: 56
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 37f80ed7484b6634981bf709f2d0869e
+      internalID: 397511305
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_39
+      rect:
+        serializedVersion: 2
+        x: 1092
+        y: 375
+        width: 43
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2048b6ede911ff64986c6ca48922dcee
+      internalID: 1320814593
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_40
+      rect:
+        serializedVersion: 2
+        x: 1219
+        y: 351
+        width: 60
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7a1981f5256f434418d0a3f2287e069a
+      internalID: 694182918
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_41
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 238
+        width: 67
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5f8071b992ace44488afca18e5725caf
+      internalID: 1691637230
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_42
+      rect:
+        serializedVersion: 2
+        x: 243
+        y: 238
+        width: 68
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 482084b099d79b147bd73066e6f1bd1d
+      internalID: -1223862520
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_43
+      rect:
+        serializedVersion: 2
+        x: 437
+        y: 238
+        width: 114
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fe9e7a3834a880b4d90c94fae680e118
+      internalID: -1523469257
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_44
+      rect:
+        serializedVersion: 2
+        x: 628
+        y: 238
+        width: 139
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0087765af867db141acd616c6c50c53a
+      internalID: 30211900
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_45
+      rect:
+        serializedVersion: 2
+        x: 821
+        y: 238
+        width: 139
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6342228f2aad14240a0271e04dfa11d9
+      internalID: 1769357192
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_46
+      rect:
+        serializedVersion: 2
+        x: 1013
+        y: 238
+        width: 139
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8aea2af9e2d4c08469b82cddfa23b81c
+      internalID: 771115319
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_47
+      rect:
+        serializedVersion: 2
+        x: 1206
+        y: 238
+        width: 138
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9a990198fcc4de041a17fb070cb7f95e
+      internalID: 1799666263
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_48
+      rect:
+        serializedVersion: 2
+        x: 1410
+        y: 238
+        width: 88
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4d1f2e9ba3f165d43b4daf19cd4f519e
+      internalID: -1001901555
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_49
+      rect:
+        serializedVersion: 2
+        x: 1597
+        y: 238
+        width: 64
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a5ef90c7efd11eb409b581b64c60ebce
+      internalID: 474448696
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_50
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 126
+        width: 84
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 362a9c444713e234cabab72131968ea2
+      internalID: -1795642708
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_51
+      rect:
+        serializedVersion: 2
+        x: 254
+        y: 126
+        width: 84
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 42f09ed64f641be49b954076e2991a4b
+      internalID: -467360789
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_52
+      rect:
+        serializedVersion: 2
+        x: 448
+        y: 126
+        width: 86
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7c07ead53e310c24582e8e02f14c466a
+      internalID: -1619482010
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_53
+      rect:
+        serializedVersion: 2
+        x: 639
+        y: 126
+        width: 87
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2e44c401231fd2f48a6815c9598a2b62
+      internalID: -1449338731
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_54
+      rect:
+        serializedVersion: 2
+        x: 830
+        y: 126
+        width: 85
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ec707e5f0c85ef7439fc3e0327e67e68
+      internalID: 1700881723
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_55
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 15
+        width: 84
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: be12af11fad4a5448a8ba8e3c8c0c4ea
+      internalID: -1885634876
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_56
+      rect:
+        serializedVersion: 2
+        x: 252
+        y: 15
+        width: 88
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: edbef8d52f8888147bac887752205b04
+      internalID: 506393042
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_57
+      rect:
+        serializedVersion: 2
+        x: 444
+        y: 18
+        width: 71
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b893b36d3df70e44298b914652e07743
+      internalID: -80460029
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_58
+      rect:
+        serializedVersion: 2
+        x: 636
+        y: 15
+        width: 76
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d8fecace67868e543b4e01e69a80bdee
+      internalID: 252265033
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_59
+      rect:
+        serializedVersion: 2
+        x: 828
+        y: 15
+        width: 73
+        height: 43
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: de91a6bcb603b7445a14983efc112b4e
+      internalID: 1526956316
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_60
+      rect:
+        serializedVersion: 2
+        x: 1022
+        y: 15
+        width: 73
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e7e0122b88cf7c34a88566d08ec68863
+      internalID: -1140539644
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_61
+      rect:
+        serializedVersion: 2
+        x: 1216
+        y: 15
+        width: 74
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6527481489d0542459deb74a8347b073
+      internalID: -1041587097
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_62
+      rect:
+        serializedVersion: 2
+        x: 1407
+        y: 15
+        width: 80
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c1fc7d3f122d4af428dea40bff9d4180
+      internalID: -605774960
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_63
+      rect:
+        serializedVersion: 2
+        x: 1600
+        y: 15
+        width: 78
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7b88f9b6a0cd5fb4a92cd39c11fda7c7
+      internalID: -537295238
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_64
+      rect:
+        serializedVersion: 2
+        x: 1787
+        y: 15
+        width: 84
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3c07cacecdff5f94e8fcb684345375f5
+      internalID: 13863294
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cthulu_192x112_SpriteSheet_65
+      rect:
+        serializedVersion: 2
+        x: 1978
+        y: 15
+        width: 84
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0b1c23852b292664cb0a0fd73b10bb23
+      internalID: 2056329245
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      cthulu_192x112_SpriteSheet_0: 2134506009
+      cthulu_192x112_SpriteSheet_1: 1478513485
+      cthulu_192x112_SpriteSheet_10: 1389496488
+      cthulu_192x112_SpriteSheet_11: -1324947893
+      cthulu_192x112_SpriteSheet_12: 2133497889
+      cthulu_192x112_SpriteSheet_13: 1592588115
+      cthulu_192x112_SpriteSheet_14: 1915659938
+      cthulu_192x112_SpriteSheet_15: 1190690447
+      cthulu_192x112_SpriteSheet_16: 18701825
+      cthulu_192x112_SpriteSheet_17: -172325348
+      cthulu_192x112_SpriteSheet_18: 65321672
+      cthulu_192x112_SpriteSheet_19: 1906464789
+      cthulu_192x112_SpriteSheet_2: 1500440935
+      cthulu_192x112_SpriteSheet_20: 431687534
+      cthulu_192x112_SpriteSheet_21: -1983909514
+      cthulu_192x112_SpriteSheet_22: -1891654506
+      cthulu_192x112_SpriteSheet_23: -347835226
+      cthulu_192x112_SpriteSheet_24: 1739593263
+      cthulu_192x112_SpriteSheet_25: -1872853454
+      cthulu_192x112_SpriteSheet_26: 1308421237
+      cthulu_192x112_SpriteSheet_27: -1747596516
+      cthulu_192x112_SpriteSheet_28: 1735172830
+      cthulu_192x112_SpriteSheet_29: -573577778
+      cthulu_192x112_SpriteSheet_3: 830429170
+      cthulu_192x112_SpriteSheet_30: -1054136478
+      cthulu_192x112_SpriteSheet_31: 536455019
+      cthulu_192x112_SpriteSheet_32: -1215315316
+      cthulu_192x112_SpriteSheet_33: -853246062
+      cthulu_192x112_SpriteSheet_34: 1846460370
+      cthulu_192x112_SpriteSheet_35: 1876486182
+      cthulu_192x112_SpriteSheet_36: 1912805949
+      cthulu_192x112_SpriteSheet_37: 1716407234
+      cthulu_192x112_SpriteSheet_38: 397511305
+      cthulu_192x112_SpriteSheet_39: 1320814593
+      cthulu_192x112_SpriteSheet_4: 1802857831
+      cthulu_192x112_SpriteSheet_40: 694182918
+      cthulu_192x112_SpriteSheet_41: 1691637230
+      cthulu_192x112_SpriteSheet_42: -1223862520
+      cthulu_192x112_SpriteSheet_43: -1523469257
+      cthulu_192x112_SpriteSheet_44: 30211900
+      cthulu_192x112_SpriteSheet_45: 1769357192
+      cthulu_192x112_SpriteSheet_46: 771115319
+      cthulu_192x112_SpriteSheet_47: 1799666263
+      cthulu_192x112_SpriteSheet_48: -1001901555
+      cthulu_192x112_SpriteSheet_49: 474448696
+      cthulu_192x112_SpriteSheet_5: 870156504
+      cthulu_192x112_SpriteSheet_50: -1795642708
+      cthulu_192x112_SpriteSheet_51: -467360789
+      cthulu_192x112_SpriteSheet_52: -1619482010
+      cthulu_192x112_SpriteSheet_53: -1449338731
+      cthulu_192x112_SpriteSheet_54: 1700881723
+      cthulu_192x112_SpriteSheet_55: -1885634876
+      cthulu_192x112_SpriteSheet_56: 506393042
+      cthulu_192x112_SpriteSheet_57: -80460029
+      cthulu_192x112_SpriteSheet_58: 252265033
+      cthulu_192x112_SpriteSheet_59: 1526956316
+      cthulu_192x112_SpriteSheet_6: -1782777876
+      cthulu_192x112_SpriteSheet_60: -1140539644
+      cthulu_192x112_SpriteSheet_61: -1041587097
+      cthulu_192x112_SpriteSheet_62: -605774960
+      cthulu_192x112_SpriteSheet_63: -537295238
+      cthulu_192x112_SpriteSheet_64: 13863294
+      cthulu_192x112_SpriteSheet_65: 2056329245
+      cthulu_192x112_SpriteSheet_7: 2024507272
+      cthulu_192x112_SpriteSheet_8: 1353856599
+      cthulu_192x112_SpriteSheet_9: 363862649
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
