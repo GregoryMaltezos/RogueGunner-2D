@@ -19,7 +19,10 @@ public class PrefabPlacer : MonoBehaviour
             if (!placementData.allowedFloors.Contains(currentFloor))
                 continue;
 
-            for (int i = 0; i < placementData.Quantity; i++)
+            // Randomly determine how many enemies to place within the range
+            int enemyCount = Random.Range(placementData.minQuantity, placementData.maxQuantity + 1); // +1 because the upper bound is exclusive
+
+            for (int i = 0; i < enemyCount; i++)  // Use enemyCount instead of fixed Quantity
             {
                 Vector2? possiblePlacementSpot = itemPlacementHelper.GetItemPlacementPosition(
                     PlacementType.OpenSpace,

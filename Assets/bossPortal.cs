@@ -6,6 +6,11 @@ public class bossPortal : MonoBehaviour
     private bool isPlayerNearby = false;
     private CorridorFirstDungeonGenerator dungeonGenerator;
     private FadeManager fadeManager; // Reference to the Fade Manager
+    private Collider2D portalCollider; // Reference to the portal's collider
+
+    // Cooldown variables
+    private bool canInteract = true; // Determines if the player can interact
+    private float interactionCooldown = 1.5f; // Cooldown duration in seconds
 
     private void Start()
     {
@@ -28,17 +33,32 @@ public class bossPortal : MonoBehaviour
         {
             Debug.LogError("FadeManager not found in the scene.");
         }
+
+        // Get the portal's collider component
+        portalCollider = GetComponent<Collider2D>();
+        if (portalCollider == null)
+        {
+            Debug.LogError("Portal Collider not found. Please attach a Collider2D component to the portal.");
+        }
     }
 
     private void Update()
     {
-        // Check if player is near and presses the "E" key
-        if (isPlayerNearby)
+        // Check if player is near and can interact
+        if (isPlayerNearby && canInteract)
         {
-         //   Debug.Log("Player is nearby and can interact.");
+            // Debug.Log("Player is nearby and can interact.");
             if (Input.GetKeyDown(KeyCode.E))
             {
-                Debug.Log("E key pressed. Starting fade process.");
+                Debug.Log("E key pressed. Disabling collider and starting fade process.");
+
+                // Disable the portal's collider to prevent further interaction
+                if (portalCollider != null)
+                {
+                    portalCollider.enabled = false; // Disable the collider
+                    Debug.Log("Portal collider disabled.");
+                }
+
                 StartCoroutine(FadeToBlackAndProceed());
             }
         }
@@ -75,10 +95,11 @@ public class bossPortal : MonoBehaviour
         if (fadeManager != null)
         {
             yield return fadeManager.FadeToClear();
-            Destroy(gameObject);
         }
-    }
 
+        // After the fade is complete, destroy the portal
+        Destroy(gameObject); // Delete the portal after the interaction is complete
+    }
 
     private void GoToNextFloor()
     {
@@ -110,5 +131,12 @@ public class bossPortal : MonoBehaviour
             Debug.Log("Player left the portal area.");
             isPlayerNearby = false;
         }
+    }
+
+    private IEnumerator InteractionCooldown()
+    {
+        canInteract = false; // Prevent further interaction
+        yield return new WaitForSeconds(interactionCooldown); // Wait for cooldown duration
+        canInteract = true; // Allow interaction again
     }
 }

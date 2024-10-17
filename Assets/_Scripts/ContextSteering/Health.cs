@@ -18,6 +18,12 @@ public class Health : MonoBehaviour
     [SerializeField]
     private float deathAnimationDuration = 1.0f; // Duration of the death animation before destruction
 
+    [SerializeField]
+    private GameObject healthPrefab; // Reference to the health prefab to spawn
+
+    [SerializeField]
+    private float healthDropChance = 0.2f; // 20% chance to drop health
+
     private void Start()
     {
         // Get reference to the AgentAnimations script to control animations
@@ -101,8 +107,21 @@ public class Health : MonoBehaviour
         // Wait for the death animation to finish
         yield return new WaitForSeconds(delay);
 
+        // Try to drop a health item with a 20% chance
+        TryDropHealth();
+
         // Destroy the game object
         Destroy(gameObject);
+    }
+
+    private void TryDropHealth()
+    {
+        // Check if a health prefab is set and perform the random chance check
+        if (healthPrefab != null && Random.value <= healthDropChance)
+        {
+            // Instantiate the health prefab at the enemy's position
+            Instantiate(healthPrefab, transform.position, Quaternion.identity);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

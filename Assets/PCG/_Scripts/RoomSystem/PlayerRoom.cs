@@ -58,12 +58,11 @@ public class EnemyPlacementData
 {
     public GameObject enemyPrefab;
     public Vector2Int enemySize;
-    public int Quantity;
-
-    // List of floors where the enemy is allowed to spawn
     public List<int> allowedFloors;
-}
 
+    public int minQuantity;  // Minimum number of enemies
+    public int maxQuantity;  // Maximum number of enemies
+}
 [Serializable]
 public class BossPlacementData : PlacementData
 {

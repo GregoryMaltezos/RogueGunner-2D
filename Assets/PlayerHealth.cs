@@ -77,8 +77,13 @@ public class PlayerHealth : MonoBehaviour
             currentHealth = maxHealth;
         }
 
-        UpdateHealthBar();  // Update health bar
+        // Call the coroutine to update the health bar smoothly
+        if (healthBarUI != null)
+        {
+            StartCoroutine(healthBarUI.UpdateHealthBarSmoothly());  // Trigger the health bar update
+        }
     }
+
 
     private void Die()
     {

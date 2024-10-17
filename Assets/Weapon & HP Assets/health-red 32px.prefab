@@ -10,8 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 3196036571002603102}
   - component: {fileID: 4298528530142876282}
-  - component: {fileID: -2569200553253185641}
-  - component: {fileID: 5400608531766293633}
+  - component: {fileID: 2735631451486341121}
+  - component: {fileID: -8679750526348153142}
+  - component: {fileID: -1279219671122453696}
   m_Layer: 0
   m_Name: health-red 32px
   m_TagString: Untagged
@@ -29,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 7.1190476, y: -15.023809, z: 0}
-  m_LocalScale: {x: 0.23809524, y: 0.23809524, z: 0.23809524}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -86,7 +87,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &-2569200553253185641
+--- !u!210 &2735631451486341121
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4265454734676841702}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 3
+  m_SortAtRoot: 0
+--- !u!114 &-8679750526348153142
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -95,12 +108,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 4265454734676841702}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9dccf4bc6c7caca48a83fc3941a8f4e0, type: 3}
+  m_Script: {fileID: 11500000, guid: e7bd10ce6bf10ab4ea113a55ab9b23f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gunIndexToUnlock: 0
-  interactKey: 101
---- !u!61 &5400608531766293633
+  healthRestorePercentage: 0.15
+--- !u!61 &-1279219671122453696
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -129,7 +141,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
