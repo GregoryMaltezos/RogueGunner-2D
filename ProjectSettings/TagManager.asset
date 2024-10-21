@@ -12,6 +12,7 @@ TagManager:
   - Obstacle
   - BodyAttackCollider
   - Sword
+  - FakeClone
   layers:
   - Default
   - TransparentFX
@@ -33,7 +34,7 @@ TagManager:
   - RedHood
   - BodyAttackCollider
   - Sword
-  - 
+  - FakeClone
   - 
   - 
   - 

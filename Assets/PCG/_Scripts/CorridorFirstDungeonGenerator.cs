@@ -307,7 +307,7 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     public void OnBossDefeated()
     {
         bossKills++; // Increment boss kill count
-        corridorCount += 10; // Increase corridor count by 4 each time
+        corridorCount += 5; // Increase corridor count by 4 each time
 
         // Increment the floor number
         currentFloor++;
@@ -382,5 +382,26 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
             }
         }
     }
+
+
+    public void TeleportToFourthFloor()
+    {
+        // Assuming 'currentFloor' is used to track the current dungeon floor
+        currentFloor = 4;
+
+        // Teleport player to new coordinates (3, 3, 3)
+        GameObject player = GameObject.FindWithTag("Player"); // Assuming the player has a "Player" tag
+        if (player != null)
+        {
+            player.transform.position = new Vector3(3f, 3f, 3f); // Teleport to (3, 3, 3)
+        }
+
+        // Regenerate the dungeon for the 4th floor (if required)
+        RunProceduralGeneration();
+
+        // Optionally, display a notification
+        StartCoroutine(ShowFloorNotification());
+    }
+
 
 }

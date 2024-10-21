@@ -1066,9 +1066,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 448286691}
-        m_TargetAssemblyTypeName: ResetButtonHandler, NewAssembly
-        m_MethodName: DiePlayer
+      - m_Target: {fileID: 1671293750}
+        m_TargetAssemblyTypeName: CorridorFirstDungeonGenerator, NewAssembly
+        m_MethodName: TeleportToFourthFloor
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
