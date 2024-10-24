@@ -15,6 +15,7 @@ public class CthuluController : MonoBehaviour
     private bool isFlying = false; // Is the boss currently flying?
     private bool isFiring = false; // Is the boss currently firing projectiles?
     private bool isMoving = false; // Is the boss currently moving towards the player
+    private bool isAttacking = false; // Is the boss currently in the attack phase
 
     public float minAttackDelay = 5f; // Minimum delay before the boss attacks
     public float maxAttackDelay = 10f; // Maximum delay before the boss attacks
@@ -28,9 +29,12 @@ public class CthuluController : MonoBehaviour
     public bool showDetectionRadius = true; // Toggle to visualize detection area
     private SpriteRenderer spriteRenderer;
 
-    // New variables for vertical oscillation
+    // Buffer distance and attack trigger distance
+    public float bufferDistance = 2f; // The distance to maintain from the player
+    public float attackTriggerDistance = 1f; // The distance at which to trigger the attack
     public float oscillationAmplitude = 1f; // Amplitude of the vertical movement
     public float oscillationSpeed = 2f; // Speed of the vertical oscillation
+    private Animator animator; // Reference to the Animator component
 
     void Start()
     {
@@ -41,6 +45,7 @@ public class CthuluController : MonoBehaviour
             Debug.LogError("Player not found! Make sure the player object has the 'Player' tag.");
         }
         spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>(); // Get the Animator component
         // Start the flying routine
         StartCoroutine(FlyingRoutine());
     }
@@ -70,8 +75,8 @@ public class CthuluController : MonoBehaviour
             TeleportPlayerToCenter();
         }
 
-        // Only move towards the player if they are within the detection radius and not firing or flying
-        if (IsPlayerInDetectionRadius() && !isFiring && !isFlying)
+        // Only move towards the player if they are within the detection radius and not firing, flying, or attacking
+        if (IsPlayerInDetectionRadius() && !isFiring && !isFlying && !isAttacking)
         {
             MoveTowardsPlayer();
         }
@@ -84,26 +89,142 @@ public class CthuluController : MonoBehaviour
     {
         Vector2 direction = (player.position - transform.position).normalized;
 
-        // Flip the sprite based on the player's position using the SpriteRenderer
-        if (direction.x > 0) // Player is to the right
+        // Check the distance to the player
+        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+
+        // Define a threshold for how close is "relatively close"
+        float closeDistanceThreshold = 5f; // You can adjust this value as needed
+
+        if (distanceToPlayer < closeDistanceThreshold)
         {
-            spriteRenderer.flipX = false; // Face right
+            // Calculate a new target position to move to the left or right of the player
+            float offset = 2f; // This defines how far to the left/right the boss will move
+            Vector2 targetPosition;
+
+            // Determine if the boss should be on the left or right of the player
+            if (transform.position.x < player.position.x)
+            {
+                targetPosition = new Vector2(player.position.x - offset, player.position.y); // Move to the left of the player
+            }
+            else
+            {
+                targetPosition = new Vector2(player.position.x + offset, player.position.y); // Move to the right of the player
+            }
+
+            // Attack if within attack distance
+            if (Vector2.Distance(transform.position, player.position) <= attackTriggerDistance)
+            {
+                // Trigger the attack
+                TriggerAttack();
+            }
+            else
+            {
+                // Maintain the buffer distance
+                if (Vector2.Distance(targetPosition, player.position) > bufferDistance)
+                {
+                    // Move towards the calculated target position
+                    direction = (targetPosition - (Vector2)transform.position).normalized;
+
+                    // Only flip the sprite if the boss is moving
+                    if (Mathf.Abs(direction.x) > 0.1f) // Check if the boss is moving horizontally
+                    {
+                        spriteRenderer.flipX = direction.x < 0; // Flip based on the movement direction
+                    }
+                }
+                else
+                {
+                    // Stop moving if within buffer distance
+                    direction = Vector2.zero;
+                }
+            }
         }
-        else if (direction.x < 0) // Player is to the left
+        else
         {
-            spriteRenderer.flipX = true; // Face left
+            // If the boss is further away, move towards the player normally
+            direction = (player.position - transform.position).normalized;
+
+            // Set the sprite direction based on movement
+            if (Mathf.Abs(direction.x) > 0.1f)
+            {
+                spriteRenderer.flipX = direction.x < 0;
+            }
         }
 
-        // Move towards player
-        transform.position += (Vector3)(direction * flyingSpeed * Time.deltaTime);
-
-        // Trigger the walking animation only if not already moving
-        if (!isMoving)
+        // Move towards the target direction if not stopped
+        if (direction != Vector2.zero)
         {
-            isMoving = true; // Set moving state
-            TriggerWalkingAnimation();
+            transform.position += (Vector3)(direction * flyingSpeed * Time.deltaTime);
+
+            // Trigger the walking animation only if not already moving
+            if (!isMoving)
+            {
+                isMoving = true; // Set moving state
+                TriggerWalkingAnimation();
+            }
+        }
+        else
+        {
+            // If not moving, stop walking animation
+            StopWalkingAnimation();
         }
     }
+
+    private void TriggerAttack()
+    {
+        if (!isAttacking) // Only trigger if not currently attacking
+        {
+            isAttacking = true; // Set attacking state
+            animator.SetTrigger("Attack"); // Trigger the attack animation
+            Debug.Log("Attack Triggered!");
+
+            float walkingAnimationDelay = 0.6f; // Set your desired delay here
+            StartCoroutine(AttackAndRetreatRoutine(walkingAnimationDelay)); // Pass the delay to the routine
+        }
+    }
+
+
+    private IEnumerator AttackAndRetreatRoutine(float walkingAnimationDelay)
+    {
+        // Wait for the attack animation duration
+        float attackDuration = 0.6f; // Adjust this based on the length of your attack animation
+        yield return new WaitForSeconds(attackDuration); // Wait for the attack to finish
+
+        // Delay before starting to walk again
+        yield return new WaitForSeconds(walkingAnimationDelay); // Add your custom delay here
+
+        // Now set the walking animation
+        TriggerWalkingAnimation(); // Start walking animation
+
+        // Start moving away from the player
+        yield return StartCoroutine(MoveAwayFromPlayer(2f)); // Move away for 2 seconds
+
+        // Reset the attacking state after retreating
+        isAttacking = false; // Allow attacking again after moving away
+    }
+
+    private IEnumerator MoveAwayFromPlayer(float duration)
+    {
+        float elapsed = 0f;
+
+        // Calculate the retreat direction, which is away from the player
+        Vector2 retreatDirection = (transform.position - player.position).normalized;
+
+        // Ensure the sprite faces away from the player by flipping it correctly
+        spriteRenderer.flipX = retreatDirection.x < 0; // Flip if retreating to the left
+
+        while (elapsed < duration)
+        {
+            // Move away from the player
+            transform.position += (Vector3)(retreatDirection * flyingSpeed * Time.deltaTime);
+            elapsed += Time.deltaTime; // Increment elapsed time
+            yield return null; // Wait for the next frame
+        }
+
+        // Stop walking animation after retreat
+        StopWalkingAnimation();
+    }
+
+
 
     private IEnumerator FlyingRoutine()
     {
@@ -139,7 +260,6 @@ public class CthuluController : MonoBehaviour
             StopWalkingAnimation();
         }
     }
-
     private IEnumerator SpawnProjectilesRoutine()
     {
         // Start firing all rows at the same time
@@ -150,7 +270,6 @@ public class CthuluController : MonoBehaviour
 
         yield return new WaitForSeconds(spawnDelay); // Optional delay before the next firing sequence
     }
-
     private IEnumerator SpawnProjectiles(int row)
     {
         float minY = -9f; // Minimum Y value for the last row
@@ -199,91 +318,88 @@ public class CthuluController : MonoBehaviour
             yield return new WaitForFixedUpdate();
         }
     }
-
     private bool ShouldSpawnProjectile(int col)
     {
         return Random.value > gapChance; // Chance to skip projectile
     }
 
+   
+    
+   
+    private void StartFiringProjectiles()
+    {
+        if (!isFiring)
+        {
+            isFiring = true; // Set firing state
+            StartCoroutine(FireProjectiles()); // Start firing coroutine
+        }
+    }
+
+    private IEnumerator FireProjectiles()
+    {
+        for (int row = 0; row < rows; row++)
+        {
+            for (int col = 0; col < columns; col++)
+            {
+                // Randomly decide to create a gap
+                if (Random.value > gapChance)
+                {
+                    // Instantiate the projectile
+                    GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
+                    Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
+                    if (rb != null)
+                    {
+                        rb.velocity = new Vector2((col - (columns - 1) / 2f) * projectileSpeed, -row * rowGap);
+                    }
+                }
+            }
+            yield return new WaitForSeconds(spawnDelay); // Delay between firing rows
+        }
+        isFiring = false; // Reset firing state after completing the firing sequence
+    }
+
+    private bool IsPlayerInDetectionRadius()
+    {
+        return Vector2.Distance(transform.position, player.position) <= detectionRadius;
+    }
+
+    private bool IsPlayerInRoom()
+    {
+        return IsPlayerInDetectionRadius(); // Assuming the room is defined by the detection radius
+    }
+
     private void CheckPlayerPosition()
     {
-        // Check if the player is outside the bounds of the room
-        if (!IsPlayerInRoom() && hasEnteredRoom)
+        if (player.position.y < -6) // Assuming -6 is the y-bound for the room
         {
-            Debug.Log("You may not leave!");
+            Debug.Log("Player is out of bounds! Teleporting back...");
             TeleportPlayerToCenter();
         }
     }
 
     private void TeleportPlayerToCenter()
     {
-        player.position = Vector3.zero; // Teleport player to (0, 0, 0)
+        player.position = new Vector2(0, 0); // Teleport the player back to center
     }
 
-    private bool IsPlayerInRoom()
+    private void TriggerWalkingAnimation()
     {
-        // Check if the player is within the square detection area
-        return player.position.x >= -10f && player.position.x <= 10f &&
-               player.position.y >= -10f && player.position.y <= 10f;
+        animator.SetTrigger("IsWalking"); // Trigger walking animation
     }
 
-    private bool IsPlayerInDetectionRadius()
+    private void StopWalkingAnimation()
     {
-        // Check if the player is within the detection radius
-        return player.position.x >= -detectionRadius / 2 && player.position.x <= detectionRadius / 2 &&
-               player.position.y >= -detectionRadius / 2 && player.position.y <= detectionRadius / 2;
+        animator.ResetTrigger("IsWalking"); // Reset walking animation trigger
+        isMoving = false; // Reset moving state
     }
 
-    void TriggerFlyingAnimation()
+    private void TriggerFlyingAnimation()
     {
-        Animator animator = GetComponent<Animator>();
-        if (animator != null)
-        {
-            animator.SetBool("IsFlying", true); // Use a boolean to loop the flying animation
-        }
-        else
-        {
-            Debug.LogError("Boss prefab is missing Animator component.");
-        }
+        animator.SetTrigger("IsFlying"); // Trigger flying animation
     }
 
-    void StopFlyingAnimation()
+    private void StopFlyingAnimation()
     {
-        Animator animator = GetComponent<Animator>();
-        if (animator != null)
-        {
-            animator.SetBool("IsFlying", false); // Reset the animation state
-        }
-    }
-
-    void TriggerWalkingAnimation()
-    {
-        Animator animator = GetComponent<Animator>();
-        if (animator != null)
-        {
-            animator.SetBool("IsWalking", true); // Use a boolean to start walking animation
-        }
-    }
-
-    void StopWalkingAnimation()
-    {
-        Animator animator = GetComponent<Animator>();
-        if (animator != null)
-        {
-            animator.SetBool("IsWalking", false); // Reset the walking animation state
-        }
-    }
-
-    // Draw the room and detection area in the Scene view
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red; // Color of the room
-        Gizmos.DrawWireCube(Vector3.zero, new Vector3(10f, 10f, 10f)); // Draw a wireframe cube for the 10x10 room
-
-        if (showDetectionRadius)
-        {
-            Gizmos.color = Color.blue; // Color for the detection radius
-            Gizmos.DrawWireCube(Vector3.zero, new Vector3(detectionRadius, detectionRadius, 0)); // Draw a wireframe cube for detection radius
-        }
+        animator.ResetTrigger("IsFlying"); // Reset flying animation trigger
     }
 }
