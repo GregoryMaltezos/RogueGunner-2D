@@ -271,21 +271,27 @@ public class Gun : MonoBehaviour
     {
         if (!infiniteAmmo)
         {
-            // Set the current clip ammo to the maximum per clip
+            // Fill the current clip to its maximum
             currentClipAmmo = ammoPerClip;
 
-            // Calculate the total bullets remaining correctly
-            bulletsRemaining = (clipsRemaining * ammoPerClip) + bulletsRemaining - ammoPerClip; // Adjusting for the clip we just set
+            // Set bullets remaining to the maximum possible minus the ammo in the clip
+            bulletsRemaining = maxAmmo - currentClipAmmo;
 
-            // Update clips remaining based on the new bullets remaining
-            clipsRemaining = Mathf.Clamp((maxAmmo - bulletsRemaining) / ammoPerClip, 0, maxAmmo / ammoPerClip); // Clamp to ensure it doesn't go negative
+            // Calculate how many clips can fit into the remaining bullets
+            clipsRemaining = bulletsRemaining / ammoPerClip;
+
+            // Clamp bulletsRemaining to ensure it doesn't go negative
+            bulletsRemaining = Mathf.Max(bulletsRemaining, 0);
+
             Debug.Log($"Ammo Restored - CurrentClipAmmo: {currentClipAmmo}, BulletsRemaining: {bulletsRemaining}, ClipsRemaining: {clipsRemaining}");
         }
         else
         {
+            // If infinite ammo is enabled, simply reset the clip ammo to full
             currentClipAmmo = ammoPerClip;
         }
 
+        // Update the WeaponManager with the new ammo state
         if (gunIndex != -1)
         {
             WeaponManager.instance.SetGunClipAmmo(gunIndex, currentClipAmmo);
@@ -293,8 +299,43 @@ public class Gun : MonoBehaviour
             WeaponManager.instance.SetGunClipsRemaining(gunIndex, clipsRemaining);
         }
 
+        // Update the UI to reflect the current state
         UpdateAmmoState(); // Ensure UI is updated when ammo is restored
     }
+
+    public void RestoreAmmoFromPickup()
+    {
+        // Calculate the amount of ammo to restore (1/4 of the max ammo)
+        int ammoToRestore = Mathf.FloorToInt(maxAmmo / 4f);
+
+        if (!infiniteAmmo)
+        {
+            // Restore the ammo to bullets remaining, ensuring it does not exceed the maximum ammo
+            bulletsRemaining = Mathf.Min(bulletsRemaining + ammoToRestore, maxAmmo);
+
+            // Update clips remaining based on updated bullets remaining
+            clipsRemaining = bulletsRemaining / ammoPerClip;
+
+            Debug.Log($"Ammo Restored by Pickup - BulletsRemaining: {bulletsRemaining}, ClipsRemaining: {clipsRemaining}");
+        }
+        else
+        {
+            // If infinite ammo is enabled, no need to change bullets remaining
+            Debug.Log("Ammo is infinite; no bullets were restored.");
+        }
+
+        // Update the WeaponManager with the new ammo state
+        if (gunIndex != -1)
+        {
+            WeaponManager.instance.SetGunBulletsRemaining(gunIndex, bulletsRemaining);
+            WeaponManager.instance.SetGunClipsRemaining(gunIndex, clipsRemaining);
+        }
+
+        // Update the UI to reflect the current state
+        UpdateAmmoState(); // Ensure UI is updated when ammo is restored
+    }
+
+
 
     public void UpdateAmmoState()
     {

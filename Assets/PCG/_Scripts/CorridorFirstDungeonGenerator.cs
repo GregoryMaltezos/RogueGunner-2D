@@ -335,7 +335,7 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         Debug.Log("Player gun preferences reset.");
     }
 
-    private IEnumerator RegenerateDungeon()
+    public IEnumerator RegenerateDungeon()
     {
         yield return new WaitForSeconds(1); // A brief delay to simulate transition
 
@@ -381,26 +381,6 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
                 Gizmos.DrawCube((Vector2)corridorTile + new Vector2(0.5f, 0.5f), Vector3.one);
             }
         }
-    }
-
-
-    public void TeleportToFourthFloor()
-    {
-        // Assuming 'currentFloor' is used to track the current dungeon floor
-        currentFloor = 4;
-
-        // Teleport player to new coordinates (3, 3, 3)
-        GameObject player = GameObject.FindWithTag("Player"); // Assuming the player has a "Player" tag
-        if (player != null)
-        {
-            player.transform.position = new Vector3(3f, 3f, 3f); // Teleport to (3, 3, 3)
-        }
-
-        // Regenerate the dungeon for the 4th floor (if required)
-        RunProceduralGeneration();
-
-        // Optionally, display a notification
-        StartCoroutine(ShowFloorNotification());
     }
 
 

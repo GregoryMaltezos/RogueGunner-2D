@@ -36,7 +36,9 @@ public class PrefabPlacer : MonoBehaviour
                     // Convert Vector2Int to Vector3 by adding a 0 for the z-axis
                     Vector2Int placementPosition = Vector2Int.RoundToInt(possiblePlacementSpot.Value + new Vector2(0.5f, 0.5f));
                     GameObject newObject = CreateObject(placementData.enemyPrefab, new Vector3(placementPosition.x, placementPosition.y, 0f));
-                    TagAsObstacle(newObject);
+
+                    // Set the tag as "Enemy"
+                    TagAsEnemy(newObject);
                     placedObjects.Add(newObject);
                 }
             }
@@ -97,7 +99,9 @@ public class PrefabPlacer : MonoBehaviour
             {
                 Debug.Log("Boss placement spot found at: " + possiblePlacementSpot.Value);
                 GameObject newObject = CreateObject(bossPlacementData.bossPrefab, possiblePlacementSpot.Value + new Vector2(0.5f, 0.5f));
-                TagAsObstacle(newObject);
+
+                // Tag the boss as "Enemy" and do NOT tag as "Obstacle"
+                TagAsEnemy(newObject);
                 placedObjects.Add(newObject);
             }
             else
@@ -108,7 +112,6 @@ public class PrefabPlacer : MonoBehaviour
 
         return placedObjects;
     }
-
 
     public GameObject CreateObject(GameObject prefab, Vector3 placementPosition)
     {
@@ -134,15 +137,11 @@ public class PrefabPlacer : MonoBehaviour
         {
             Debug.LogWarning("Failed to instantiate item.");
         }
-        else
-        {
-    //        Debug.Log("Item instantiated successfully at: " + placementPosition);
-        }
 
         return newItem;
     }
 
-    public GameObject PlaceSingleItem(GameObject prefab, Vector2 placementPosition)
+    public GameObject PlaceSingleItem(GameObject prefab, Vector2 placementPosition, bool isBoss = false)
     {
         if (prefab == null)
         {
@@ -159,16 +158,30 @@ public class PrefabPlacer : MonoBehaviour
         else
         {
             Debug.Log("Item instantiated successfully at: " + placementPosition);
+            // Only tag as an obstacle if it is not a boss
+            if (!isBoss)
+            {
+                TagAsObstacle(newItem);
+            }
         }
-        TagAsObstacle(newItem);
         return newItem;
+    }
+
+
+    // Method to tag enemies
+    private void TagAsEnemy(GameObject gameObject)
+    {
+        if (gameObject != null)
+        {
+            gameObject.tag = "Enemy";  // Set tag to "Enemy"
+        }
     }
 
     private void TagAsObstacle(GameObject gameObject)
     {
         if (gameObject != null)
         {
-            gameObject.tag = "Obstacle";
+            gameObject.tag = "Obstacle";  // Existing method to set tag to "Obstacle"
         }
     }
 }

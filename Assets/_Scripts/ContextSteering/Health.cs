@@ -4,33 +4,55 @@ using UnityEngine.Events;
 
 public class Health : MonoBehaviour
 {
+    // -------------------- Health Variables --------------------
+    [Header("Health Settings")]
     [SerializeField]
-    private int currentHealth, maxHealth;
-
-    public UnityEvent<GameObject> OnHitWithReference, OnDeathWithReference;
+    private int currentHealth; // Current health of the entity
 
     [SerializeField]
-    public bool isDead = false;
+    private int maxHealth; // Maximum health of the entity
 
-    private AgentAnimations agentAnimations;
+    [SerializeField]
+    public bool isDead = false; // Is the entity dead?
+
+    // -------------------- Events --------------------
+    [Header("Health Events")]
+    public UnityEvent<GameObject> OnHitWithReference; // Event triggered when hit
+    public UnityEvent<GameObject> OnDeathWithReference; // Event triggered on death
+
+    // -------------------- Health Drop Settings --------------------
+    [Header("Health Drop Settings")]
+    [SerializeField]
+    private GameObject healthPrefab; // Reference to the health prefab to spawn
+
+    [SerializeField]
+    private GameObject ammoPrefab; // Reference to the ammo prefab to spawn
+
+    [SerializeField]
+    [Range(0f, 1f)]
+    private float healthDropChance = 0.2f; // 20% chance to drop health
+
+    [SerializeField]
+    [Range(0f, 1f)]
+    private float ammoDropChance = 0.3f; // 30% chance to drop ammo
+
+    // -------------------- Animation & Movement References --------------------
+    [Header("Animation & Movement Settings")]
+    private AgentAnimations agentAnimations; // Reference to the AgentAnimations script
     private AgentMover agentMover; // Reference to the component responsible for movement
 
     [SerializeField]
     private float deathAnimationDuration = 1.0f; // Duration of the death animation before destruction
 
-    [SerializeField]
-    private GameObject healthPrefab; // Reference to the health prefab to spawn
-
-    [SerializeField]
-    private float healthDropChance = 0.2f; // 20% chance to drop health
-
+    // -------------------- Unity Lifecycle Methods --------------------
     private void Start()
     {
-        // Get reference to the AgentAnimations script to control animations
+        // Get reference to the AgentAnimations and AgentMover scripts
         agentAnimations = GetComponentInChildren<AgentAnimations>();
         agentMover = GetComponent<AgentMover>();
     }
 
+    // -------------------- Initialization --------------------
     public void InitializeHealth(int healthValue)
     {
         currentHealth = healthValue;
@@ -38,12 +60,21 @@ public class Health : MonoBehaviour
         isDead = false;
     }
 
+    // -------------------- Damage Handling --------------------
     public void GetHit(int amount, GameObject sender)
     {
         if (isDead)
             return;
+
+        // Check if the sender is on the same layer
         if (sender.layer == gameObject.layer)
             return;
+
+        // Check if the sender is a grenade
+        if (sender.CompareTag("PlayerGrenade"))
+        {
+            Debug.Log($"{gameObject.name} hit by grenade! Damage: {amount}");
+        }
 
         currentHealth -= amount;
 
@@ -53,49 +84,56 @@ public class Health : MonoBehaviour
             {
                 isDead = true;
                 OnDeathWithReference?.Invoke(sender);
-
-                if (agentAnimations != null)
-                {
-                    // Stop movement
-                    if (agentMover != null)
-                    {
-                        agentMover.SetMovement(false); // Stop movement
-                    }
-
-                    // Trigger the "Die" animation and start the coroutine to destroy after a delay
-                    agentAnimations.TriggerDeathAnimation();
-                    StartCoroutine(DestroyAfterDelay(deathAnimationDuration));
-                }
-                else
-                {
-                    // If no animations, stop movement and destroy immediately
-                    if (agentMover != null)
-                    {
-                        agentMover.SetMovement(false); // Stop movement
-                    }
-                    Destroy(gameObject);
-                }
+                HandleDeath();
             }
         }
         else
         {
-            if (agentAnimations != null)
-            {
-                // Trigger the "Hit" animation and start the coroutine to resume movement after it finishes
-                agentAnimations.TriggerHitAnimation();
-                StartCoroutine(ResumeMovementAfterDelay(0.5f));
-            }
-
-            OnHitWithReference?.Invoke(sender);
+            HandleHit(sender);
         }
     }
 
+    private void HandleDeath()
+    {
+        if (agentAnimations != null)
+        {
+            // Stop movement
+            if (agentMover != null)
+            {
+                agentMover.SetMovement(false); // Stop movement
+            }
+
+            // Trigger the "Die" animation and start the coroutine to destroy after a delay
+            agentAnimations.TriggerDeathAnimation();
+            StartCoroutine(DestroyAfterDelay(deathAnimationDuration));
+        }
+        else
+        {
+            // If no animations, stop movement and destroy immediately
+            if (agentMover != null)
+            {
+                agentMover.SetMovement(false); // Stop movement
+            }
+            Destroy(gameObject);
+        }
+    }
+
+    private void HandleHit(GameObject sender)
+    {
+        if (agentAnimations != null)
+        {
+            // Trigger the "Hit" animation and start the coroutine to resume movement after it finishes
+            agentAnimations.TriggerHitAnimation();
+            StartCoroutine(ResumeMovementAfterDelay(0.5f));
+        }
+
+        OnHitWithReference?.Invoke(sender);
+    }
+
+    // -------------------- Coroutine Methods --------------------
     private IEnumerator ResumeMovementAfterDelay(float delay)
     {
-        // Wait for the hit animation to finish (0.5 seconds)
         yield return new WaitForSeconds(delay);
-
-        // Re-enable movement after the animation is done
         if (agentMover != null && !isDead)
         {
             agentMover.SetMovement(true);
@@ -104,29 +142,37 @@ public class Health : MonoBehaviour
 
     private IEnumerator DestroyAfterDelay(float delay)
     {
-        // Wait for the death animation to finish
         yield return new WaitForSeconds(delay);
+        if (!TryDropAmmo())
+        {
+            TryDropHealth();
+        }
 
-        // Try to drop a health item with a 20% chance
-        TryDropHealth();
-
-        // Destroy the game object
         Destroy(gameObject);
     }
 
+    // -------------------- Drop Methods --------------------
     private void TryDropHealth()
     {
-        // Check if a health prefab is set and perform the random chance check
         if (healthPrefab != null && Random.value <= healthDropChance)
         {
-            // Instantiate the health prefab at the enemy's position
             Instantiate(healthPrefab, transform.position, Quaternion.identity);
         }
     }
 
+    private bool TryDropAmmo()
+    {
+        if (ammoPrefab != null && Random.value <= ammoDropChance)
+        {
+            Instantiate(ammoPrefab, transform.position, Quaternion.identity);
+            return true;
+        }
+        return false;
+    }
+
+    // -------------------- Collision Handling --------------------
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // Check for collision with a bullet
         if (collision.gameObject.CompareTag("FrBullet"))
         {
             Bullet bullet = collision.gameObject.GetComponent<Bullet>();
@@ -137,10 +183,8 @@ public class Health : MonoBehaviour
             }
         }
 
-        // Check for collision with a sword
         if (collision.gameObject.CompareTag("Sword"))
         {
-            // Apply 10 damage when hit by a sword
             GetHit(10, collision.gameObject);
         }
     }

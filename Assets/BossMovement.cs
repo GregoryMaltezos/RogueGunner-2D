@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class BossMovement : MonoBehaviour
 {
-    // Existing variables
     public float speed = 2f;
     public float changeDirectionTime = 2f;
     public float movementRadius = 5f;
@@ -35,6 +34,7 @@ public class BossMovement : MonoBehaviour
     private bool hasEnteredLowHealthPhase = false;
 
     public LayerMask obstacleLayer; // New variable for obstacle layer mask
+    private bool isDead = false; // New variable to track if the boss is dead
 
     private void Start()
     {
@@ -51,6 +51,8 @@ public class BossMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (isDead) return; // Exit if the boss is dead
+
         if (player != null)
         {
             if (!isAttacking || currentHealth <= maxHealth / 2)
@@ -65,6 +67,7 @@ public class BossMovement : MonoBehaviour
             }
         }
 
+        // Check for health phases
         if (!hasEnteredHalfHealthPhase && currentHealth <= maxHealth * 0.5f)
         {
             Debug.Log("Entering Half Health Phase");
@@ -149,7 +152,7 @@ public class BossMovement : MonoBehaviour
         isAttacking = true;
         animator.SetTrigger("Attack");
 
-        float animationDuration = 2.01f;
+        float animationDuration = 2.01f; // Adjust as needed for your animation
         yield return new WaitForSeconds(animationDuration);
 
         FireProjectiles();
@@ -193,7 +196,6 @@ public class BossMovement : MonoBehaviour
             Vector2 projectileMoveDirection = (projectileVector - (Vector2)transform.position).normalized * effectiveProjectileSpeed;
 
             GameObject proj = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
-
             proj.GetComponent<Rigidbody2D>().velocity = new Vector2(projectileMoveDirection.x, projectileMoveDirection.y);
 
             float angleToPlayer = Mathf.Atan2(projectileMoveDirection.y, projectileMoveDirection.x) * Mathf.Rad2Deg;
@@ -248,6 +250,21 @@ public class BossMovement : MonoBehaviour
     {
         currentHealth = health;
         Debug.Log($"Boss current health set to: {currentHealth}");
+
+        if (currentHealth <= 0 && !isDead) // Check if boss is dead
+        {
+            isDead = true; // Set dead flag
+            StartCoroutine(Die()); // Start dying process
+        }
+    }
+
+    private IEnumerator Die()
+    {
+        animator.SetTrigger("Die"); // Trigger dying animation
+        yield return new WaitForSeconds(2.01f); // Wait for animation to finish (adjust as necessary)
+
+        // Optional: Handle any post-death logic, e.g., spawning loot, removing boss, etc.
+        Destroy(gameObject); // Destroy the boss game object
     }
 
     private void FlashRed()

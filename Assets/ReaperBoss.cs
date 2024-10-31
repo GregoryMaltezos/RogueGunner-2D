@@ -17,25 +17,23 @@ public class ReaperBoss : MonoBehaviour
     public float additionalDelay = 1f;    // Additional delay before dashing
     public float invincibleDuration = 3f; // Duration of the invincible animation
 
-    // New public variable for invincibility chance
     [Range(0f, 1f)]
     public float invincibilityChance = 0.1f; // Chance of becoming invincible (0 to 1)
 
-    public float maxHealth = 100f;        // Maximum health of the boss
-    public float currentHealth;           // Current health of the boss
+    private float maxHealth = 100f;        // Maximum health of the boss
+    private float currentHealth;           // Current health of the boss
 
-    private Transform player;             // Reference to the player's Transform
-    private bool isAttacking = false;     // Flag to indicate if the boss is attacking
-    private bool isFacingRight = true;    // Flag to check if the boss is facing right
-    private bool playerDetected = false;  // Flag to track if the player has been detected
-    private bool isInvincible = false;    // Flag to indicate if the boss is invincible
-    private SpriteRenderer spriteRenderer; // Reference to the SpriteRenderer component
+    private Transform player;              // Reference to the player's Transform
+    private bool isAttacking = false;      // Flag to indicate if the boss is attacking
+    private bool isFacingRight = true;     // Flag to check if the boss is facing right
+    private bool playerDetected = false;   // Flag to track if the player has been detected
+    private bool isInvincible = false;      // Flag to indicate if the boss is invincible
+    private bool isDead = false;            // Flag to indicate if the boss is dead
+    private SpriteRenderer spriteRenderer;  // Reference to the SpriteRenderer component
+    private BossHp bossHp;                  // Reference to the BossHp script
 
     private void Start()
     {
-        // Initialize health
-        currentHealth = maxHealth;
-
         // Automatically find the player in the scene
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
 
@@ -44,6 +42,18 @@ public class ReaperBoss : MonoBehaviour
             Debug.LogError("Player not found. Make sure the player GameObject has the 'Player' tag.");
             return; // Exit if player is not found
         }
+
+        // Get the BossHp component
+        bossHp = GetComponent<BossHp>();
+        if (bossHp == null)
+        {
+            Debug.LogError("BossHp component missing from the boss.");
+            return;
+        }
+
+        // Initialize health
+        currentHealth = maxHealth;
+        bossHp.UpdateHealthBar(); // Set initial health bar value
 
         // Get the SpriteRenderer component
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -66,6 +76,8 @@ public class ReaperBoss : MonoBehaviour
 
     private void Update()
     {
+        if (isDead) return; // Stop executing if the boss is dead
+
         // If player is detected, move towards the player
         if (playerDetected && !isAttacking)
         {
@@ -93,7 +105,7 @@ public class ReaperBoss : MonoBehaviour
 
     private IEnumerator AttackSequence()
     {
-        while (true)
+        while (!isDead) // Continue only if the boss is not dead
         {
             // Only attack if the player has been detected and is within the attack radius
             if (playerDetected && !isAttacking && Vector2.Distance(transform.position, player.position) <= attackRadius)
@@ -129,7 +141,7 @@ public class ReaperBoss : MonoBehaviour
 
     private IEnumerator IdleAndInvincibilitySequence()
     {
-        while (true)
+        while (!isDead) // Continue only if the boss is not dead
         {
             // If not attacking, there's a chance to become invincible
             if (!isAttacking && !isInvincible)
@@ -186,7 +198,7 @@ public class ReaperBoss : MonoBehaviour
 
     private IEnumerator DashTowardsPlayer()
     {
-        if (player == null) yield break;
+        if (player == null || isDead) yield break; // Don't dash if dead
 
         // Play attack animation
         animator.SetTrigger("AttackAnimation");
@@ -246,29 +258,28 @@ public class ReaperBoss : MonoBehaviour
         {
             if (!isInvincible)
             {
-                // Send message to update health
-                SendMessage("HandleDamage", 10f);
+                // Use the BossHp component to handle damage
+                Bullet bullet = other.GetComponent<Bullet>();
+                if (bullet != null)
+                {
+                    // Damage the boss using the BossHp method
+                    bossHp.TakeDamage((int)bullet.damage); // Pass damage to BossHp
+                }
 
-                // Optionally, you can also notify BossHp directly if needed
-                // Ensure the BossHp component is on the same GameObject or use FindObjectOfType<BossHp>()
-                SendMessage("TakeDamage", 10f);
-
-                Destroy(other.gameObject); // Destroy the bullet after hitting the boss
+                // Destroy the bullet after hitting the boss
+                Destroy(other.gameObject);
             }
         }
-        // If the collision is with something else, do nothing
     }
 
-
-    // Method to handle health update via SendMessage
-    private void HandleDamage(float damage)
+    // Optional: Add a method to set current health, if needed
+    public void SetCurrentHealth(int health)
     {
-        if (isInvincible) return;
+        currentHealth = health;
+        bossHp.UpdateHealthBar();
 
-        currentHealth -= damage;
-        FlashRed(); // Trigger a visual effect
-
-        if (currentHealth <= 0)
+        // Check for boss death
+        if (currentHealth <= 0 && !isDead)
         {
             Die();
         }
@@ -276,23 +287,28 @@ public class ReaperBoss : MonoBehaviour
 
     private void Die()
     {
-        // Play death animation
-        animator.SetTrigger("DeathAnimation");
-
-        // Optionally destroy or deactivate the boss
-        Destroy(gameObject);
+        isDead = true; // Set the dead flag
+        rb.velocity = Vector2.zero; // Stop all movement
+        animator.SetTrigger("Die"); // Trigger death animation
+        // Optionally, destroy the boss object after a delay
+        Destroy(gameObject, 2f); // Adjust the delay as needed
     }
 
-    private void FlashRed()
+    // Optional: Method to flash red color
+    public void FlashRed()
     {
         StartCoroutine(FlashRedCoroutine());
     }
 
     private IEnumerator FlashRedCoroutine()
     {
-        Color originalColor = spriteRenderer.color;
-        spriteRenderer.color = Color.red;
-        yield return new WaitForSeconds(0.1f); // Adjust flash duration as needed
+        Color originalColor = spriteRenderer.color; // Store the original color
+        spriteRenderer.color = Color.red; // Change to red
+
+        // Wait for a short duration
+        yield return new WaitForSeconds(0.1f);
+
+        // Restore the original color
         spriteRenderer.color = originalColor;
     }
 }

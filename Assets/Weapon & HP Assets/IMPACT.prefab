@@ -10,15 +10,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -3471259007512774834, guid: b81ca350754174b469f8b616bd9093ea, type: 3}
       propertyPath: m_Radius
-      value: 0.08718554
+      value: 0.15831165
       objectReference: {fileID: 0}
     - target: {fileID: -3471259007512774834, guid: b81ca350754174b469f8b616bd9093ea, type: 3}
       propertyPath: m_Offset.x
-      value: 0.010358542
+      value: -0.0014958084
       objectReference: {fileID: 0}
     - target: {fileID: -3471259007512774834, guid: b81ca350754174b469f8b616bd9093ea, type: 3}
       propertyPath: m_Offset.y
-      value: -0.0015233159
+      value: 0.0044038696
+      objectReference: {fileID: 0}
+    - target: {fileID: -3471259007512774834, guid: b81ca350754174b469f8b616bd9093ea, type: 3}
+      propertyPath: m_IsTrigger
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -2500971801135404231, guid: b81ca350754174b469f8b616bd9093ea, type: 3}
       propertyPath: m_SortingOrder
@@ -99,6 +103,6 @@ MonoBehaviour:
   explosionEffectPrefab: {fileID: 5583357990724408602, guid: 56e93fce7891e9d43adf5d0f50a6dc18, type: 3}
   explosionLayers:
     serializedVersion: 2
-    m_Bits: 32503
-  explosionRadius: 4.67
+    m_Bits: 4294967295
+  explosionRadius: 3
   explosionDamage: 30

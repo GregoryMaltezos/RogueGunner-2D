@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,18 +8,21 @@ public class BossHp : MonoBehaviour
     [SerializeField] private float maxHp = 100f; // Default maximum HP
     private float currentHp;
     private bool hasFlashed = false; // To ensure the flash only happens once
+    private bool canTakeDamage = true; // New variable to track if the boss can take damage
 
     public string bossId; // Add this field for the boss ID
 
     private CorridorFirstDungeonGenerator dungeonGenerator; // Reference to the dungeon generator
 
     [SerializeField] private GameObject portalPrefab; // Drag the Portal prefab here in the Inspector
-
+    [SerializeField] private float deathAnimationDuration = 1f; // Duration of the death animation
+    public float CurrentHp => currentHp; // Expose current health
+    private BossHp bossHp;
     private void Start()
     {
         currentHp = maxHp; // Initialize HP
         UpdateHealthBar(); // Set initial slider value
-
+        bossHp = GetComponent<BossHp>();
         // Find the dungeon generator in the scene (if it exists)
         dungeonGenerator = FindObjectOfType<CorridorFirstDungeonGenerator>();
         if (dungeonGenerator == null)
@@ -29,7 +33,7 @@ public class BossHp : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
-        if (currentHp <= 0) return; // Prevent damage if already dead
+        if (!canTakeDamage || currentHp <= 0) return; // Prevent damage if flying or already dead
 
         currentHp -= amount; // Reduce HP
         if (currentHp < 0) currentHp = 0; // Prevent negative HP
@@ -47,7 +51,7 @@ public class BossHp : MonoBehaviour
 
         if (currentHp <= 0)
         {
-            Die(); // Handle boss death
+            StartCoroutine(Die()); // Handle boss death with animation
         }
     }
 
@@ -71,21 +75,22 @@ public class BossHp : MonoBehaviour
         }
     }
 
-    private void Die()
+    public IEnumerator Die()
     {
         Debug.Log("Boss is dead!");
-
-        // Spawn the portal instead of immediately triggering the next floor
+        GetComponent<Animator>().SetTrigger("Die");
+        yield return new WaitForSeconds(deathAnimationDuration);
         SpawnPortal();
 
-        // Complete challenge if this is the boss with ID "1"
         if (bossId == "1")
         {
             ChallengeManager.instance.CompleteChallenge("DefeatBoss1");
         }
 
-        Destroy(gameObject); // Destroy the boss object
+        Destroy(gameObject);
     }
+
+    public float MaxHp => maxHp; // Public property to expose maxHp
 
     private void SpawnPortal()
     {
@@ -98,5 +103,11 @@ public class BossHp : MonoBehaviour
         {
             Debug.LogError("Portal prefab not assigned in the Inspector.");
         }
+    }
+
+    // Public method to enable or disable damage
+    public void SetCanTakeDamage(bool value)
+    {
+        canTakeDamage = value;
     }
 }

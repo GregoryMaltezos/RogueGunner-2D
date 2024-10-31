@@ -34,8 +34,14 @@ public class CthuluController : MonoBehaviour
     public float attackTriggerDistance = 1f; // The distance at which to trigger the attack
     public float oscillationAmplitude = 1f; // Amplitude of the vertical movement
     public float oscillationSpeed = 2f; // Speed of the vertical oscillation
+    public float verticalOscillationAmplitude = 2f; // Amplitude for vertical projectiles' oscillation
+    public float verticalOscillationFrequency = 1f; // Frequency for vertical projectiles' oscillation
+    public bool IsFlying => isFlying;
     private Animator animator; // Reference to the Animator component
-
+    public LayerMask obstacleLayer; // Layer mask to detect obstacles
+    private float colliderXOffset;
+    private BossHp bossHp;
+    private bool isDead = false;
     void Start()
     {
         player = GameObject.FindWithTag("Player").transform;
@@ -44,21 +50,65 @@ public class CthuluController : MonoBehaviour
         {
             Debug.LogError("Player not found! Make sure the player object has the 'Player' tag.");
         }
+
         spriteRenderer = GetComponent<SpriteRenderer>();
-        animator = GetComponent<Animator>(); // Get the Animator component
+        animator = GetComponent<Animator>();
+
+        // Get the X offset from the first collider
+        Collider2D firstCollider = GetComponent<Collider2D>();
+        if (firstCollider != null)
+        {
+            colliderXOffset = firstCollider.bounds.extents.x; // Get the X offset
+        }
+        else
+        {
+            Debug.LogError("No Collider2D found on the boss.");
+        }
+
+        // Find the BossHp component
+        bossHp = GetComponent<BossHp>();
+        if (bossHp == null)
+        {
+            Debug.LogError("BossHp component not found on the boss.");
+        }
+
         // Start the flying routine
         StartCoroutine(FlyingRoutine());
     }
 
+
     void Update()
     {
+        if (bossHp != null && bossHp.CurrentHp <= 0)
+        {
+            HandleDeath();
+            return; // Exit update to stop further actions
+        }
+
+        // Check and adjust oscillation parameters based on boss's health
+        if (bossHp != null)
+        {
+            if (bossHp.CurrentHp <= bossHp.MaxHp * 0.2f)
+            {
+                // Set high oscillation values when health is below 20%
+                verticalOscillationAmplitude = 2f;
+                verticalOscillationFrequency = 1f;
+            }
+            else if (bossHp.CurrentHp <= bossHp.MaxHp * 0.65f)
+            {
+                // Set moderate oscillation values when health is below 65%
+                oscillationAmplitude = 2f;
+                oscillationSpeed = 1f;
+            }
+        }
+
         if (player == null)
         {
             player = GameObject.FindWithTag("Player")?.transform;
             if (player == null) return;
         }
 
-        // Check if the player is within the square detection area
+        // Check if the player is within the room boundary
         if (IsPlayerInRoom())
         {
             // If the player has just entered the room
@@ -76,7 +126,7 @@ public class CthuluController : MonoBehaviour
         }
 
         // Only move towards the player if they are within the detection radius and not firing, flying, or attacking
-        if (IsPlayerInDetectionRadius() && !isFiring && !isFlying && !isAttacking)
+        if (hasEnteredRoom && !isFiring && !isFlying && !isAttacking) // Check if the player has entered the room
         {
             MoveTowardsPlayer();
         }
@@ -85,96 +135,183 @@ public class CthuluController : MonoBehaviour
         CheckPlayerPosition();
     }
 
+    private void CheckPlayerPosition()
+    {
+        // Define the room's center and boundary size
+        Vector2 roomCenter = Vector2.zero;  // Room center at (0, 0)
+        float roomBoundary = 10f;  // Half the side length of a 10x10 room
+
+        // Check if the player has left the bounds of the room (±5 on x and y axes from room center)
+        if (hasEnteredRoom && (Mathf.Abs(player.position.x - roomCenter.x) > roomBoundary || Mathf.Abs(player.position.y - roomCenter.y) > roomBoundary))
+        {
+            Debug.Log("Player is out of bounds! Teleporting back to the center...");
+            TeleportPlayerToCenter();
+        }
+    }
+
+
+
+    private float damageCooldown = 2f; // Time in seconds before damage can be applied again
+    private float lastDamageTime;
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            // Skip damage if the boss is flying
+            if (isFlying) return; // Boss is invincible while flying
+
+            if (Time.time - lastDamageTime < damageCooldown)
+            {
+                return; // Exit if cooldown hasn't expired
+            }
+
+            PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
+
+            // Check if the player is invincible before applying damage
+            if (PlayerController.instance != null && PlayerController.instance.isInvincible)
+            {
+                return; // Do not apply damage if the player is invincible
+            }
+
+            // Apply damage to the player
+            if (playerHealth != null)
+            {
+                float damageAmount = 22f; // Adjust damage amount as needed
+                playerHealth.TakeDamage(damageAmount); // Call the TakeDamage method
+                lastDamageTime = Time.time; // Update the last damage time
+                Debug.Log("Player damaged by boss!");
+            }
+        }
+    }
+    private bool wasFlying = false;
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        // Check if collided with a bullet
+        if (collision.collider.CompareTag("FrBullet"))
+        {
+            // Skip hit animation if the boss is already dead
+            if (isDead)
+            {
+                return; // Boss is dead, do nothing
+            }
+
+            // Cancel the hit animation if attacking
+            if (isAttacking)
+            {
+                CancelHitAnimation(); // Cancel hit animation if attacking
+                return; // Don't play hit animation
+            }
+
+            // Only set the hurt animation if the boss wasn't flying recently
+            if (!isFlying)
+            {
+                animator.SetTrigger("Hit");
+                StartCoroutine(ReturnToWalking(0.5f)); // Wait for half a second before returning to walking
+            }
+        }
+    }
+
+    private void CancelHitAnimation()
+    {
+        // If hit animation is playing, you may want to reset the trigger or handle it as needed
+        animator.ResetTrigger("Hit"); // Resets the hit trigger; adjust if your animator uses a different approach
+        // Here you might want to also trigger a different state or animation
+    }
+
+
     private void MoveTowardsPlayer()
     {
         Vector2 direction = (player.position - transform.position).normalized;
 
         // Check the distance to the player
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-
-        // Define a threshold for how close is "relatively close"
-        float closeDistanceThreshold = 5f; // You can adjust this value as needed
+        float closeDistanceThreshold = 5f;
 
         if (distanceToPlayer < closeDistanceThreshold)
         {
-            // Calculate a new target position to move to the left or right of the player
-            float offset = 2f; // This defines how far to the left/right the boss will move
+            float offset = 2f;
             Vector2 targetPosition;
 
-            // Determine if the boss should be on the left or right of the player
             if (transform.position.x < player.position.x)
-            {
-                targetPosition = new Vector2(player.position.x - offset, player.position.y); // Move to the left of the player
-            }
+                targetPosition = new Vector2(player.position.x - offset, player.position.y);
             else
-            {
-                targetPosition = new Vector2(player.position.x + offset, player.position.y); // Move to the right of the player
-            }
+                targetPosition = new Vector2(player.position.x + offset, player.position.y);
 
-            // Attack if within attack distance
             if (Vector2.Distance(transform.position, player.position) <= attackTriggerDistance)
             {
-                // Trigger the attack
                 TriggerAttack();
             }
             else
             {
-                // Maintain the buffer distance
                 if (Vector2.Distance(targetPosition, player.position) > bufferDistance)
-                {
-                    // Move towards the calculated target position
                     direction = (targetPosition - (Vector2)transform.position).normalized;
-
-                    // Only flip the sprite if the boss is moving
-                    if (Mathf.Abs(direction.x) > 0.1f) // Check if the boss is moving horizontally
-                    {
-                        spriteRenderer.flipX = direction.x < 0; // Flip based on the movement direction
-                    }
-                }
                 else
-                {
-                    // Stop moving if within buffer distance
                     direction = Vector2.zero;
-                }
             }
         }
         else
         {
-            // If the boss is further away, move towards the player normally
             direction = (player.position - transform.position).normalized;
-
-            // Set the sprite direction based on movement
-            if (Mathf.Abs(direction.x) > 0.1f)
-            {
-                spriteRenderer.flipX = direction.x < 0;
-            }
         }
 
-        // Move towards the target direction if not stopped
         if (direction != Vector2.zero)
         {
-            transform.position += (Vector3)(direction * flyingSpeed * Time.deltaTime);
-
-            // Trigger the walking animation only if not already moving
-            if (!isMoving)
+            // Use Raycast to detect obstacles before moving
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, flyingSpeed * Time.deltaTime, obstacleLayer);
+            if (hit.collider == null) // Only move if no obstacle in the way
             {
-                isMoving = true; // Set moving state
-                TriggerWalkingAnimation();
+                transform.position += (Vector3)(direction * flyingSpeed * Time.deltaTime);
+
+                // Update sprite flip based on movement direction
+                if (Mathf.Abs(direction.x) > 0.1f)
+                {
+                    spriteRenderer.flipX = direction.x < 0; // Flip sprite to face the movement direction
+
+                    // Optional: If you have colliders that should also react to the flip
+                    foreach (Transform child in transform)
+                    {
+                        // Optionally adjust child collider settings here
+                        // Example: child.GetComponent<Collider2D>().isTrigger = !child.GetComponent<Collider2D>().isTrigger;
+                    }
+                }
+
+                if (!isMoving)
+                {
+                    isMoving = true;
+                    TriggerWalkingAnimation();
+                }
+            }
+            else
+            {
+                // If there's an obstacle, stop movement
+                StopWalkingAnimation();
             }
         }
         else
         {
-            // If not moving, stop walking animation
             StopWalkingAnimation();
         }
     }
+
+
 
     private void TriggerAttack()
     {
         if (!isAttacking) // Only trigger if not currently attacking
         {
             isAttacking = true; // Set attacking state
-            animator.SetTrigger("Attack"); // Trigger the attack animation
+
+            // Check the facing direction and set the appropriate trigger
+            if (spriteRenderer.flipX) // If facing left
+            {
+                animator.SetTrigger("AttackL"); // Trigger left attack animation
+            }
+            else // If facing right
+            {
+                animator.SetTrigger("Attack"); // Trigger right attack animation
+            }
+
             Debug.Log("Attack Triggered!");
 
             float walkingAnimationDelay = 0.6f; // Set your desired delay here
@@ -198,31 +335,58 @@ public class CthuluController : MonoBehaviour
         // Start moving away from the player
         yield return StartCoroutine(MoveAwayFromPlayer(2f)); // Move away for 2 seconds
 
+        TriggerBreathingAnimation();
+
+        // Wait for the breathing animation to finish (assuming 1.5 seconds for breathing)
+        float breathingDuration = 2.5f; // Adjust based on breathing animation length
+        yield return new WaitForSeconds(breathingDuration);
+
         // Reset the attacking state after retreating
         isAttacking = false; // Allow attacking again after moving away
+    }
+
+    private IEnumerator ReturnToWalking(float delay)
+    {
+        // Wait for the specified delay
+        yield return new WaitForSeconds(delay);
+
+        // Only trigger walking animation if not attacking
+        if (!isAttacking)
+        {
+            TriggerWalkingAnimation();
+        }
     }
 
     private IEnumerator MoveAwayFromPlayer(float duration)
     {
         float elapsed = 0f;
-
-        // Calculate the retreat direction, which is away from the player
         Vector2 retreatDirection = (transform.position - player.position).normalized;
+        spriteRenderer.flipX = retreatDirection.x < 0;
 
-        // Ensure the sprite faces away from the player by flipping it correctly
-        spriteRenderer.flipX = retreatDirection.x < 0; // Flip if retreating to the left
+        float roomBoundary = 9.5f;
 
         while (elapsed < duration)
         {
-            // Move away from the player
-            transform.position += (Vector3)(retreatDirection * flyingSpeed * Time.deltaTime);
-            elapsed += Time.deltaTime; // Increment elapsed time
-            yield return null; // Wait for the next frame
+            Vector2 newPosition = (Vector2)transform.position + (retreatDirection * flyingSpeed * Time.deltaTime);
+
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, retreatDirection, flyingSpeed * Time.deltaTime, obstacleLayer);
+
+            if (hit.collider == null && Mathf.Abs(newPosition.x) <= roomBoundary && Mathf.Abs(newPosition.y) <= roomBoundary)
+            {
+                transform.position = newPosition;
+                elapsed += Time.deltaTime;
+            }
+            else
+            {
+                break; // Stop moving if an obstacle is detected
+            }
+
+            yield return null;
         }
 
-        // Stop walking animation after retreat
         StopWalkingAnimation();
     }
+
 
 
 
@@ -231,6 +395,11 @@ public class CthuluController : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(Random.Range(minAttackDelay, maxAttackDelay)); // Random wait before flying
+
+            if (bossHp != null)
+            {
+                bossHp.SetCanTakeDamage(false); // Disable damage while flying
+            }
 
             isFlying = true; // Set flying state
             TriggerFlyingAnimation(); // Start flying animation
@@ -248,18 +417,98 @@ public class CthuluController : MonoBehaviour
             isFiring = true; // Set firing state
             yield return StartCoroutine(SpawnProjectilesRoutine());
 
+            // Additional attack if health is below 40%
+            if (bossHp != null && bossHp.CurrentHp <= bossHp.MaxHp * 0.4f)
+            {
+                yield return StartCoroutine(SpawnVerticalProjectilesRoutine());
+            }
+
             // Continue to stay in the middle while still flying
             yield return new WaitForSeconds(stayInMiddleDelay); // Stay in the middle for additional time
+
+            // Reset flying state and enable damage
+            if (bossHp != null)
+            {
+                bossHp.SetCanTakeDamage(true); // Re-enable damage after flying
+            }
 
             isFiring = false; // Reset firing state
             isFlying = false; // Exit flying state
             StopFlyingAnimation(); // Stop the flying animation
+            StopBreathingAnimation();
+            TriggerWalkingAnimation(); // Transition to walking after flying
+            isMoving = true; // Set moving state to true for walking
 
-            // Stop moving animation
-            isMoving = false;
-            StopWalkingAnimation();
+            // If the boss was flying and has just landed, don't play hurt animation
+            if (wasFlying)
+            {
+                wasFlying = false; // Reset flag
+                continue; // Skip this iteration
+            }
         }
     }
+
+    private IEnumerator SpawnVerticalProjectilesRoutine()
+    {
+        int columns = 10;             // Number of projectiles in each row
+        int totalRows = 15;           // Total rows to spawn
+        float xStart = -9.5f;         // Start of horizontal range
+        float xEnd = 9.5f;            // End of horizontal range
+        float yPos = 9.5f;            // Initial Y position (top of the screen)
+        float xGap = (xEnd - xStart) / (columns - 1); // Horizontal gap between projectiles
+        float rowSpacing = 1.0f;      // Distance between rows on the Y-axis
+
+        for (int row = 0; row < totalRows; row++)
+        {
+            for (int col = 0; col < columns; col++)
+            {
+                float xPos = xStart + (col * xGap); // Calculate X position for each column
+
+                if (ShouldSpawnProjectile(col)) // Optional: if you have conditions for spawning
+                {
+                    GameObject projectile = Instantiate(projectilePrefab, new Vector2(xPos, yPos), Quaternion.Euler(0, 0, 90)); // Rotate 90 degrees left
+                    Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
+
+                    if (rb != null)
+                    {
+                        // Apply the oscillation effect with the specific vertical oscillation parameters
+                        StartCoroutine(OscillateVerticalProjectile(rb, xPos, yPos));
+                    }
+                    else
+                    {
+                        Debug.LogError("Projectile prefab is missing Rigidbody2D component.");
+                    }
+                }
+            }
+
+            yPos += rowSpacing; // Move Y position down for the next row
+            yield return new WaitForSeconds(spawnDelay); // Delay between each row spawn
+        }
+    }
+
+    // Coroutine to apply the oscillation effect for vertical projectiles
+    private IEnumerator OscillateVerticalProjectile(Rigidbody2D rb, float initialX, float initialY)
+    {
+        float timer = 0f;
+
+        while (rb != null)
+        {
+            // Calculate new position with oscillation on X-axis
+            float xOscillation = initialX + Mathf.Sin(timer * verticalOscillationFrequency) * verticalOscillationAmplitude;
+            rb.position = new Vector2(xOscillation, rb.position.y - (projectileSpeed * Time.deltaTime)); // Move down and oscillate
+
+            timer += Time.deltaTime;
+            yield return null;
+        }
+    }
+    public void SetVerticalOscillation(float amplitude, float frequency)
+    {
+        verticalOscillationAmplitude = amplitude;
+        verticalOscillationFrequency = frequency;
+    }
+
+
+
     private IEnumerator SpawnProjectilesRoutine()
     {
         // Start firing all rows at the same time
@@ -323,9 +572,9 @@ public class CthuluController : MonoBehaviour
         return Random.value > gapChance; // Chance to skip projectile
     }
 
-   
-    
-   
+
+
+
     private void StartFiringProjectiles()
     {
         if (!isFiring)
@@ -358,24 +607,92 @@ public class CthuluController : MonoBehaviour
         isFiring = false; // Reset firing state after completing the firing sequence
     }
 
-    private bool IsPlayerInDetectionRadius()
-    {
-        return Vector2.Distance(transform.position, player.position) <= detectionRadius;
-    }
-
     private bool IsPlayerInRoom()
     {
-        return IsPlayerInDetectionRadius(); // Assuming the room is defined by the detection radius
+        // Check if the player's position is within the square room centered at (0,0)
+        Vector2 roomCenter = Vector2.zero;  // Room center at (0,0)
+        float roomBoundary = 10f;  // Half the side length of a 10x10 room
+
+        return Mathf.Abs(player.position.x - roomCenter.x) <= roomBoundary &&
+               Mathf.Abs(player.position.y - roomCenter.y) <= roomBoundary;
     }
 
-    private void CheckPlayerPosition()
+
+
+
+    private void HandleDeath()
     {
-        if (player.position.y < -6) // Assuming -6 is the y-bound for the room
+        if (!isDead)
         {
-            Debug.Log("Player is out of bounds! Teleporting back...");
-            TeleportPlayerToCenter();
+            isDead = true;
+            StopAllCoroutines(); // Stop all active coroutines
+            StopBossActions(); // Stop all other boss actions
+
+            // Ensure we are interrupting any animations
+            animator.ResetTrigger("Hit"); // Reset the hit state if needed
+            animator.SetTrigger("Die"); // Play death animation
+            Debug.Log("Boss has died!");
         }
     }
+
+    private void StopBossActions()
+    {
+        // Reset all action states to ensure no further actions are taken
+        isFlying = false;
+        isFiring = false;
+        isMoving = false;
+        isAttacking = false;
+        isBreathing = false;
+
+        // Disable the collider in the child object
+        Collider2D childCollider = GetComponentInChildren<Collider2D>();
+        if (childCollider != null)
+        {
+            childCollider.enabled = false; // Disable the child collider
+        }
+        else
+        {
+            Debug.LogWarning("No Collider2D found in children of the boss.");
+        }
+        StopBreathingAnimation();
+        StopWalkingAnimation();
+        StopFlyingAnimation(); 
+    }
+
+
+
+    private float breathingDurationLeft = 0f;
+    private bool isBreathing = false;
+    private void TriggerBreathingAnimation()
+    {
+        if (!isBreathing) // Only start breathing if not already breathing
+        {
+            isBreathing = true;
+            animator.SetTrigger("IsBreathing"); // Trigger breathing animation
+            breathingDurationLeft = 2.5f; // Set the breathing animation duration (adjust based on your animation length)
+            StartCoroutine(BreathingWaitCoroutine()); // Start coroutine to track breathing duration
+        }
+    }
+    private IEnumerator BreathingWaitCoroutine()
+    {
+        // While there's breathing time left, wait each frame
+        while (breathingDurationLeft > 0f)
+        {
+            breathingDurationLeft -= Time.deltaTime;
+            yield return null;
+        }
+
+        // Breathing is done, so stop the animation and transition to walking
+        StopBreathingAnimation();
+        TriggerWalkingAnimation();
+    }
+
+    private void StopBreathingAnimation()
+    {
+        isBreathing = false; // Reset breathing state
+        animator.ResetTrigger("IsBreathing"); // Reset breathing animation trigger
+    }
+   
 
     private void TeleportPlayerToCenter()
     {

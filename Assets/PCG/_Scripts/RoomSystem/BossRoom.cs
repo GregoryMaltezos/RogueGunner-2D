@@ -45,7 +45,8 @@ public class BossRoom : RoomGenerator
                 Vector2Int bossPosition = Vector2Int.zero; // Boss appears at the center (0, 0)
 
                 // No placement restrictions
-                GameObject boss = prefabPlacer.PlaceSingleItem(bossData.enemyPrefab, bossPosition);
+                GameObject boss = prefabPlacer.PlaceSingleItem(bossData.enemyPrefab, bossPosition, true);
+
                 if (boss != null)
                 {
                     placedObjects.Add(boss);

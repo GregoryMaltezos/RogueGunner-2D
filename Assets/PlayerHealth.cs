@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -67,6 +69,11 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
+    private void Die()
+    {
+        throw new NotImplementedException();
+    }
+
     public void Heal(float amount)
     {
         if (isDead) return;
@@ -85,22 +92,6 @@ public class PlayerHealth : MonoBehaviour
     }
 
 
-    private void Die()
-    {
-        isDead = true;
-        StartCoroutine(Respawn());
-    }
-
-    private IEnumerator Respawn()
-    {
-        yield return new WaitForSeconds(respawnTime);
-
-        currentHealth = maxHealth;
-        isDead = false;
-        transform.position = Vector3.zero; // Move to the respawn point
-
-        UpdateHealthBar();  // Update health bar
-    }
 
     // Make this method public
     public void UpdateHealthBar()
@@ -132,7 +123,5 @@ public class PlayerHealth : MonoBehaviour
         }
         UpdateHealthBar(); // Update the health bar to reflect loaded health
     }
-
-
 
 }

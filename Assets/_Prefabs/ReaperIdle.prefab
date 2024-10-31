@@ -139,8 +139,6 @@ MonoBehaviour:
   additionalDelay: 1
   invincibleDuration: 1.2
   invincibilityChance: 0.2
-  maxHealth: 100
-  currentHealth: 0
 --- !u!50 &-1859023713105104762
 Rigidbody2D:
   serializedVersion: 4
@@ -196,6 +194,7 @@ MonoBehaviour:
   maxHp: 100
   bossId: 3
   portalPrefab: {fileID: 5634491413255316653, guid: f905073b1c6ffb441ac09af5eb4c40a7, type: 3}
+  deathAnimationDuration: 1.4
 --- !u!61 &8125896018060994580
 BoxCollider2D:
   m_ObjectHideFlags: 0

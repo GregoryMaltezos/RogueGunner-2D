@@ -28,6 +28,8 @@ public class RedHoodBoss : MonoBehaviour
     private Color originalFillColor;
     private Color shadowOriginalColor;
 
+    private bool isDead = false; // Track whether the boss is dead
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -66,7 +68,7 @@ public class RedHoodBoss : MonoBehaviour
 
         if (player != null)
         {
-            while (true)
+            while (!isDead) // Check if the boss is dead before continuing
             {
                 Debug.Log("Boss is disappearing");
                 if (animator)
@@ -150,7 +152,6 @@ public class RedHoodBoss : MonoBehaviour
         }
     }
 
-
     void FindPlayer()
     {
         GameObject playerObject = GameObject.FindGameObjectWithTag(playerTag);
@@ -204,7 +205,6 @@ public class RedHoodBoss : MonoBehaviour
         Debug.Log($"Final teleport position: {teleportPosition}");
     }
 
-
     IEnumerator ChasePlayerUntilClose()
     {
         float distanceToPlayer;
@@ -229,21 +229,37 @@ public class RedHoodBoss : MonoBehaviour
 
             yield return null;
 
-        } while (distanceToPlayer > chaseDistanceThreshold);
+        } while (distanceToPlayer > chaseDistanceThreshold && !isDead); // Check if the boss is dead
 
         transform.position = new Vector2(Mathf.Clamp(transform.position.x, player.position.x - chaseDistanceThreshold, player.position.x + chaseDistanceThreshold), player.position.y);
     }
 
     IEnumerator MoveAwayFromPlayer()
     {
+        // Immediately exit if the boss is dead
+        if (isDead)
+        {
+            yield break; // Exit the coroutine
+        }
+
+        // If the boss is alive, proceed with the run away logic
         float journeyDuration = 2f;
         float elapsed = 0f;
 
         Vector2 startPosition = transform.position;
+
+        // Check if runAwayDistance is greater than 0 before trying to move
         Vector2 targetPosition = (Vector2)transform.position + (Vector2)((transform.position - player.position).normalized * runAwayDistance);
 
         while (elapsed < journeyDuration)
         {
+            // Check if the boss is dead at each iteration
+            if (isDead)
+            {
+                // Stop any ongoing actions and immediately exit
+                yield break;
+            }
+
             elapsed += Time.deltaTime;
 
             // Adjust shadow opacity during the movement
@@ -256,10 +272,12 @@ public class RedHoodBoss : MonoBehaviour
             // Flip the boss to face away from the player while running away
             FlipBoss(false);
 
+            // Move the boss towards the target position
             transform.position = Vector2.Lerp(startPosition, targetPosition, normalizedTime);
             yield return null;
         }
 
+        // Ensure the position is set to the final target position even if the loop ends
         transform.position = targetPosition;
 
         // Ensure shadow is fully invisible when the movement ends and remains invisible
@@ -268,7 +286,6 @@ public class RedHoodBoss : MonoBehaviour
             SetShadowOpacity(0f);
         }
     }
-
 
 
 
@@ -342,4 +359,38 @@ public class RedHoodBoss : MonoBehaviour
             shadowRenderer.color = shadowColor;
         }
     }
+
+    // Call this method to handle the boss's death
+    public void HandleDeath()
+    {
+        if (!isDead) // Ensure this logic only runs once
+        {
+            isDead = true; // Mark the boss as dead
+
+            // Interrupt all animations and set the death parameter
+            if (animator != null)
+            {
+                animator.SetBool("IsDead", true); // Assuming you have set up a boolean parameter
+                animator.SetTrigger("Death"); // Trigger the death animation
+            }
+
+            // Set run away distance to 0
+            runAwayDistance = 0f;
+
+            StopAllCoroutines(); // Stop any ongoing actions
+            SetBossVisibility(false); // Optionally hide boss after death
+
+            // Ensure the health bar is also hidden after death
+            SetHealthBarTransparency(0);
+
+            // Optionally set position to prevent movement after death
+            if (rb != null)
+            {
+                rb.velocity = Vector2.zero; // Ensure no movement occurs after death
+                rb.isKinematic = true; // Make it kinematic to prevent further physics interaction
+            }
+        }
+    }
+
+
 }

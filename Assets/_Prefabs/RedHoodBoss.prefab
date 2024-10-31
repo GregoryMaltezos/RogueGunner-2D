@@ -103,7 +103,7 @@ GameObject:
   - component: {fileID: 1713316692980930733}
   m_Layer: 17
   m_Name: RedHoodBoss
-  m_TagString: Redhood
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -319,6 +319,7 @@ MonoBehaviour:
   maxHp: 100
   bossId: 2
   portalPrefab: {fileID: 5634491413255316653, guid: f905073b1c6ffb441ac09af5eb4c40a7, type: 3}
+  deathAnimationDuration: 1
 --- !u!114 &1713316692980930733
 MonoBehaviour:
   m_ObjectHideFlags: 0

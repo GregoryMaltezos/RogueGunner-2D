@@ -31,7 +31,7 @@ public class ImpactNade : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        if (!exploded && ShouldExplode(collision.gameObject))
+        if (!exploded)
         {
             Explode();
         }
@@ -39,45 +39,36 @@ public class ImpactNade : MonoBehaviour
 
     void Explode()
     {
-        exploded = true;
-
         // Instantiate explosion effect
         GameObject explosionEffect = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
-
-        // Play any explosion sound or particle system
-        if (explosionEffect != null)
-        {
-            ParticleSystem explosionParticleSystem = explosionEffect.GetComponent<ParticleSystem>();
-            if (explosionParticleSystem != null)
-            {
-                explosionParticleSystem.Play();
-            }
-
-            AudioSource explosionAudio = explosionEffect.GetComponent<AudioSource>();
-            if (explosionAudio != null)
-            {
-                explosionAudio.Play();
-            }
-        }
-
-        // Destroy the explosion effect after a delay
-        Destroy(explosionEffect, 0.6f);
+        Destroy(explosionEffect, 0.6f); // Destroy the explosion effect after 0.6 seconds
 
         // Detect objects in the explosion radius
         Collider2D[] objectsInRange = Physics2D.OverlapCircleAll(transform.position, explosionRadius);
 
         foreach (Collider2D obj in objectsInRange)
         {
-            // Check if the object has a tag of "Enemy" or "Player"
+            // Check if the object has a tag of "Enemy"
             if (obj.CompareTag("Enemy"))
             {
-                // Get the object's health script (assuming it has a GetHit method)
+                // Try to get the Health component first
                 Health targetHealth = obj.GetComponent<Health>();
 
                 if (targetHealth != null)
                 {
                     // Apply full damage to the enemy
                     targetHealth.GetHit(explosionDamage, gameObject);
+                }
+                else
+                {
+                    // If Health component is not found, try to get the BossHp component
+                    BossHp bossHealth = obj.GetComponent<BossHp>();
+
+                    if (bossHealth != null)
+                    {
+                        // Apply full damage to the boss
+                        bossHealth.TakeDamage(explosionDamage);
+                    }
                 }
             }
             else if (obj.CompareTag("Player"))
@@ -93,15 +84,10 @@ public class ImpactNade : MonoBehaviour
             }
         }
 
-        // Destroy the grenade itself
-        Destroy(gameObject);
+        Destroy(gameObject); // Destroy the grenade
     }
 
-    bool ShouldExplode(GameObject other)
-    {
-        // Check if the collision is with a valid layer
-        return (explosionLayers.value & (1 << other.layer)) != 0;
-    }
+
 
     // Draw the explosion radius in the editor for visual debugging
     private void OnDrawGizmosSelected()

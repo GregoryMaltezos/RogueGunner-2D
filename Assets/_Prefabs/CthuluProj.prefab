@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: -8659385584156358059}
   - component: {fileID: 396191428008780193}
   - component: {fileID: -5693407839374060413}
+  - component: {fileID: 5372907425283928482}
   m_Layer: 15
   m_Name: CthuluProj
   m_TagString: Arrow
@@ -197,3 +198,16 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.1, y: 0.05}
   m_Direction: 0
+--- !u!114 &5372907425283928482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 334951504303206943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3911d54646a30ac4f8f6f3af84e6a784, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 18

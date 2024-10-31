@@ -175,10 +175,13 @@ MonoBehaviour:
   dashDuration: 0.3
   dashCooldown: 1
   invincibilityDuration: 1
+  attackCooldown: 0.5
+  isAttacking: 0
   isInvincible: 0
   weaponParent: {fileID: 1985542200416273952}
   playerHealth: {fileID: -3596271313554946687}
   currentAmmo: 30
+  attackDelay: 1
 --- !u!61 &3972042074098561728
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -467,7 +470,7 @@ MonoBehaviour:
   fireRate: 0.1
   maxAmmo: 12
   ammoPerClip: 6
-  reloadTime: 5
+  reloadTime: 4
   infiniteAmmo: 0
   currentClipAmmo: 0
   bulletsRemaining: 0
