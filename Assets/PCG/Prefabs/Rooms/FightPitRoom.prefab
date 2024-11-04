@@ -48,14 +48,49 @@ MonoBehaviour:
   enemyPlacementData:
   - enemyPrefab: {fileID: 3094051805721863274, guid: befb4cd3e122c99418502e04ec5a05a0, type: 3}
     enemySize: {x: 1, y: 1}
-    allowedFloors: 01000000
-    minQuantity: 3
-    maxQuantity: 5
+    allowedFloors: 01000000020000000300000004000000
+    minQuantity: 0
+    maxQuantity: 0
+    floorSpecificSpawnRanges:
+    - floorNumber: 1
+      minQuantity: 1
+      maxQuantity: 3
+    - floorNumber: 2
+      minQuantity: 2
+      maxQuantity: 5
+    - floorNumber: 3
+      minQuantity: 3
+      maxQuantity: 7
+    - floorNumber: 4
+      minQuantity: 5
+      maxQuantity: 8
+  - enemyPrefab: {fileID: 281607840164832092, guid: e0d6a27c9f529cd4fadbf640bd2bc066, type: 3}
+    enemySize: {x: 1, y: 1}
+    allowedFloors: 020000000300000004000000
+    minQuantity: 0
+    maxQuantity: 0
+    floorSpecificSpawnRanges:
+    - floorNumber: 2
+      minQuantity: 1
+      maxQuantity: 1
+    - floorNumber: 3
+      minQuantity: 2
+      maxQuantity: 2
+    - floorNumber: 4
+      minQuantity: 2
+      maxQuantity: 3
   - enemyPrefab: {fileID: 3094051805721863274, guid: 1397c4f806bc91a4fb1ddbc02224be99, type: 3}
     enemySize: {x: 1, y: 1}
-    allowedFloors: 0100000002000000
-    minQuantity: 1
-    maxQuantity: 2
+    allowedFloors: 0300000004000000
+    minQuantity: 0
+    maxQuantity: 0
+    floorSpecificSpawnRanges:
+    - floorNumber: 3
+      minQuantity: 2
+      maxQuantity: 4
+    - floorNumber: 4
+      minQuantity: 3
+      maxQuantity: 5
   itemData:
   - minQuantity: 3
     maxQuantity: 6

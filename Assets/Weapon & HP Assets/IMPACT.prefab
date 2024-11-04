@@ -104,5 +104,5 @@ MonoBehaviour:
   explosionLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  explosionRadius: 3
-  explosionDamage: 30
+  explosionRadius: 2
+  explosionDamage: 25

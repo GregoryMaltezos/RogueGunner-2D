@@ -198,18 +198,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3348746951f94ee498308faae9a7cb70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentHealth: 10
-  maxHealth: 10
+  currentHealth: 50
+  maxHealth: 50
+  isDead: 0
   OnHitWithReference:
     m_PersistentCalls:
       m_Calls: []
   OnDeathWithReference:
     m_PersistentCalls:
       m_Calls: []
-  isDead: 0
-  deathAnimationDuration: 1
   healthPrefab: {fileID: 4265454734676841702, guid: 7e93e484fa383af418c91dd768368ee8, type: 3}
-  healthDropChance: 0.9
+  ammoPrefab: {fileID: 3235366390622418501, guid: 93e9f732336ed2c4a8a3af9c6b831abf, type: 3}
+  healthDropChance: 0.1
+  ammoDropChance: 0.3
+  deathAnimationDuration: 1
 --- !u!1 &4346766088942835507
 GameObject:
   m_ObjectHideFlags: 0

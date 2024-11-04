@@ -101,6 +101,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bulletLifetime: 2
+  damage: 8
+  hasCollided: 0
 --- !u!50 &-9103306611630583538
 Rigidbody2D:
   serializedVersion: 4

@@ -185,7 +185,7 @@ public class Health : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Sword"))
         {
-            GetHit(10, collision.gameObject);
+            GetHit(22, collision.gameObject);
         }
     }
 }

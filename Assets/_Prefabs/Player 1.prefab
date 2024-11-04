@@ -171,7 +171,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  dashSpeed: 10
+  dashSpeed: 8
   dashDuration: 0.3
   dashCooldown: 1
   invincibilityDuration: 1
@@ -462,12 +462,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectilePrefab: {fileID: 2115820161184022471, guid: 926f8c41ce2d52a4cae71cf9436b6d91, type: 3}
   firePoint: {fileID: 4300827840191102243}
-  projectileSpeed: 80
+  projectileSpeed: 85
   isShotgun: 0
   shotgunPelletCount: 5
   shotgunSpreadAngle: 20
   isAutomatic: 0
-  fireRate: 0.1
+  fireRate: 1
   maxAmmo: 12
   ammoPerClip: 6
   reloadTime: 4
@@ -605,9 +605,9 @@ MonoBehaviour:
   shotgunPelletCount: 5
   shotgunSpreadAngle: 20
   isAutomatic: 1
-  fireRate: 0.1
-  maxAmmo: 200
-  ammoPerClip: 50
+  fireRate: 0.2
+  maxAmmo: 160
+  ammoPerClip: 40
   reloadTime: 1.7
   infiniteAmmo: 0
   currentClipAmmo: 0
@@ -1139,9 +1139,9 @@ MonoBehaviour:
   projectileSpeed: 10
   isShotgun: 1
   shotgunPelletCount: 5
-  shotgunSpreadAngle: 20
+  shotgunSpreadAngle: 22
   isAutomatic: 0
-  fireRate: 0.1
+  fireRate: 1.1
   maxAmmo: 25
   ammoPerClip: 5
   reloadTime: 3.2
@@ -1388,12 +1388,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectilePrefab: {fileID: 9051951479836635146, guid: 87eff92ae826fd047bb2b65e20a424a2, type: 3}
   firePoint: {fileID: 4058192266884483553}
-  projectileSpeed: 20
+  projectileSpeed: 15
   isShotgun: 0
   shotgunPelletCount: 5
   shotgunSpreadAngle: 20
   isAutomatic: 0
-  fireRate: 0.1
+  fireRate: 0.6
   maxAmmo: 30
   ammoPerClip: 10
   reloadTime: 2
@@ -1509,7 +1509,7 @@ Transform:
   m_GameObject: {fileID: 6259312518225969400}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.08799892, y: -0.005997465, z: 41.664}
+  m_LocalPosition: {x: 0.0944, y: -0.005997465, z: 41.664}
   m_LocalScale: {x: 2.087011, y: 2.0355308, z: 10.248004}
   m_ConstrainProportionsScale: 0
   m_Children: []

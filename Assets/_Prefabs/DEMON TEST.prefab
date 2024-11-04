@@ -573,12 +573,20 @@ PrefabInstance:
       value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: ammoPrefab
+      value: 
+      objectReference: {fileID: 3235366390622418501, guid: 93e9f732336ed2c4a8a3af9c6b831abf, type: 3}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: healthPrefab
       value: 
       objectReference: {fileID: 4265454734676841702, guid: 7e93e484fa383af418c91dd768368ee8, type: 3}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: currentHealth
       value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: ammoDropChance
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: OnHitWithReference.m_PersistentCalls.m_Calls.Array.size

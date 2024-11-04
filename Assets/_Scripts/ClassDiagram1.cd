@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="BossRoom" Collapsed="true">
+    <Position X="5.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAQIAAAAAAAAAAAAAAgAAAAAAggAAAAAAQ=</HashCode>
+      <FileName>Assets\_Scripts\Bosses\BossRoom.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Detector" Collapsed="true">
+    <Position X="16" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\_Scripts\ContextSteering\AI\Detector.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ObstacleAvoidanceBehaviour" Collapsed="true">
+    <Position X="11.75" Y="1.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>ABAEAAAACEAAAAAAAAAAAAAAAAACAAAAAACAAAAAAAA=</HashCode>
+      <FileName>Assets\_Scripts\ContextSteering\AI\ObstacleAvoidanceBehaviour.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ObstacleDetector" Collapsed="true">
+    <Position X="16.75" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAEAAAAAAAAIAAAAAAAAAAAIAAAAAAAAAAAEEAAAAA=</HashCode>
+      <FileName>Assets\_Scripts\ContextSteering\AI\ObstacleDetector.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SeekBehaviour" Collapsed="true">
+    <Position X="9.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAEAAEAAAAAAAAAAJAAAAAACAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>Assets\_Scripts\ContextSteering\AI\SeekBehaviour.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SteeringBehaviour" Collapsed="true">
+    <Position X="10.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\_Scripts\ContextSteering\AI\SteeringBehaviour.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TargetDetector" Collapsed="true">
+    <Position X="15" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAIAIgAAAAAAAAEAIAIAAAAAAAAAEAAAAAA=</HashCode>
+      <FileName>Assets\_Scripts\ContextSteering\AI\TargetDetector.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AbstractDungeonGenerator" Collapsed="true">
+    <Position X="12.25" Y="3.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAACCAAAAAABAAAAAAQAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\PCG\Scripts\AbstractDungeonGenerator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CorridorFirstDungeonGenerator" Collapsed="true">
+    <Position X="9.5" Y="7.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>iMAggCAACCIABAAiAAAAxSgh1ACgIAAAACABQEjAAEI=</HashCode>
+      <FileName>Assets\PCG\Scripts\CorridorFirstDungeonGenerator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RoomFirstDungeonGenerator" Collapsed="true">
+    <Position X="13.75" Y="8" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAKAACAAAAAAAgAAACAAQAAAECQAIAAgQAAAAAACAAA=</HashCode>
+      <FileName>Assets\PCG\Scripts\RoomFirstDungeonGenerator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FightingPitRoom" Collapsed="true">
+    <Position X="2.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAgAAAAAAAAAgAAACAAgAAAAAAAA=</HashCode>
+      <FileName>Assets\PCG\Scripts\RoomSystem\FightingPitRoom.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ItemRoom" Collapsed="true">
+    <Position X="5" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAIAAAAAAgAAICACwAAAAAAAI=</HashCode>
+      <FileName>Assets\PCG\Scripts\RoomSystem\ItemRoom.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PlayerRoom" Collapsed="true">
+    <Position X="7" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAgAAADAAgAAAAAAAA=</HashCode>
+      <FileName>Assets\PCG\Scripts\RoomSystem\PlayerRoom.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PlacementData" Collapsed="true">
+    <Position X="17" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAgAAAAAA=</HashCode>
+      <FileName>Assets\PCG\Scripts\RoomSystem\PlayerRoom.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ItemPlacementData" Collapsed="true">
+    <Position X="16.25" Y="5.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\PCG\Scripts\RoomSystem\PlayerRoom.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BossPlacementData" Collapsed="true">
+    <Position X="18.5" Y="5.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAQAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\PCG\Scripts\RoomSystem\PlayerRoom.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RoomGenerator">
+    <Position X="4.5" Y="3" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAA=</HashCode>
+      <FileName>Assets\PCG\Scripts\RoomSystem\RoomGenerator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SimpleRandomWalkDungeonGenerator" Collapsed="true">
+    <Position X="11.75" Y="5.75" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAQAAQAA=</HashCode>
+      <FileName>Assets\PCG\Scripts\SimpleRandomWalkDungeonGenerator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

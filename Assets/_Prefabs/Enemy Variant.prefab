@@ -554,7 +554,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: maxHealth
-      value: 10
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: ammoPrefab
@@ -566,7 +566,7 @@ PrefabInstance:
       objectReference: {fileID: 4265454734676841702, guid: 7e93e484fa383af418c91dd768368ee8, type: 3}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: currentHealth
-      value: 10
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: ammoDropChance
@@ -575,6 +575,18 @@ PrefabInstance:
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: healthDropChance
       value: 0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: maxHealthPerFloor.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: maxHealthPerFloor.Array.data[0]
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: maxHealthPerFloor.Array.data[1]
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: OnHitWithReference.m_PersistentCalls.m_Calls.Array.size
@@ -589,16 +601,40 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: OnDeathWithReference.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: OnHitWithReference.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1722632089904518065}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: OnDeathWithReference.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: OnHitWithReference.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: PlayFeedback
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: OnDeathWithReference.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: OnDeathWithReference.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: OnHitWithReference.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: KnockbackFeedback, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: OnDeathWithReference.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: OnDeathWithReference.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206649, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: m_Enabled
