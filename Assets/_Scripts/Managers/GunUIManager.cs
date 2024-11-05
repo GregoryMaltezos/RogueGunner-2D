@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
-using TMPro; // Import the TextMesh Pro namespace
+using TMPro;
+using System.Collections; // Import the TextMesh Pro namespace
 
 public class GunUIManager : MonoBehaviour
 {
-    public static GunUIManager instance; // Singleton instance
-
     // Reference to the ammo text UI element
-    public TextMeshProUGUI ammoText; // Make sure to assign this in the Inspector
+    public TextMeshProUGUI ammoText; // This will be assigned automatically
+    public static GunUIManager instance;
 
     void Awake()
     {
@@ -22,29 +22,80 @@ public class GunUIManager : MonoBehaviour
         }
     }
 
-    // Method to update the UI with the currently equipped gun's ammo
+
+    void Start()
+    {
+        // Automatically assign ammoText from PlayerHP > Panel > AmmoText
+        GameObject playerHPObject = GameObject.Find("PlayerHP");
+        if (playerHPObject != null)
+        {
+            Transform panelTransform = playerHPObject.transform.Find("Panel"); // Find the Panel
+            if (panelTransform != null)
+            {
+                Transform ammoTextTransform = panelTransform.Find("AmmoText"); // Find the AmmoText
+                if (ammoTextTransform != null)
+                {
+                    ammoText = ammoTextTransform.GetComponent<TextMeshProUGUI>(); // Assign the TextMeshProUGUI component
+                    if (ammoText == null)
+                    {
+                        Debug.LogError("AmmoText does not have a TextMeshProUGUI component.");
+                    }
+                    else
+                    {
+                        Debug.Log("ammoText assigned successfully.");
+                    }
+                }
+                else
+                {
+                    Debug.LogError("AmmoText grandchild not found under Panel.");
+                }
+            }
+           
+        }
+        else
+        {
+            Debug.LogError("PlayerHP object not found in the hierarchy.");
+        }
+
+        // Initialize UI
+        StartCoroutine(InitializeUI());
+    }
+
+    private IEnumerator InitializeUI()
+    {
+        while (WeaponManager.instance == null)
+        {
+            yield return null; // Wait until the next frame
+        }
+        UpdateUI(); // Now it's safe to call
+    }
+
     public void UpdateUI()
     {
+        // Check if WeaponManager.instance is available
+        if (WeaponManager.instance == null)
+        {
+            Debug.LogWarning("WeaponManager instance is null. Cannot update UI.");
+            return;
+        }
+
+        // Ensure that the current gun index is valid
         int currentGunIndex = WeaponManager.instance.GetCurrentGunIndex();
         Gun currentGun = WeaponManager.instance.GetGun(currentGunIndex);
 
         if (currentGun != null)
         {
-            // Directly access the ammo properties from the current gun instance
             int clipAmmo = currentGun.currentClipAmmo;
             int bulletsRemaining = currentGun.bulletsRemaining;
 
-            // Check if the gun has infinite ammo directly from the gun instance
             if (currentGun.infiniteAmmo)
             {
-                ammoText.text = $"{clipAmmo}/∞"; // Display as currentClipAmmo/∞
+                ammoText.text = $"{clipAmmo}/∞";
             }
             else
             {
-                ammoText.text = $"{clipAmmo}/{bulletsRemaining}"; // Normal display
+                ammoText.text = $"{clipAmmo}/{bulletsRemaining}";
             }
-
-         //   Debug.Log($"Updating UI: Current Clip Ammo: {clipAmmo}, Total Bullets Remaining: {bulletsRemaining}");
         }
         else
         {
@@ -52,10 +103,9 @@ public class GunUIManager : MonoBehaviour
         }
     }
 
-    // Optional: Method to explicitly handle weapon pickups and update UI
+
     public void OnWeaponPickup(int gunIndex)
     {
-        // Call UpdateUI to ensure the correct ammo is displayed for the current weapon
         UpdateUI();
     }
 }

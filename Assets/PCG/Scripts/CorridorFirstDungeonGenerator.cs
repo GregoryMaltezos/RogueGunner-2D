@@ -57,9 +57,16 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     private bool isFirstFloorGenerated = false; // Flag to check if the first floor is generated
     public int CurrentFloor => currentFloor;
     public static int urrentFloor { get; set; }
+
+
     void Start()
     {
         currentFloor = 1; // Example starting value
+    }
+    public void StartDungeonGeneration()
+    {
+        // This method can be called publicly to start the dungeon generation process
+        RunProceduralGeneration();
     }
 
     protected override void RunProceduralGeneration()
@@ -92,7 +99,7 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         StartCoroutine(ShowFloorNotification());
     }
 
-    private IEnumerator ShowFloorNotification()
+    public IEnumerator ShowFloorNotification()
     {
         // Initialize CanvasGroup and TextMeshProUGUI
         floorNotificationCanvasGroup.alpha = 0; // Start with alpha at 0 for fade-in effect
@@ -382,6 +389,16 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
             }
         }
     }
+    public void ResetForNewGame()
+{
+    // Reset dungeon parameters for a new game
+    currentFloor = 1; // Reset the floor number
+    corridorCount = 5; // Reset corridor count or adjust as needed
+    isFirstFloorGenerated = false; // Allow first floor to regenerate
+    roomsDictionary.Clear(); // Clear previous room data if necessary
+    floorPositions = new HashSet<Vector2Int>(); // Clear floor positions
+    corridorPositions = new HashSet<Vector2Int>(); // Clear corridor positions
+}
 
 
 }

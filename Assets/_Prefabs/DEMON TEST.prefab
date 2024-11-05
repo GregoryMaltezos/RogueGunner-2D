@@ -562,7 +562,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184154702068, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.527
+      value: 0.002
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184154702069, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: m_Layer
@@ -570,7 +570,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: maxHealth
-      value: 40
+      value: 70
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: ammoPrefab
@@ -582,7 +582,7 @@ PrefabInstance:
       objectReference: {fileID: 4265454734676841702, guid: 7e93e484fa383af418c91dd768368ee8, type: 3}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: currentHealth
-      value: 40
+      value: 70
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: ammoDropChance
@@ -646,11 +646,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206653, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.225
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206653, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.1625
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206653, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206653, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: m_LocalPosition.x
@@ -810,7 +814,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2334184185514041662, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.53
+      value: 0.001
       objectReference: {fileID: 0}
     - target: {fileID: 2334184185514041663, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: m_Layer
@@ -1064,7 +1068,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.0128223, y: 0.033024013}
+  m_Offset: {x: -0.008142352, y: 0.008064255}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -1075,7 +1079,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.7048488, y: 0.6998224}
+  m_Size: {x: 0.56445014, y: 0.56254375}
   m_EdgeRadius: 0
 --- !u!114 &1336382872624648518
 MonoBehaviour:
@@ -1129,7 +1133,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.0013861656, y: 0.0073036253}
+  m_Offset: {x: -0.009533733, y: 0.0026236847}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -1140,5 +1144,5 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.5758233, y: 0.5413324}
+  m_Size: {x: 0.4603845, y: 0.4446134}
   m_EdgeRadius: 0

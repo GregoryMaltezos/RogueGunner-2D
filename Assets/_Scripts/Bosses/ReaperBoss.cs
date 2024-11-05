@@ -198,22 +198,39 @@ public class ReaperBoss : MonoBehaviour
 
     private IEnumerator DashTowardsPlayer()
     {
-        if (player == null || isDead) yield break; // Don't dash if dead
+        if (player == null || isDead) yield break;
 
-        // Play attack animation
         animator.SetTrigger("AttackAnimation");
 
-        // Calculate the direction to the player
+        // Initial dash direction toward the player
         Vector2 direction = (player.position - transform.position).normalized;
-        rb.velocity = direction * dashSpeed;  // Use dashSpeed for faster movement
+        rb.velocity = direction * dashSpeed;
 
-        // Dash duration
-        yield return new WaitForSeconds(dashDuration);
+        // Check if the boss should track the player (health < 25%)
+        if (currentHealth <= maxHealth * 0.25f)
+        {
+            float trackingDuration = dashDuration; // Total duration for tracking
+            float trackingInterval = 0.3f; // Frequency of re-adjusting direction during dash
+
+            while (trackingDuration > 0)
+            {
+                // Recalculate direction towards the player for better tracking
+                direction = (player.position - transform.position).normalized;
+                rb.velocity = direction * dashSpeed;
+
+                // Wait for the interval before adjusting again
+                yield return new WaitForSeconds(trackingInterval);
+                trackingDuration -= trackingInterval;
+            }
+        }
+        else
+        {
+            // Wait for the regular dash duration if not tracking
+            yield return new WaitForSeconds(dashDuration);
+        }
 
         // Stop the dash and reset to idle animation
         rb.velocity = Vector2.zero;
-
-        // Ensure the idle animation is triggered right after the dash
         animator.SetTrigger("IdleAnimation");
     }
 
@@ -278,7 +295,17 @@ public class ReaperBoss : MonoBehaviour
         currentHealth = health;
         bossHp.UpdateHealthBar();
 
-        // Check for boss death
+        if (currentHealth <= maxHealth * 0.5f)
+        {
+            moveSpeed = 4f;
+            dashSpeed = 12f;
+        }
+
+        if (currentHealth <= maxHealth * 0.25f)
+        {
+            attackPause = 0.5f;
+        }
+
         if (currentHealth <= 0 && !isDead)
         {
             Die();

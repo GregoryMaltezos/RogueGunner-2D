@@ -96,8 +96,8 @@ public class BossHp : MonoBehaviour
     {
         if (portalPrefab != null)
         {
-            // Instantiate the portal at the boss's position or another suitable location
-            Instantiate(portalPrefab, transform.position, Quaternion.identity);
+            // Spawn the portal at the fixed position (0, 0)
+            Instantiate(portalPrefab, new Vector3(0, 0, 0), Quaternion.identity);
         }
         else
         {

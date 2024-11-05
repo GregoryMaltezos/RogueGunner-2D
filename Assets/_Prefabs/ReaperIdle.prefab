@@ -128,7 +128,7 @@ MonoBehaviour:
   animator: {fileID: 6909833251308173037}
   rb: {fileID: -1859023713105104762}
   spawnPrefab: {fileID: 6331664961975218581, guid: 6beaa7f548c07b44fb195c3f7b62829b, type: 3}
-  moveSpeed: 2
+  moveSpeed: 3
   dashSpeed: 10
   spawnHeight: 2
   delayBeforeMoving: 2
@@ -138,7 +138,7 @@ MonoBehaviour:
   attackPause: 1
   additionalDelay: 1
   invincibleDuration: 1.2
-  invincibilityChance: 0.2
+  invincibilityChance: 0.3
 --- !u!50 &-1859023713105104762
 Rigidbody2D:
   serializedVersion: 4
@@ -191,7 +191,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slider: {fileID: 7253115964904793906}
-  maxHp: 100
+  maxHp: 220
   bossId: 3
   portalPrefab: {fileID: 5634491413255316653, guid: f905073b1c6ffb441ac09af5eb4c40a7, type: 3}
   deathAnimationDuration: 1.4

@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class CthuluController : MonoBehaviour
 {
+    [Header("Projectile Settings")]
     public GameObject projectilePrefab; // Prefab for the projectile
     public int rows = 12; // Number of rows of projectiles
     public int columns = 12; // Total projectiles per row
@@ -11,6 +12,8 @@ public class CthuluController : MonoBehaviour
     public float gapChance = 0.3f; // Chance of leaving a gap (30%)
     public float rowGap = 0.5f; // Gap between each row of projectiles
 
+    // Boss Movement and Behavior Settings
+    [Header("Boss Movement and Behavior Settings")]
     public float flyingSpeed = 5f; // Speed at which the boss flies towards the center
     private bool isFlying = false; // Is the boss currently flying?
     private bool isFiring = false; // Is the boss currently firing projectiles?
@@ -21,15 +24,17 @@ public class CthuluController : MonoBehaviour
     public float maxAttackDelay = 10f; // Maximum delay before the boss attacks
     public float stayInMiddleDelay = 2f; // Additional time to stay in the middle after firing
 
+    // Player Detection Settings
+    [Header("Player Detection Settings")]
     private Transform player; // Reference to the player
     private bool hasEnteredRoom = false; // Track if the player has entered the room
 
-    // Detection radius
     public float detectionRadius = 10f; // Side length of the square detection area
     public bool showDetectionRadius = true; // Toggle to visualize detection area
     private SpriteRenderer spriteRenderer;
 
-    // Buffer distance and attack trigger distance
+    // Buffer and Attack Settings
+    [Header("Buffer and Attack Settings")]
     public float bufferDistance = 2f; // The distance to maintain from the player
     public float attackTriggerDistance = 1f; // The distance at which to trigger the attack
     public float oscillationAmplitude = 1f; // Amplitude of the vertical movement
@@ -37,11 +42,18 @@ public class CthuluController : MonoBehaviour
     public float verticalOscillationAmplitude = 2f; // Amplitude for vertical projectiles' oscillation
     public float verticalOscillationFrequency = 1f; // Frequency for vertical projectiles' oscillation
     public bool IsFlying => isFlying;
+
     private Animator animator; // Reference to the Animator component
     public LayerMask obstacleLayer; // Layer mask to detect obstacles
     private float colliderXOffset;
     private BossHp bossHp;
     private bool isDead = false;
+
+    // Damage Settings
+    [Header("Damage Settings")]
+    private float damageCooldown = 2f; // Time in seconds before damage can be applied again
+    private float lastDamageTime;
+
     void Start()
     {
         player = GameObject.FindWithTag("Player").transform;
@@ -151,8 +163,7 @@ public class CthuluController : MonoBehaviour
 
 
 
-    private float damageCooldown = 2f; // Time in seconds before damage can be applied again
-    private float lastDamageTime;
+
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -259,6 +270,7 @@ public class CthuluController : MonoBehaviour
         {
             // Use Raycast to detect obstacles before moving
             RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, flyingSpeed * Time.deltaTime, obstacleLayer);
+
             if (hit.collider == null) // Only move if no obstacle in the way
             {
                 transform.position += (Vector3)(direction * flyingSpeed * Time.deltaTime);
@@ -293,6 +305,7 @@ public class CthuluController : MonoBehaviour
             StopWalkingAnimation();
         }
     }
+
 
 
 

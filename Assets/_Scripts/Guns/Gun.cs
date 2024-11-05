@@ -16,6 +16,7 @@ public class Gun : MonoBehaviour
     public int ammoPerClip = 30; // Ammo per clip
     public float reloadTime = 2f; // Time it takes to reload
     public bool infiniteAmmo = false; // Is ammo infinite?
+    private bool facingRight = true;  // Assume initially facing right
 
     [HideInInspector] public int currentClipAmmo; // Current ammo in the clip
     [HideInInspector] public int bulletsRemaining; // Total bullets remaining
@@ -23,10 +24,23 @@ public class Gun : MonoBehaviour
 
     private bool isReloading = false; // Is the gun currently reloading?
     private float nextFireTime = 0f; // Time when the gun can fire again
-    private bool facingRight = true; // Is the character facing right?
     private int gunIndex; // Index of the gun in the weapon manager
     private int shotsFired; // Counter for shots fired when infinite ammo is enabled
     private const int maxShotsWithInfiniteAmmo = 12; // Max bullets before needing to reload
+
+    void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Debug.LogWarning("Multiple instances of Gun detected! Destroying duplicate.");
+            Destroy(gameObject); // Destroy the duplicate
+        }
+    }
+
 
     void Start()
     {
@@ -51,7 +65,6 @@ public class Gun : MonoBehaviour
             }
             WeaponManager.instance.SetGunClipAmmo(gunIndex, currentClipAmmo);
 
-          //  Debug.Log($"Gun Initialized: GunIndex={gunIndex}, CurrentClipAmmo={currentClipAmmo}, BulletsRemaining={bulletsRemaining}, ClipsRemaining={clipsRemaining}");
             UpdateAmmoState(); // Initialize the UI state
         }
         else
@@ -63,7 +76,7 @@ public class Gun : MonoBehaviour
     void Update()
     {
         // Check if the game is paused; if so, skip any firing logic
-        if (FindObjectOfType<PauseMenu>().IsPaused) // Check pause state
+        if (FindObjectOfType<PauseMenu>()?.IsPaused == true) // Safe null check for pause menu
             return;
 
         if (isReloading)
@@ -93,7 +106,6 @@ public class Gun : MonoBehaviour
         }
     }
 
-
     void AttemptToFire()
     {
         // Check if the player is currently attacking
@@ -107,7 +119,9 @@ public class Gun : MonoBehaviour
         {
             Fire();
             nextFireTime = Time.time + fireRate; // Set the next fire time
-            UpdateAmmoState(); // Update UI after firing
+
+            // Update UI to reflect ammo state after firing
+            UpdateAmmoState();
         }
         else if (clipsRemaining > 0)
         {
@@ -115,16 +129,12 @@ public class Gun : MonoBehaviour
         }
     }
 
-
     void Fire()
     {
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector3 shootDirection = mousePosition - firePoint.position;
         shootDirection.z = 0;
         shootDirection = shootDirection.normalized;
-
-        // Determine if the gun should flip based on shoot direction
-
 
         // Fire the projectile(s)
         if (!isShotgun)
@@ -144,7 +154,6 @@ public class Gun : MonoBehaviour
         // Handle ammo decrementing logic
         if (!infiniteAmmo)
         {
-            // Decrement ammo for normal guns
             if (currentClipAmmo > 0)
             {
                 currentClipAmmo--; // Decrement once per shot
@@ -162,13 +171,10 @@ public class Gun : MonoBehaviour
         }
         else
         {
-            // Infinite ammo handling
             if (currentClipAmmo > 0)
             {
-                // Decrement for display purposes
-                currentClipAmmo--; // Decrement the visual clip ammo
+                currentClipAmmo--; // Decrement for display purposes
                 shotsFired++; // Increase shots fired count
-                              //  Debug.Log($"Fired! Current Clip Ammo: {currentClipAmmo}");
 
                 // Update the WeaponManager with the new ammo state
                 WeaponManager.instance.SetGunClipAmmo(WeaponManager.instance.GetCurrentGunIndex(), currentClipAmmo);
@@ -197,7 +203,7 @@ public class Gun : MonoBehaviour
             Vector2 velocity = shootDirection * projectileSpeed;
             rb.velocity = velocity;
 
-            // Flip projectile based on facing direction
+            // Flip projectile based on the player's facing direction
             if (!facingRight)
             {
                 Vector3 projectileScale = projectileInstance.transform.localScale;
@@ -335,13 +341,16 @@ public class Gun : MonoBehaviour
         UpdateAmmoState(); // Ensure UI is updated when ammo is restored
     }
 
-
-
-    public void UpdateAmmoState()
+    void UpdateAmmoState()
     {
+        // Check if the instance is initialized
         if (GunUIManager.instance != null)
         {
-            GunUIManager.instance.UpdateUI();
+            GunUIManager.instance.UpdateUI(); // Only call if instance exists
+        }
+        else
+        {
+            Debug.LogWarning("GunUIManager.instance is null! UI will not be updated.");
         }
     }
 

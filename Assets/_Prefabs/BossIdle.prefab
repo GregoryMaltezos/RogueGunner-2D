@@ -33,7 +33,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 4.0724998, y: 3.775953, z: 1}
+  m_LocalScale: {x: 5, y: 5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5839800347958643218}
@@ -146,7 +146,7 @@ MonoBehaviour:
   projectileCount: 8
   projectileSpeed: 5
   animator: {fileID: 7053402465255407045}
-  maxHealth: 100
+  maxHealth: 500
   flashColor: {r: 1, g: 0, b: 0, a: 1}
   flashDuration: 0.5
   lowHealthFlashColor: {r: 0, g: 0, b: 0, a: 1}
@@ -240,7 +240,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slider: {fileID: 6551645746339622492}
-  maxHp: 250
+  maxHp: 500
   bossId: 1
   portalPrefab: {fileID: 5634491413255316653, guid: f905073b1c6ffb441ac09af5eb4c40a7, type: 3}
   deathAnimationDuration: 2

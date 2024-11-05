@@ -49,18 +49,21 @@ public class WeaponManager : MonoBehaviour
 
     void Start()
     {
+        // DEBUG: Clear PlayerPrefs (use only temporarily)
+        // PlayerPrefs.DeleteAll();
+
         LoadUnlockedGuns();
         LoadEquippedGunIndices();
         LoadPickedUpWeapons();
         LoadGunAmmoData();
 
-        // Ensure the pistol (slot 0) is always included
+        // Ensure pistol is included by default
         if (guns.Count > 0 && !equippedGunIndices.Contains(0))
         {
-            equippedGunIndices.Insert(0, 0); // Insert pistol at the beginning if not already present
+            equippedGunIndices.Insert(0, 0);
         }
 
-        // Ensure there is at least one equipped gun
+        // Set default gun index if no guns are equipped
         if (equippedGunIndices.Count > 0)
         {
             currentGunIndex = equippedGunIndices[0];
@@ -69,6 +72,7 @@ public class WeaponManager : MonoBehaviour
         UpdateGunsVisibility();
         GunUIManager.instance.UpdateUI(); // Update UI at the start of the game
     }
+
 
     void Update()
     {
@@ -82,7 +86,7 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-  public void SwitchWeapon(int slotIndex)
+    public void SwitchWeapon(int slotIndex)
     {
         if (slotIndex >= 0 && slotIndex < equippedGunIndices.Count)
         {
@@ -278,7 +282,7 @@ public class WeaponManager : MonoBehaviour
                     gunComponent.bulletsRemaining = GetGunBulletsRemaining(gunIndex);
                     gunComponent.clipsRemaining = GetGunClipsRemaining(gunIndex);
                     gunComponent.currentClipAmmo = GetGunClipAmmo(gunIndex);
-                   // Debug.Log($"Restored Ammo Data - GunIndex: {gunIndex}, BulletsRemaining: {gunComponent.bulletsRemaining}, ClipsRemaining: {gunComponent.clipsRemaining}, CurrentClipAmmo: {gunComponent.currentClipAmmo}");
+                    // Debug.Log($"Restored Ammo Data - GunIndex: {gunIndex}, BulletsRemaining: {gunComponent.bulletsRemaining}, ClipsRemaining: {gunComponent.clipsRemaining}, CurrentClipAmmo: {gunComponent.currentClipAmmo}");
                 }
             }
         }
@@ -400,21 +404,25 @@ public class WeaponManager : MonoBehaviour
 
     void LoadUnlockedGuns()
     {
+        // First, lock all guns
+        foreach (var gun in guns)
+        {
+            gun.locked = true;
+        }
+        // Then, unlock the guns from the saved data
         if (PlayerPrefs.HasKey(UnlockedGunsKey))
         {
             string[] unlockedGunsStr = PlayerPrefs.GetString(UnlockedGunsKey).Split(',');
-            for (int i = 0; i < unlockedGunsStr.Length; i++)
+            foreach (string gunStr in unlockedGunsStr)
             {
-                if (int.TryParse(unlockedGunsStr[i], out int gunIndex))
+                if (int.TryParse(gunStr, out int gunIndex) && gunIndex >= 0 && gunIndex < guns.Count)
                 {
-                    if (gunIndex >= 0 && gunIndex < guns.Count)
-                    {
-                        guns[gunIndex].locked = false;
-                    }
+                    guns[gunIndex].locked = false;
                 }
             }
         }
     }
+
 
     void SaveEquippedGunIndices()
     {

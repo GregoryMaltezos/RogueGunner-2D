@@ -220,7 +220,7 @@ MonoBehaviour:
   teleportRadius: 5
   dungeonLayerMask:
     serializedVersion: 2
-    m_Bits: 65536
+    m_Bits: 67584
   playerTag: Player
   runAwayDistance: 3
   invisibilityDuration: 5
@@ -316,7 +316,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slider: {fileID: 7638977412317626288}
-  maxHp: 100
+  maxHp: 350
   bossId: 2
   portalPrefab: {fileID: 5634491413255316653, guid: f905073b1c6ffb441ac09af5eb4c40a7, type: 3}
   deathAnimationDuration: 1

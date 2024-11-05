@@ -15,11 +15,12 @@ public class PlayerHealth : MonoBehaviour
     private bool isDead = false;
     private HealthBarUI healthBarUI;  // Reference to the HealthBarUI script
     public const string PlayerHealthKey = "PlayerHealth";
+    private Animator animator;
     private void Start()
     {
         currentHealth = maxHealth;
         healthBarUI = FindObjectOfType<HealthBarUI>(); // Find HealthBarUI once and cache the reference
-
+        animator = GetComponent<Animator>();
         if (healthBarUI != null)
         {
             StartCoroutine(healthBarUI.UpdateHealthBarSmoothly());  // Start the animation coroutine
@@ -28,6 +29,7 @@ public class PlayerHealth : MonoBehaviour
         {
             Debug.LogError("HealthBarUI component not found in the scene.");
         }
+
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -62,17 +64,46 @@ public class PlayerHealth : MonoBehaviour
             currentHealth = 0;
             Die();
         }
+        else
+        {
+            // Trigger hurt animation
+            PlayHurtAnimation();
+        }
 
         if (healthBarUI != null)
         {
             StartCoroutine(healthBarUI.UpdateHealthBarSmoothly());  // Trigger the health bar update
         }
     }
+    private void PlayHurtAnimation()
+    {
+        if (animator != null)
+        {
+            animator.SetTrigger("Hurt"); // Set the hurt trigger
+            StartCoroutine(ResetHurtTrigger(0.2f)); // Start coroutine to reset the trigger after 0.2 seconds
+        }
+    }
+
+    private IEnumerator ResetHurtTrigger(float delay)
+    {
+        yield return new WaitForSeconds(delay); // Wait for the specified delay
+        if (animator != null)
+        {
+            animator.ResetTrigger("Hurt"); // Reset the trigger
+            animator.SetTrigger("Idle");
+        }
+    }
 
     private void Die()
     {
-        throw new NotImplementedException();
+        Debug.Log("Player has died.");
+        isDead = true; // Set the dead flag to true
+
+        // Notify the PlayerController about the death
+        PlayerController.instance.Die(); // Call the Die method in PlayerController to show the death menu
+
     }
+
 
     public void Heal(float amount)
     {
