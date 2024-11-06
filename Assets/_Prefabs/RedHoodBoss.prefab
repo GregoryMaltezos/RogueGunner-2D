@@ -228,7 +228,7 @@ MonoBehaviour:
   cycleTime: 7
   chaseDistanceThreshold: 0.8
   chaseSpeed: 2
-  attackDamage: 10
+  attackDamage: 18
 --- !u!210 &-8040247705653738786
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -332,7 +332,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3911d54646a30ac4f8f6f3af84e6a784, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 10
+  damage: 18
 --- !u!1001 &916147554209735567
 PrefabInstance:
   m_ObjectHideFlags: 0

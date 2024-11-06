@@ -7,8 +7,9 @@ public class DeathMenu : MonoBehaviour
 {
     public Button tryAgainButton;
     public Button quitButton;
-    public Canvas canvas1; // Changed from CanvasGroup to Canvas
-    public Canvas canvas2; // Changed from CanvasGroup to Canvas
+    public Canvas canvas1; // Reference to the first canvas
+    public Canvas canvas2;
+    public Canvas canvas3; // Reference to the second canvas
 
     private CorridorFirstDungeonGenerator dungeonGenerator; // Reference to the dungeon generator
 
@@ -17,11 +18,7 @@ public class DeathMenu : MonoBehaviour
         // Assuming these buttons are children of the death menu panel
         tryAgainButton.onClick.AddListener(OnTryAgain);
         quitButton.onClick.AddListener(QuitToMainMenu);
-
-        // Disable canvases at the start
-        if (canvas1 != null) canvas1.enabled = false; // Disable the first canvas
-        if (canvas2 != null) canvas2.enabled = false; // Disable the second canvas
-
+        if (canvas3 != null) canvas3.enabled = true;
         // Find the CorridorFirstDungeonGenerator in the scene
         dungeonGenerator = FindObjectOfType<CorridorFirstDungeonGenerator>();
         if (dungeonGenerator == null)
@@ -32,17 +29,22 @@ public class DeathMenu : MonoBehaviour
 
     public void ShowDeathMenu()
     {
-        // Show the death menu and enable the canvases
+        // Show the death menu and disable other canvases only when the death menu appears
         gameObject.SetActive(true);
-        if (canvas1 != null) canvas1.enabled = true; // Enable the first canvas
-        if (canvas2 != null) canvas2.enabled = true; // Enable the second canvas
+
+        // Disable canvas1 and canvas2 when the death menu appears
+        if (canvas1 != null) canvas1.enabled = false; // Disable the first canvas
+        if (canvas2 != null) canvas2.enabled = false; // Disable the second canvas
+        if (canvas3 != null) canvas3.enabled = false;
     }
 
     public void OnTryAgain()
     {
-        // Disable the canvases before regenerating the dungeon
-        if (canvas1 != null) canvas1.enabled = false;
-        if (canvas2 != null) canvas2.enabled = false;
+        // Re-enable the canvases before starting a new game attempt
+        if (canvas1 != null) canvas1.enabled = true;  // Re-enable the first canvas
+        if (canvas2 != null) canvas2.enabled = true;  // Re-enable the second canvas
+        if (canvas3 != null) canvas3.enabled = true;
+
 
         // Check if the dungeon generator is available
         if (dungeonGenerator != null)
@@ -53,10 +55,7 @@ public class DeathMenu : MonoBehaviour
             // Regenerate the dungeon immediately
             StartCoroutine(RegenerateDungeon());
         }
-
-        // Enable the canvases after the dungeon is regenerated (in ShowDeathMenu or elsewhere)
     }
-
 
     private IEnumerator RegenerateDungeon()
     {
@@ -75,7 +74,7 @@ public class DeathMenu : MonoBehaviour
 
     public void QuitToMainMenu()
     {
-        // Load the main menu scene (replace "MainMenu" with your actual scene name)
+        if (canvas3 != null) canvas3.enabled = false;
         SceneManager.LoadScene("MainMenuScene");
     }
 }

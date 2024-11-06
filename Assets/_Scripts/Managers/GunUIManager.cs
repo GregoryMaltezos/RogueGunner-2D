@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using TMPro;
-using System.Collections; // Import the TextMesh Pro namespace
+using System.Collections;
 
 public class GunUIManager : MonoBehaviour
 {
@@ -8,23 +9,34 @@ public class GunUIManager : MonoBehaviour
     public TextMeshProUGUI ammoText; // This will be assigned automatically
     public static GunUIManager instance;
 
+    // Reference to PlayerAmmo UI element
+    private GameObject playerAmmo;
+
     void Awake()
     {
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject);
+            DontDestroyOnLoad(gameObject); // Persist across scenes
         }
         else
         {
             Debug.LogWarning("Multiple instances of GunUIManager found. Destroying the new one.");
             Destroy(gameObject);
         }
-    }
 
+        // Find PlayerAmmo in the GunUIManager
+        playerAmmo = transform.Find("PlayerAmmo")?.gameObject;
+
+        // Register to handle scene loaded event
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
 
     void Start()
     {
+        // Adjust visibility when the game starts
+        AdjustPlayerAmmoVisibility();
+
         // Automatically assign ammoText from PlayerHP > Panel > AmmoText
         GameObject playerHPObject = GameObject.Find("PlayerHP");
         if (playerHPObject != null)
@@ -50,7 +62,6 @@ public class GunUIManager : MonoBehaviour
                     Debug.LogError("AmmoText grandchild not found under Panel.");
                 }
             }
-           
         }
         else
         {
@@ -103,9 +114,66 @@ public class GunUIManager : MonoBehaviour
         }
     }
 
-
     public void OnWeaponPickup(int gunIndex)
     {
         UpdateUI();
+    }
+
+    // Adjust PlayerAmmo visibility based on the scene
+    private void AdjustPlayerAmmoVisibility()
+    {
+        // Check the current scene
+        string currentSceneName = SceneManager.GetActiveScene().name;
+
+        if (currentSceneName == "MainMenu")
+        {
+            // Disable PlayerAmmo in the Main Menu
+            DisablePlayerAmmo();
+        }
+        else
+        {
+            // Enable PlayerAmmo in any game scene
+            EnablePlayerAmmo();
+        }
+    }
+
+    // Enable PlayerAmmo when in game scenes
+    private void EnablePlayerAmmo()
+    {
+        if (playerAmmo != null && !playerAmmo.activeSelf)
+        {
+            playerAmmo.SetActive(true);
+            Debug.Log("PlayerAmmo enabled in the game scene.");
+        }
+        else
+        {
+            Debug.LogWarning("PlayerAmmo is null or already enabled.");
+        }
+    }
+
+    // Disable PlayerAmmo when in the Main Menu
+    private void DisablePlayerAmmo()
+    {
+        if (playerAmmo != null && playerAmmo.activeSelf)
+        {
+            playerAmmo.SetActive(false);
+            Debug.Log("PlayerAmmo disabled in the Main Menu.");
+        }
+        else
+        {
+            Debug.LogWarning("PlayerAmmo is null or already disabled.");
+        }
+    }
+
+    // Handle scene loaded events to adjust visibility based on the scene
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        AdjustPlayerAmmoVisibility();
+    }
+
+    // Clean up the event subscription when this object is destroyed
+    void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 }

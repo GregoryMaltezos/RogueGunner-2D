@@ -8,7 +8,6 @@ public class FadeManager : MonoBehaviour
     [SerializeField] private float fadeOutDuration = 2f; // Duration of the fade out
     [SerializeField] private float fadeInDuration = 2f;  // Duration of the fade in
 
-    // Change this from private to public or protected internal
     public Canvas transitionCanvas; // Reference to the Canvas to change its sorting order
 
     private void Start()
@@ -25,10 +24,12 @@ public class FadeManager : MonoBehaviour
             Debug.LogError("Fade Image is not assigned in the Inspector.");
         }
 
-        // Ensure the transition canvas is active
+        // Ensure the transition canvas is active, but disable raycast blocking
         if (transitionCanvas != null)
         {
-            transitionCanvas.gameObject.SetActive(true); // Activate the canvas
+            transitionCanvas.gameObject.SetActive(true);
+            transitionCanvas.sortingOrder = 0; // Start with low sorting order
+            fadeImage.raycastTarget = false; // Prevent fade image from blocking clicks
         }
         else
         {
@@ -40,7 +41,8 @@ public class FadeManager : MonoBehaviour
     {
         if (transitionCanvas != null)
         {
-            transitionCanvas.sortingOrder = 3; // Change sorting order for fade out
+            transitionCanvas.sortingOrder = 3; // Bring canvas to the front for fade out
+            fadeImage.raycastTarget = true;    // Enable blocking during fade out
         }
 
         float elapsedTime = 0f;
@@ -48,13 +50,12 @@ public class FadeManager : MonoBehaviour
 
         while (elapsedTime < fadeOutDuration)
         {
-            elapsedTime += Time.unscaledDeltaTime; // Use unscaledDeltaTime
-            tempColor.a = Mathf.Clamp01(elapsedTime / fadeOutDuration); // Fade the alpha from 0 to 1
+            elapsedTime += Time.unscaledDeltaTime;
+            tempColor.a = Mathf.Clamp01(elapsedTime / fadeOutDuration);
             fadeImage.color = tempColor;
-            yield return null; // Wait for the next frame
+            yield return null;
         }
 
-        // Ensure it's fully black at the end
         tempColor.a = 1f;
         fadeImage.color = tempColor;
         Debug.Log("Fade to black complete.");
@@ -67,20 +68,21 @@ public class FadeManager : MonoBehaviour
 
         while (elapsedTime < fadeInDuration)
         {
-            elapsedTime += Time.unscaledDeltaTime; // Use unscaledDeltaTime
-            tempColor.a = Mathf.Clamp01(1 - (elapsedTime / fadeInDuration)); // Fade the alpha from 1 to 0
+            elapsedTime += Time.unscaledDeltaTime;
+            tempColor.a = Mathf.Clamp01(1 - (elapsedTime / fadeInDuration));
             fadeImage.color = tempColor;
-            yield return null; // Wait for the next frame
+            yield return null;
         }
 
-        // Ensure it's fully clear at the end
         tempColor.a = 0f;
         fadeImage.color = tempColor;
 
         if (transitionCanvas != null)
         {
-            transitionCanvas.sortingOrder = 0; // Restore sorting order after fade in
+            transitionCanvas.sortingOrder = 0; // Lower the sorting order after fade in
+            fadeImage.raycastTarget = false;   // Disable blocking after fade in
         }
+
         Debug.Log("Fade to clear complete.");
     }
 }

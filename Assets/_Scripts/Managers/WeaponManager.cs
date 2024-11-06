@@ -49,6 +49,12 @@ public class WeaponManager : MonoBehaviour
 
     void Start()
     {
+        // Ensure the first gun is always unlocked
+        if (guns.Count > 0)
+        {
+            guns[0].locked = false; // Unlock the first gun
+        }
+
         // DEBUG: Clear PlayerPrefs (use only temporarily)
         // PlayerPrefs.DeleteAll();
 
@@ -57,7 +63,7 @@ public class WeaponManager : MonoBehaviour
         LoadPickedUpWeapons();
         LoadGunAmmoData();
 
-        // Ensure pistol is included by default
+        // Ensure pistol (first gun) is included by default
         if (guns.Count > 0 && !equippedGunIndices.Contains(0))
         {
             equippedGunIndices.Insert(0, 0);
@@ -72,6 +78,7 @@ public class WeaponManager : MonoBehaviour
         UpdateGunsVisibility();
         GunUIManager.instance.UpdateUI(); // Update UI at the start of the game
     }
+
 
 
     void Update()
@@ -149,6 +156,7 @@ public class WeaponManager : MonoBehaviour
 
     public void ResetPickedUpWeapons()
     {
+        pickedUpWeapons.Clear();
         pickedUpWeapons.Clear();
         SavePickedUpWeapons();
     }
@@ -252,7 +260,7 @@ public class WeaponManager : MonoBehaviour
         foreach (var gun in guns)
         {
             int gunIndex = GetGunIndex(gun.gunObject);
-            if (gunIndex != -1)
+            if (gunIndex != -1 && gun.gunObject != null) // Ensure the gunObject is not null
             {
                 Gun gunComponent = gun.gunObject.GetComponent<Gun>();
                 if (gunComponent != null)
@@ -267,6 +275,7 @@ public class WeaponManager : MonoBehaviour
 
         SaveGunAmmoData();
     }
+
 
     // Restore all guns' ammo after dungeon regeneration
     public void RestoreAllGunAmmoData()
@@ -404,11 +413,12 @@ public class WeaponManager : MonoBehaviour
 
     void LoadUnlockedGuns()
     {
-        // First, lock all guns
-        foreach (var gun in guns)
+        // First, lock all guns except the first one
+        for (int i = 1; i < guns.Count; i++)
         {
-            gun.locked = true;
+            guns[i].locked = true;
         }
+
         // Then, unlock the guns from the saved data
         if (PlayerPrefs.HasKey(UnlockedGunsKey))
         {
@@ -420,6 +430,12 @@ public class WeaponManager : MonoBehaviour
                     guns[gunIndex].locked = false;
                 }
             }
+        }
+
+        // Ensure the first gun is always unlocked
+        if (guns.Count > 0)
+        {
+            guns[0].locked = false;
         }
     }
 

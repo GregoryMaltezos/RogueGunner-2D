@@ -34,11 +34,7 @@ public class Gun : MonoBehaviour
         {
             instance = this;
         }
-        else
-        {
-            Debug.LogWarning("Multiple instances of Gun detected! Destroying duplicate.");
-            Destroy(gameObject); // Destroy the duplicate
-        }
+   
     }
 
 
@@ -72,6 +68,7 @@ public class Gun : MonoBehaviour
             Debug.LogWarning("Gun index not found in WeaponManager");
         }
     }
+
 
     void Update()
     {
@@ -108,19 +105,18 @@ public class Gun : MonoBehaviour
 
     void AttemptToFire()
     {
-        // Check if the player is currently attacking
-        if (PlayerController.instance != null && PlayerController.instance.isAttacking)
+        // Check if the gun object is still valid before trying to fire
+        if (gameObject == null || !gameObject.activeInHierarchy)
         {
-            // If attacking, do not fire
-            return;
+            Debug.LogWarning("Gun object is destroyed or not active!");
+            return; // Early exit if gun object is invalid
         }
 
+        // Proceed with firing logic
         if (infiniteAmmo || currentClipAmmo > 0)
         {
             Fire();
-            nextFireTime = Time.time + fireRate; // Set the next fire time
-
-            // Update UI to reflect ammo state after firing
+            nextFireTime = Time.time + fireRate;
             UpdateAmmoState();
         }
         else if (clipsRemaining > 0)
@@ -128,6 +124,7 @@ public class Gun : MonoBehaviour
             StartCoroutine(Reload());
         }
     }
+
 
     void Fire()
     {

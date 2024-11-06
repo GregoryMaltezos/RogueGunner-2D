@@ -365,7 +365,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 5
   m_TargetDisplay: 0
 --- !u!1 &209761348
 GameObject:
@@ -520,7 +520,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 25
+  m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -3774,7 +3774,7 @@ Canvas:
   m_GameObject: {fileID: 1157504482}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 1
+  m_RenderMode: 0
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 1
@@ -3786,7 +3786,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_TargetDisplay: 0
 --- !u!224 &1157504486
 RectTransform:
@@ -4569,6 +4569,7 @@ MonoBehaviour:
   quitButton: {fileID: 521615959}
   canvas1: {fileID: 1157504485}
   canvas2: {fileID: 1625048494}
+  canvas3: {fileID: 0}
 --- !u!4 &1406374448
 Transform:
   m_ObjectHideFlags: 0
@@ -48225,12 +48226,12 @@ SceneRoots:
   - {fileID: 324760282}
   - {fileID: 1615339688}
   - {fileID: 2019745491}
+  - {fileID: 1157504486}
   - {fileID: 383079588}
   - {fileID: 1479416283}
   - {fileID: 1625048495}
   - {fileID: 1902819225}
   - {fileID: 275316310}
   - {fileID: 1274024472}
-  - {fileID: 1157504486}
   - {fileID: 1406374448}
   - {fileID: 111086557}
