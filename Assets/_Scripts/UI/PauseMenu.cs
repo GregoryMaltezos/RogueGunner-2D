@@ -1,104 +1,109 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // Make sure to include this namespace
+using UnityEngine.SceneManagement;
+using TMPro;
+using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class PauseMenu : MonoBehaviour
 {
-    public GameObject pauseMenuUI; // Reference to the pause menu UI
-    public GameObject settingsPanel; // Reference to the settings panel UI
-    public GameObject otherCanvas; // Reference to the gameplay canvas
-    private bool isPaused = false; // Track the pause state
-    private GunController gunController; // Reference to the GunController
-    private PlayerController playerController; // Reference to the PlayerController
+    public GameObject pauseMenuUI;
+    public GameObject settingsPanel;
+    public GameObject challengesPanel; // The panel where challenges will be listed
+    public GameObject otherCanvas;
+    public GameObject challengePrefab; // Prefab for displaying each challenge
+    private bool isPaused = false;
+    private GunController gunController;
+    private PlayerController playerController;
 
-    public bool IsPaused // Public property to get the pause state
+    private GameObject previousPanel; // To track the previous panel for back navigation
+
+    public bool IsPaused
     {
         get { return isPaused; }
     }
 
     void Start()
     {
-        // Initial fetch can be done here, but will be updated in Pause()
         gunController = FindObjectOfType<GunController>();
         playerController = FindObjectOfType<PlayerController>();
     }
 
     void Update()
     {
-        // Check if the Escape key is pressed
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (isPaused)
             {
-                Resume(); // Resume the game
+                Resume();
             }
             else
             {
-                Pause(); // Pause the game
+                Pause();
             }
         }
     }
 
     public void Resume()
     {
-        pauseMenuUI.SetActive(false); // Hide the pause menu
-        settingsPanel.SetActive(false); // Hide the settings panel
-        Time.timeScale = 1f; // Resume the game time
-        isPaused = false; // Update pause state
-        SetCursorState(false); // Hide cursor in gameplay
-        EnableGunController(true); // Enable GunController when resuming
-        EnablePlayerController(true); // Enable PlayerController when resuming
-        if (otherCanvas != null) otherCanvas.SetActive(true); // Enable the gameplay canvas
+        pauseMenuUI.SetActive(false);
+        settingsPanel.SetActive(false);
+        challengesPanel.SetActive(false); // Hide Challenges menu
+        Time.timeScale = 1f;
+        isPaused = false;
+        SetCursorState(false);
+        EnableGunController(true);
+        EnablePlayerController(true);
+        if (otherCanvas != null) otherCanvas.SetActive(true);
     }
 
     public void Pause()
     {
-        pauseMenuUI.SetActive(true); // Show the pause menu
-        settingsPanel.SetActive(false); // Ensure settings panel is hidden
-        Time.timeScale = 0f; // Freeze the game time
-        isPaused = true; // Update pause state
-        SetCursorState(true); // Show cursor in pause menu
-        EnableGunController(false); // Disable GunController when paused
-        EnablePlayerController(false); // Disable PlayerController when paused
-        if (otherCanvas != null) otherCanvas.SetActive(false); // Disable the gameplay canvas
+        pauseMenuUI.SetActive(true);
+        settingsPanel.SetActive(false);
+        challengesPanel.SetActive(false); // Ensure challenges panel is hidden
+        Time.timeScale = 0f;
+        isPaused = true;
+        SetCursorState(true);
+        EnableGunController(false);
+        EnablePlayerController(false);
+        if (otherCanvas != null) otherCanvas.SetActive(false);
     }
 
     public void OpenSettings()
     {
-        pauseMenuUI.SetActive(false); // Hide the pause menu UI
-        settingsPanel.SetActive(true); // Show the settings panel
+        previousPanel = pauseMenuUI.activeSelf ? pauseMenuUI : null;
+        pauseMenuUI.SetActive(false);
+        settingsPanel.SetActive(true);
     }
 
     public void BackToPauseMenu()
     {
-        settingsPanel.SetActive(false); // Hide the settings panel
-        pauseMenuUI.SetActive(true); // Show the pause menu UI
+        settingsPanel.SetActive(false);
+        pauseMenuUI.SetActive(true);
     }
 
     public void Restart()
     {
-        Time.timeScale = 1f; // Reset time scale
-        // Reload current scene
+        Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void QuitToMenu()
     {
-        Time.timeScale = 1f; // Reset time scale to normal in case the game is paused
-
-        // Load the main menu scene
-        SceneManager.LoadScene("MainMenuScene"); // Replace "MainMenuScene" with the name of your main menu scene
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("MainMenuScene");
     }
 
     private void SetCursorState(bool isVisible)
     {
-        Cursor.visible = isVisible; // Set cursor visibility
+        Cursor.visible = isVisible;
     }
 
     private void EnableGunController(bool enable)
     {
         if (gunController != null)
         {
-            gunController.enabled = enable; // Enable or disable the GunController script
+            gunController.enabled = enable;
         }
     }
 
@@ -106,7 +111,75 @@ public class PauseMenu : MonoBehaviour
     {
         if (playerController != null)
         {
-            playerController.enabled = enable; // Enable or disable the PlayerController script
+            playerController.enabled = enable;
         }
     }
+
+    public void OpenChallenges()
+    {
+        // Save the current panel to return to later
+        previousPanel = pauseMenuUI.activeSelf ? pauseMenuUI : settingsPanel;
+
+        pauseMenuUI.SetActive(false); // Hide Pause Menu
+        settingsPanel.SetActive(false); // Hide Settings Panel
+        challengesPanel.SetActive(true); // Show Challenges Menu
+
+        DisplayChallenges(); // Populate challenges UI with current data
+    }
+
+    public void BackToPreviousMenu()
+    {
+        // Hide the challenges panel
+        challengesPanel.SetActive(false);
+
+        // Reactivate the previous panel
+        if (previousPanel != null)
+        {
+            previousPanel.SetActive(true);
+        }
+    }
+
+    private void DisplayChallenges()
+    {
+        List<ChallengeManager.Challenge> challenges = ChallengeManager.instance.challenges;
+
+        // Ensure the Back button remains visible (if it's part of the challengesPanel)
+        Transform backButtonTransform = challengesPanel.transform.Find("BackButton");
+        if (backButtonTransform != null)
+        {
+            backButtonTransform.gameObject.SetActive(true);
+        }
+
+        // Clear all previous challenge entries to ensure a fresh display every time
+        foreach (Transform child in challengesPanel.transform)
+        {
+            // Skip the Back button to prevent it from being destroyed
+            if (child.name != "BackButton") // Replace with your actual button's name
+            {
+                Destroy(child.gameObject);
+            }
+        }
+
+        // Instantiate new entries for each challenge
+        for (int i = 0; i < challenges.Count; i++)
+        {
+            GameObject challengeTextObject = Instantiate(challengePrefab, challengesPanel.transform);
+
+            TMP_Text challengeText = challengeTextObject.GetComponent<TMP_Text>();
+            if (challengeText != null)
+            {
+                // Set the challenge status text with colored tags
+                string status = challenges[i].completed ? "<color=green>Completed</color>" : "<color=red>Not Completed</color>";
+                challengeText.text = $"{challenges[i].challengeId}: {status}\nDescription: {challenges[i].description}";
+            }
+
+            Debug.Log($"Challenge {i} displayed with ID: {challenges[i].challengeId} - {challenges[i].description}");
+        }
+
+        // Force layout update to refresh panel display
+        LayoutRebuilder.ForceRebuildLayoutImmediate(challengesPanel.GetComponent<RectTransform>());
+    }
+
+
+
 }

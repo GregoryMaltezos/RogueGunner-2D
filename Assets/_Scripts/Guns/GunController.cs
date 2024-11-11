@@ -4,16 +4,19 @@ public class GunController : MonoBehaviour
 {
     public Transform gunTransform; // Reference to the gun's transform
     public GameObject cursorIconPrefab; // Reference to the cursor icon prefab
-    private GameObject cursorIconInstance; // Instance of the cursor icon
+    private static GameObject cursorIconInstance; // Static instance of the cursor icon to prevent multiple spawns
 
     private PlayerController playerController; // Reference to the PlayerController
 
     void Start()
     {
-        // Instantiate the cursor icon and hide the system cursor
-        cursorIconInstance = Instantiate(cursorIconPrefab);
-        cursorIconInstance.transform.localScale *= 2.5f; // Make it larger
-        Cursor.visible = false;
+        // Check if the cursor icon instance is already created, if not, instantiate it
+        if (cursorIconInstance == null)
+        {
+            cursorIconInstance = Instantiate(cursorIconPrefab);
+            cursorIconInstance.transform.localScale *= 2.5f; // Make it larger
+            Cursor.visible = false;
+        }
 
         playerController = PlayerController.instance; // Get reference to PlayerController
     }
@@ -56,8 +59,6 @@ public class GunController : MonoBehaviour
         // Rotate the gun to face the target angle
         Quaternion rotation = Quaternion.Euler(0f, 0f, targetAngle);
         gunTransform.rotation = rotation; // Update the gun's rotation
-
-
     }
 
     void OnDestroy()

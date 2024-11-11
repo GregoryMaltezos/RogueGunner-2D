@@ -9,15 +9,17 @@ public class ChallengeManager : MonoBehaviour
     public class Challenge
     {
         public string challengeId;
+        public string description; // Added description
         public float requiredDistance;
         public int requiredKills;
         public float requiredTime;
         public bool completed;
         public int weaponIndexToUnlock;
 
-        public Challenge(string id, float distance, int kills, float time, int weaponIndex, bool isCompleted)
+        public Challenge(string id, string desc, float distance, int kills, float time, int weaponIndex, bool isCompleted)
         {
             challengeId = id;
+            description = desc; // Set description
             requiredDistance = distance;
             requiredKills = kills;
             requiredTime = time;
@@ -25,6 +27,7 @@ public class ChallengeManager : MonoBehaviour
             completed = isCompleted;
         }
     }
+
 
     [System.Serializable]
     public class ChallengeList
@@ -64,11 +67,11 @@ public class ChallengeManager : MonoBehaviour
         if (challenges.Count == 0) // If challenges haven't been initialized yet
         {
             // Initialize challenges
-            challenges.Add(new Challenge("DieOnce", 0f, 0, 0f, 0, false)); // No distance or kills requirement
-            challenges.Add(new Challenge("WalkDistance", 1000f, 0, 0f, 1, false)); // Requires walking 1000 units
-            challenges.Add(new Challenge("DefeatEnemiesQuickly", 0f, 3, 3f, 2, false)); // Defeat 3 enemies within 3 seconds
-            challenges.Add(new Challenge("GrenadeKills", 0f, 15, 0f, 3, false)); // Get 15 grenade kills
-            challenges.Add(new Challenge("DefeatBoss1", 0f, 1, 0f, 4, false)); // New challenge to defeat boss with ID 1
+            challenges.Add(new Challenge("DieOnce","Die for the first time", 0f, 0, 0f, 0, false)); // No distance or kills requirement
+            challenges.Add(new Challenge("WalkDistance","Walk for 1000 meters", 1000f, 0, 0f, 1, false)); // Requires walking 1000 units
+            challenges.Add(new Challenge("DefeatEnemiesQuickly", "Defeat 3 enemies within 3 seconds", 0f, 3, 3f, 2, false)); // Defeat 3 enemies within 3 seconds
+            challenges.Add(new Challenge("GrenadeKills", "Get 15 grenade kills", 0f, 15, 0f, 3, false)); // Get 15 grenade kills
+            challenges.Add(new Challenge("DefeatGolem","Defeat the Stone Golem Boss", 0f, 1, 0f, 4, false)); // New challenge to defeat boss with ID 1
 
             // Save initialized challenges
             SaveChallenges();

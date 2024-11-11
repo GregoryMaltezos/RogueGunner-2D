@@ -44,7 +44,7 @@ public class PlayerController : MonoBehaviour
     private Camera mainCamera;
     public Transform weaponParent;
     public PlayerHealth playerHealth;
-    public GameObject deathMenu;
+
 
     // Facing Direction
     [Header("Facing Direction")]
@@ -70,23 +70,14 @@ public class PlayerController : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
         mainCamera = Camera.main;
 
-        deathMenu = GameObject.FindGameObjectWithTag("DeathMenu"); // Search by tag
-        if (deathMenu != null)
-        {
-            deathMenu.SetActive(false); // Ensure the death menu is hidden at the start
-        }
-        else
-        {
-            Debug.LogError("Death menu not found in the scene. Please ensure it is tagged correctly.");
-        }
+
     }
 
     void Update()
     {
-        // Input handling
-        if (isDead) return; // Skip processing if the player is dead
+        if (isDead) return;
 
-        // Input handling
+        // Normal movement processing
         movement.x = Input.GetAxis("Horizontal");
         movement.y = Input.GetAxis("Vertical");
 
@@ -285,9 +276,13 @@ public class PlayerController : MonoBehaviour
         Debug.Log("Player died!");
         isDead = true;
 
-        rb.velocity = Vector2.zero;
+        rb.velocity = Vector2.zero; // Stop all movement
         DisableColliders();
         DisableWeapons();
+
+        // Disable player input
+        movement = Vector2.zero; // Stop the player's movement
+        isInvincible = true; // Optionally make the player invincible during death animation
 
         if (animator != null)
         {
@@ -295,9 +290,10 @@ public class PlayerController : MonoBehaviour
             animator.SetTrigger("Die");
         }
 
+        // Invoke death event for death menu or game logic
         OnPlayerDeath?.Invoke();
-        StartCoroutine(ShowDeathMenuAfterDelay());
     }
+
 
 
     // Method to disable all player colliders
@@ -341,17 +337,7 @@ public class PlayerController : MonoBehaviour
 
 
 
-    private IEnumerator ShowDeathMenuAfterDelay()
-    {
-        // Wait for the death animation duration (adjust based on your animation length)
-        yield return new WaitForSeconds(3f); // Adjust this value as needed
 
-        // Show the death menu after the animation finishes
-        if (deathMenu != null)
-        {
-            deathMenu.SetActive(true); // Show the death menu
-        }
-    }
 
     void ResetPlayerState()
     {
@@ -375,11 +361,7 @@ public class PlayerController : MonoBehaviour
         EnableColliders();
         EnableWeapons();
 
-        // Hide death menu if it was previously shown
-        if (deathMenu != null)
-        {
-            deathMenu.SetActive(false);
-        }
+
     }
 
 

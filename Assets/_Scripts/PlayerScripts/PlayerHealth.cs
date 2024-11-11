@@ -12,7 +12,7 @@ public class PlayerHealth : MonoBehaviour
     [Header("Health Feedback")]
     public float respawnTime = 5f;  // Time before respawning the player
 
-    private bool isDead = false;
+    public bool isDead = false;
     private HealthBarUI healthBarUI;  // Reference to the HealthBarUI script
     public const string PlayerHealthKey = "PlayerHealth";
     private Animator animator;

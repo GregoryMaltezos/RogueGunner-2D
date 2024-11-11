@@ -1,16 +1,24 @@
-using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement; // For loading the main menu
+using TMPro;
+using System.Collections;
 
 public class bossPortal : MonoBehaviour
 {
     private bool isPlayerNearby = false;
     private CorridorFirstDungeonGenerator dungeonGenerator;
-    private FadeManager fadeManager; // Reference to the Fade Manager
-    private Collider2D portalCollider; // Reference to the portal's collider
+    private FadeManager fadeManager;
+    private Collider2D portalCollider;
 
     // Cooldown variables
-    private bool canInteract = true; // Determines if the player can interact
-    private float interactionCooldown = 1.5f; // Cooldown duration in seconds
+    private bool canInteract = true;
+    private float interactionCooldown = 1.5f;
+
+    // UI Elements
+    private Canvas[] canvasesToDisable;
+    private Canvas thanksCanvas; // The canvas that holds the Thanks message
+    private TextMeshProUGUI thanksForPlayingText; // The specific text object
+    private GameObject blackBackground; // The black background behind the text
 
     private void Start()
     {
@@ -20,25 +28,42 @@ public class bossPortal : MonoBehaviour
             Debug.LogError("Player not found. Make sure the Player has the 'Player' tag.");
         }
 
-        // Find the dungeon generator in the scene (if it exists)
         dungeonGenerator = FindObjectOfType<CorridorFirstDungeonGenerator>();
         if (dungeonGenerator == null)
         {
             Debug.LogError("Dungeon Generator not found in the scene.");
         }
 
-        // Find the FadeManager in the scene
         fadeManager = FindObjectOfType<FadeManager>();
         if (fadeManager == null)
         {
             Debug.LogError("FadeManager not found in the scene.");
         }
 
-        // Get the portal's collider component
         portalCollider = GetComponent<Collider2D>();
         if (portalCollider == null)
         {
             Debug.LogError("Portal Collider not found. Please attach a Collider2D component to the portal.");
+        }
+
+        // Find canvases and the message text in the scene
+        canvasesToDisable = FindObjectsOfType<Canvas>(); // Find all Canvas objects in the scene.
+        thanksCanvas = GameObject.Find("ThanksCanvas")?.GetComponent<Canvas>(); // Find ThanksCanvas
+        thanksForPlayingText = thanksCanvas?.transform.Find("ThanksForPlayingText")?.GetComponent<TextMeshProUGUI>(); // Find ThanksForPlayingText
+        blackBackground = thanksCanvas?.transform.Find("BlackBackground")?.gameObject; // Find BlackBackground panel
+
+        // If thanksCanvas or thanksForPlayingText are not found, log an error
+        if (thanksCanvas == null)
+        {
+            Debug.LogError("ThanksCanvas not found in the scene.");
+        }
+        if (thanksForPlayingText == null)
+        {
+            Debug.LogError("ThanksForPlayingText not found in the ThanksCanvas.");
+        }
+        if (blackBackground == null)
+        {
+            Debug.LogError("BlackBackground panel not found in the ThanksCanvas.");
         }
     }
 
@@ -47,36 +72,61 @@ public class bossPortal : MonoBehaviour
         // Check if player is near and can interact
         if (isPlayerNearby && canInteract)
         {
-            // Debug.Log("Player is nearby and can interact.");
             if (Input.GetKeyDown(KeyCode.E))
             {
-                Debug.Log("E key pressed. Disabling collider and starting fade process.");
-
-                // Disable the portal's collider to prevent further interaction
-                if (portalCollider != null)
+                if (dungeonGenerator.currentFloor == 4) // Check if the player is on the 4th floor
                 {
-                    portalCollider.enabled = false; // Disable the collider
-                    Debug.Log("Portal collider disabled.");
+                    StartCoroutine(ShowThanksMessageAndExit());
                 }
-
-                StartCoroutine(FadeToBlackAndProceed());
+                else
+                {
+                    // Proceed with regular portal interaction logic
+                    StartCoroutine(FadeToBlackAndProceed());
+                }
             }
         }
     }
 
+    private IEnumerator ShowThanksMessageAndExit()
+    {
+        // Disable all canvases except ThanksCanvas
+        foreach (var canvas in canvasesToDisable)
+        {
+            if (canvas != thanksCanvas) // Exclude ThanksCanvas
+            {
+                canvas.gameObject.SetActive(false);
+            }
+        }
+
+        // Show the "Thanks for playing" message and black background
+        if (thanksForPlayingText != null && blackBackground != null)
+        {
+            thanksForPlayingText.gameObject.SetActive(true); // Enable the text
+            blackBackground.SetActive(true); // Enable the black background
+            thanksForPlayingText.text = "Thanks for playing!"; // Set the message
+        }
+
+        // Wait for the player to see the message
+        yield return new WaitForSeconds(3f); // Message duration (can be adjusted)
+
+        // After message, re-enable canvases
+        foreach (var canvas in canvasesToDisable)
+        {
+            if (canvas != thanksCanvas) // Exclude ThanksCanvas
+            {
+                canvas.gameObject.SetActive(true);
+            }
+        }
+
+        // Load the Main Menu Scene
+        SceneManager.LoadScene("MainMenuScene");
+    }
+
     private IEnumerator FadeToBlackAndProceed()
     {
-        Debug.Log("FadeToBlackAndProceed called"); // Debugging line
-
-        // Ensure the transition canvas is active
         if (fadeManager != null && fadeManager.transitionCanvas != null)
         {
-            Debug.Log("Activating transition canvas");
             fadeManager.transitionCanvas.gameObject.SetActive(true);
-        }
-        else
-        {
-            Debug.LogWarning("FadeManager or transitionCanvas is null");
         }
 
         // Fade to black
@@ -85,33 +135,26 @@ public class bossPortal : MonoBehaviour
             yield return fadeManager.FadeToBlack();
         }
 
-        // Call the function to go to the next floor
+        // Proceed with floor transition
         GoToNextFloor();
 
-        // Wait for a moment before fading back in
-        yield return new WaitForSeconds(1f); // Optional wait time
+        // Wait before fading back in
+        yield return new WaitForSeconds(1f);
 
-        // Fade back to normal
+        // Fade back in
         if (fadeManager != null)
         {
             yield return fadeManager.FadeToClear();
         }
 
-        // After the fade is complete, destroy the portal
-        Destroy(gameObject); // Delete the portal after the interaction is complete
+        Destroy(gameObject); // Destroy portal after transition
     }
 
     private void GoToNextFloor()
     {
-        Debug.Log("Player interacted with portal, generating the next floor!");
-
         if (dungeonGenerator != null)
         {
             dungeonGenerator.OnBossDefeated();
-        }
-        else
-        {
-            Debug.LogError("Dungeon Generator reference is missing!");
         }
     }
 
@@ -119,7 +162,6 @@ public class bossPortal : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            Debug.Log("Player is near the portal.");
             isPlayerNearby = true;
         }
     }
@@ -128,15 +170,14 @@ public class bossPortal : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            Debug.Log("Player left the portal area.");
             isPlayerNearby = false;
         }
     }
 
     private IEnumerator InteractionCooldown()
     {
-        canInteract = false; // Prevent further interaction
-        yield return new WaitForSeconds(interactionCooldown); // Wait for cooldown duration
-        canInteract = true; // Allow interaction again
+        canInteract = false;
+        yield return new WaitForSeconds(interactionCooldown);
+        canInteract = true;
     }
 }
