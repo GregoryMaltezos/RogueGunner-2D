@@ -1,13 +1,15 @@
 using System;
 using System.Collections;
 using UnityEngine;
-
+using FMOD.Studio;
 public class PlayerController : MonoBehaviour
 {
     public static PlayerController instance;
 
     public static event Action OnPlayerDeath;
     public static event Action<float> OnPlayerWalkDistance;
+
+    private EventInstance playerFootsteps;
 
     // Movement Parameters
     [Header("Movement Settings")]
@@ -70,7 +72,7 @@ public class PlayerController : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
         mainCamera = Camera.main;
 
-
+        playerFootsteps = AudioManager.instance.CreateInstance(FMODEvents.instance.playerFootsteps);
     }
 
     void Update()
@@ -254,7 +256,9 @@ public class PlayerController : MonoBehaviour
         if (!isDashing)
         {
             rb.velocity = movement * moveSpeed;
+            UpdateSound();
         }
+        UpdateSound();
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -373,5 +377,23 @@ public class PlayerController : MonoBehaviour
     public bool IsDashing()
     {
         return isDashing;
+    }
+
+
+    private void UpdateSound()
+    {
+        if ((rb.velocity.x != 0 || rb.velocity.y != 0) && !isDashing)
+        {
+            PLAYBACK_STATE playbackState;
+            playerFootsteps.getPlaybackState(out playbackState);
+            if (playbackState.Equals(PLAYBACK_STATE.STOPPED))
+            {
+                playerFootsteps.start();
+            }
+        }
+        else
+        {
+            playerFootsteps.stop(STOP_MODE.ALLOWFADEOUT);
+        }
     }
 }

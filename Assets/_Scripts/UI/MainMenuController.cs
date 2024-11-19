@@ -75,7 +75,7 @@ public class MainMenuController : MonoBehaviour
         }
         else
         {
-            Debug.LogError("GunUIManager not found in the scene.");
+           // Debug.LogError("GunUIManager not found in the scene.");
         }
     }
 

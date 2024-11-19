@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-
+using FMODUnity;
 public class Gun : MonoBehaviour
 {
     public static Gun instance;
@@ -28,6 +28,8 @@ public class Gun : MonoBehaviour
     private int shotsFired; // Counter for shots fired when infinite ammo is enabled
     private const int maxShotsWithInfiniteAmmo = 12; // Max bullets before needing to reload
 
+
+    [SerializeField] private EventReference gunFired;
     void Awake()
     {
         if (instance == null)
@@ -193,7 +195,7 @@ public class Gun : MonoBehaviour
     {
         GameObject projectileInstance = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
         Rigidbody2D rb = projectileInstance.GetComponent<Rigidbody2D>();
-
+        AudioManager.instance.PlayOneShot(gunFired, this.transform.position);
         if (rb != null)
         {
             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;

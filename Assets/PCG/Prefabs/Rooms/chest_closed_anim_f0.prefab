@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: -3407082088020562034}
   - component: {fileID: -1408102702805524394}
   - component: {fileID: -6966130626274501876}
+  - component: {fileID: -6049216430867014938}
   - component: {fileID: 7139147360000505547}
   - component: {fileID: 3130255990202820987}
   m_Layer: 0
@@ -178,6 +179,39 @@ MonoBehaviour:
   interactionDistance: 1.2
   hoverHeight: 0.2
   hoverSpeed: 2
+--- !u!114 &-6049216430867014938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2511524559775265664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 491246878
+      Data2: 1240007926
+      Data3: -410520188
+      Data4: 48042501
+    Path: event:/SFX/Misc/ChestIdle
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 0
+  TriggerOnce: 0
+  Preload: 1
+  NonRigidbodyVelocity: 0
+  Params:
+  - Name: PlayerDistance
+    Value: 17.6
+  OverrideAttenuation: 1
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 100
 --- !u!61 &7139147360000505547
 BoxCollider2D:
   m_ObjectHideFlags: 0

@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-
+using FMODUnity;
 public class Chest : MonoBehaviour
 {
     public Animator chestAnimator; // Reference to the Animator component
@@ -16,11 +16,16 @@ public class Chest : MonoBehaviour
 
     private CorridorFirstDungeonGenerator dungeonGenerator;
 
+    private StudioEventEmitter emitter;
+    private bool hasPlayedIdleSound = false;
+
     private void Start()
     {
+        emitter = AudioManager.instance.InitializeEventEmitter(FMODEvents.instance.chestIdle, this.gameObject);
+        emitter.Play();
         // Find the CorridorFirstDungeonGenerator in the scene
         dungeonGenerator = FindObjectOfType<CorridorFirstDungeonGenerator>();
-
+        
         if (dungeonGenerator != null && dungeonGenerator.CurrentFloor == 1)
         {
             ResetChest(); // Reset the chest contents if on the first floor
@@ -29,6 +34,18 @@ public class Chest : MonoBehaviour
 
     private void Update()
     {
+        float distanceToPlayer = Vector3.Distance(PlayerController.instance.transform.position, transform.position);
+
+        // Check if player is in interaction range and reinitialize emitter
+        if (distanceToPlayer < interactionDistance && !isOpen)
+        {
+            if (!emitter.IsPlaying()) // Assuming emitter has a method to check if it's playing
+            {
+                emitter = AudioManager.instance.InitializeEventEmitter(FMODEvents.instance.chestIdle, this.gameObject);
+                emitter.Play();
+            }
+        }
+
         // Check if the player is near and presses 'E' to open the chest
         if (Vector3.Distance(PlayerController.instance.transform.position, transform.position) < interactionDistance && Input.GetKeyDown(KeyCode.E) && !isOpen)
         {
@@ -49,7 +66,7 @@ public class Chest : MonoBehaviour
 
         isOpen = true;
         chestAnimator.SetTrigger("Open"); // Play the opening animation
-
+        emitter.Stop();
         // Check if any challenge has been completed
         bool anyChallengeCompleted = CheckAnyChallengeCompleted();
 

@@ -131,9 +131,14 @@ public class PrefabPlacer : MonoBehaviour
         }
         else
         {
+#if UNITY_EDITOR
             newItem = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
             newItem.transform.position = placementPosition;
             newItem.transform.rotation = Quaternion.identity;
+#else
+        Debug.LogWarning("PrefabUtility cannot be used outside of the editor.");
+        newItem = null;
+#endif
         }
 
         if (newItem == null)

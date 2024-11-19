@@ -121,6 +121,7 @@ MonoBehaviour:
   acceleration: 10
   deacceleration: 20
   currentSpeed: 0
+  bulletKnockbackForce: 5
 --- !u!114 &2334184184601206652
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -133,6 +134,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9356072513729f94695480b9a7325b6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  reverseFlipping: 0
 --- !u!114 &2334184184601206648
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -147,6 +149,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentHealth: 2
   maxHealth: 2
+  isDead: 0
   OnHitWithReference:
     m_PersistentCalls:
       m_Calls:
@@ -189,7 +192,11 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  isDead: 0
+  healthPrefab: {fileID: 0}
+  ammoPrefab: {fileID: 0}
+  healthDropChance: 0.2
+  ammoDropChance: 0.3
+  deathAnimationDuration: 1
 --- !u!114 &2334184184601206535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -389,7 +396,6 @@ GameObject:
   - component: {fileID: 2334184185191740859}
   - component: {fileID: 2334184185191740857}
   - component: {fileID: 2334184185191740856}
-  - component: {fileID: 2334184185191742023}
   - component: {fileID: 8299023586189656397}
   m_Layer: 8
   m_Name: Sprite
@@ -511,107 +517,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69603e99f9aa37141bcb4540f4a668bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  source: {fileID: 2334184185191742023}
+  source: {fileID: 0}
   audioClips:
   - {fileID: 8300000, guid: 034e6c720744ded4e9a09088ceffccd8, type: 3}
   pitchOffset: 0.1
   volumeOffset: 0.05
---- !u!82 &2334184185191742023
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2334184185191740861}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 0
-  m_Volume: 0.5
-  m_Pitch: 1
-  Loop: 0
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!210 &8299023586189656397
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -675,6 +585,8 @@ MonoBehaviour:
   delay: 0.3
   circleOrigin: {fileID: 2334184185587844432}
   radius: 0.63
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 5
 --- !u!1 &4954647115694202382
 GameObject:
   m_ObjectHideFlags: 0

@@ -173,6 +173,7 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 268.4
   respawnTime: 5
+  isDead: 0
 --- !u!114 &2287606177832248037
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -197,7 +198,6 @@ MonoBehaviour:
   isInvincible: 0
   weaponParent: {fileID: 1985542200416273952}
   playerHealth: {fileID: -3596271313554946687}
-  deathMenu: {fileID: 0}
 --- !u!61 &3972042074098561728
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -474,6 +474,13 @@ MonoBehaviour:
   currentClipAmmo: 0
   bulletsRemaining: 0
   clipsRemaining: 0
+  gunFired:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!210 &4117294817895015833
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -612,6 +619,13 @@ MonoBehaviour:
   currentClipAmmo: 0
   bulletsRemaining: 0
   clipsRemaining: 0
+  gunFired:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!1 &2362121040827898441
 GameObject:
   m_ObjectHideFlags: 0
@@ -960,6 +974,13 @@ MonoBehaviour:
   currentClipAmmo: 0
   bulletsRemaining: 0
   clipsRemaining: 0
+  gunFired:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!1 &3866738784251061682
 GameObject:
   m_ObjectHideFlags: 0
@@ -1117,6 +1138,13 @@ MonoBehaviour:
   currentClipAmmo: 0
   bulletsRemaining: 0
   clipsRemaining: 0
+  gunFired:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!1 &5599196395550941327
 GameObject:
   m_ObjectHideFlags: 0
@@ -1243,6 +1271,13 @@ MonoBehaviour:
   currentClipAmmo: 0
   bulletsRemaining: 0
   clipsRemaining: 0
+  gunFired:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!1 &6133910698529224587
 GameObject:
   m_ObjectHideFlags: 0
@@ -1772,6 +1807,26 @@ PrefabInstance:
     - target: {fileID: 7490216100004448100, guid: 46a0581eaa5d63f45900e06723561e4c, type: 3}
       propertyPath: isAutomatic
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7490216100004448100, guid: 46a0581eaa5d63f45900e06723561e4c, type: 3}
+      propertyPath: gunFired.Path
+      value: event:/SFX/Weapons/FirePistol
+      objectReference: {fileID: 0}
+    - target: {fileID: 7490216100004448100, guid: 46a0581eaa5d63f45900e06723561e4c, type: 3}
+      propertyPath: gunFired.Guid.Data1
+      value: -1566925779
+      objectReference: {fileID: 0}
+    - target: {fileID: 7490216100004448100, guid: 46a0581eaa5d63f45900e06723561e4c, type: 3}
+      propertyPath: gunFired.Guid.Data2
+      value: 1213496237
+      objectReference: {fileID: 0}
+    - target: {fileID: 7490216100004448100, guid: 46a0581eaa5d63f45900e06723561e4c, type: 3}
+      propertyPath: gunFired.Guid.Data3
+      value: 1698456237
+      objectReference: {fileID: 0}
+    - target: {fileID: 7490216100004448100, guid: 46a0581eaa5d63f45900e06723561e4c, type: 3}
+      propertyPath: gunFired.Guid.Data4
+      value: -1179255712
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

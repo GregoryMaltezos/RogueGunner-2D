@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿#if UNITY_EDITOR
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -16,9 +17,10 @@ public class RandomDungeonGeneratorEditor : Editor
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
-        if(GUILayout.Button("Create Dungeon"))
+        if (GUILayout.Button("Create Dungeon"))
         {
             generator.GenerateDungeon();
         }
     }
 }
+#endif
