@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
-
+using FMODUnity;
+using UnityEngine.InputSystem;
 public class ImpactNade : MonoBehaviour
 {
     public float throwForce = 10f;
@@ -12,7 +13,7 @@ public class ImpactNade : MonoBehaviour
 
     private Rigidbody2D rb;
     private bool exploded = false;
-
+    [SerializeField] private EventReference gunFired;
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -39,6 +40,7 @@ public class ImpactNade : MonoBehaviour
 
     void Explode()
     {
+        AudioManager.instance.PlayOneShot(gunFired, this.transform.position);
         // Instantiate explosion effect
         GameObject explosionEffect = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
         Destroy(explosionEffect, 0.6f); // Destroy the explosion effect after 0.6 seconds

@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using FMODUnity;
+using UnityEngine.InputSystem;
 public class Gun : MonoBehaviour
 {
     public static Gun instance;
@@ -28,15 +29,22 @@ public class Gun : MonoBehaviour
     private int shotsFired; // Counter for shots fired when infinite ammo is enabled
     private const int maxShotsWithInfiniteAmmo = 12; // Max bullets before needing to reload
 
+    private NewControls inputActions; // Reference to the NewControls input asset
+    private InputAction reloadAction;
+    private InputAction fireAction;
+    private bool isFiring = false;
 
     [SerializeField] private EventReference gunFired;
+    [SerializeField] private EventReference gunReload;
     void Awake()
     {
         if (instance == null)
         {
             instance = this;
         }
-   
+        inputActions = new NewControls(); // Create an instance of the NewControls asset
+        reloadAction = inputActions.PlayerInput.Reload;
+        fireAction = inputActions.PlayerInput.Fire;
     }
 
 
@@ -56,32 +64,60 @@ public class Gun : MonoBehaviour
             clipsRemaining = WeaponManager.instance.GetGunClipsRemaining(gunIndex);
             currentClipAmmo = WeaponManager.instance.GetGunClipAmmo(gunIndex);
 
-            // Ensure we have ammo to start
             if (currentClipAmmo <= 0 || infiniteAmmo)
             {
                 currentClipAmmo = ammoPerClip;
             }
             WeaponManager.instance.SetGunClipAmmo(gunIndex, currentClipAmmo);
 
-            UpdateAmmoState(); // Initialize the UI state
+            UpdateAmmoState();
         }
         else
         {
             Debug.LogWarning("Gun index not found in WeaponManager");
         }
+
+        inputActions.Enable();
+
+        reloadAction.performed += OnReloadPerformed;
+        fireAction.performed += OnFirePerformed;
+        fireAction.canceled += OnFireCanceled; // Subscribe to stopping fire
+    }
+
+    void OnDestroy()
+    {
+        reloadAction.performed -= OnReloadPerformed;
+        fireAction.performed -= OnFirePerformed;
+        fireAction.canceled -= OnFireCanceled; // Unsubscribe from stopping fire
+        inputActions.Disable();
+    }
+
+
+    private void OnFirePerformed(InputAction.CallbackContext context)
+    {
+        isFiring = true;
+
+        // Start firing immediately for non-automatic guns
+        if (!isAutomatic && Time.time >= nextFireTime)
+        {
+            AttemptToFire();
+        }
+    }
+
+    private void OnFireCanceled(InputAction.CallbackContext context)
+    {
+        isFiring = false; // Stop firing when input is released
     }
 
 
     void Update()
     {
-        // Check if the game is paused; if so, skip any firing logic
-        if (FindObjectOfType<PauseMenu>()?.IsPaused == true) // Safe null check for pause menu
+        // Skip firing logic if paused or reloading
+        if (FindObjectOfType<PauseMenu>()?.IsPaused == true || isReloading)
             return;
 
-        if (isReloading)
-            return;
-
-        if (Input.GetKeyDown(KeyCode.R))
+        // Handle reloading
+        if (Keyboard.current.rKey.wasPressedThisFrame)
         {
             if (clipsRemaining > 0 || infiniteAmmo)
             {
@@ -89,24 +125,30 @@ public class Gun : MonoBehaviour
             }
         }
 
-        if (isAutomatic)
+        // Handle automatic firing
+        if (isFiring && isAutomatic && Time.time >= nextFireTime)
         {
-            if (Input.GetButton("Fire1") && Time.time >= nextFireTime)
-            {
-                AttemptToFire();
-            }
-        }
-        else
-        {
-            if (Input.GetButtonDown("Fire1") && Time.time >= nextFireTime)
-            {
-                AttemptToFire();
-            }
+            AttemptToFire();
         }
     }
 
+    private void OnReloadPerformed(InputAction.CallbackContext context)
+    {
+        // Trigger reload if the action is performed
+        if (clipsRemaining > 0 || infiniteAmmo)
+        {
+            StartCoroutine(Reload());
+        }
+    }
     void AttemptToFire()
     {
+        // Check if the gun is currently reloading
+        if (isReloading)
+        {
+            Debug.Log("Cannot fire while reloading.");
+            return; // Prevent firing during reload
+        }
+
         // Check if the gun object is still valid before trying to fire
         if (gameObject == null || !gameObject.activeInHierarchy)
         {
@@ -128,9 +170,10 @@ public class Gun : MonoBehaviour
     }
 
 
+
     void Fire()
     {
-        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         Vector3 shootDirection = mousePosition - firePoint.position;
         shootDirection.z = 0;
         shootDirection = shootDirection.normalized;
@@ -216,14 +259,14 @@ public class Gun : MonoBehaviour
         }
     }
 
-
+    private FMOD.Studio.EventInstance reloadSoundInstance;
     IEnumerator Reload()
     {
         if (isReloading) yield break;
 
         isReloading = true;
         Debug.Log("Reloading...");
-
+        reloadSoundInstance = AudioManager.instance.PlayOneShot(gunReload, this.transform.position);
         yield return new WaitForSeconds(reloadTime);
 
         if (infiniteAmmo)
@@ -267,11 +310,18 @@ public class Gun : MonoBehaviour
             WeaponManager.instance.SetGunClipsRemaining(gunIndex, clipsRemaining);
             WeaponManager.instance.SetGunClipAmmo(gunIndex, currentClipAmmo);
         }
-
+        reloadSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+        reloadSoundInstance.release();
         UpdateAmmoState(); // Update UI after reloading
         isReloading = false;
     }
-
+    public void StopReloadSound()
+    {
+        if (reloadSoundInstance.isValid())
+        {
+            reloadSoundInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE); // Stop the reload sound immediately
+        }
+    }
     public void RestoreAmmo()
     {
         if (!infiniteAmmo)
@@ -356,6 +406,7 @@ public class Gun : MonoBehaviour
     // This method can be called when switching to this weapon to reset states
     public void ResetReloadingState()
     {
+        StopReloadSound();
         isReloading = false;
     }
 }

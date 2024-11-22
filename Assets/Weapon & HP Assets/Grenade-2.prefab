@@ -109,6 +109,13 @@ MonoBehaviour:
   playerIgnoreDuration: 1
   speedReductionRate: 1
   bounceSpeedReductionFactor: 1
+  gunFired:
+    Guid:
+      Data1: -403846654
+      Data2: 1319143480
+      Data3: -1124770392
+      Data4: -60862565
+    Path: event:/SFX/Weapons/Grenade explosion
 --- !u!50 &-1694565066842884045
 Rigidbody2D:
   serializedVersion: 4

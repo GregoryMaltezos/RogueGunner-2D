@@ -8,12 +8,12 @@ PlayerSettings:
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
-  defaultScreenOrientation: 4
+  defaultScreenOrientation: 3
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: DefaultCompany
-  productName: Procedural2DDungeonTutorial
+  productName: Procedural2DDungeon
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -140,7 +140,8 @@ PlayerSettings:
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
   bundleVersion: 1.0
-  preloadedAssets: []
+  preloadedAssets:
+  - {fileID: 11400000, guid: b5551135401846842b830de982995dc1, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -160,7 +161,8 @@ PlayerSettings:
   resetResolutionOnWindowResize: 0
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
-  applicationIdentifier: {}
+  applicationIdentifier:
+    Standalone: com.DefaultCompany.Procedural2DDungeon
   buildNumber:
     Standalone: 0
     VisionOS: 0
@@ -720,7 +722,7 @@ PlayerSettings:
   hmiLogStartupTiming: 0
   hmiCpuConfiguration: 
   apiCompatibilityLevel: 6
-  activeInputHandler: 0
+  activeInputHandler: 1
   windowsGamepadBackendHint: 0
   cloudProjectId: e7886b71-fceb-4dad-b731-7c9b1de58717
   framebufferDepthMemorylessMode: 0

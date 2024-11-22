@@ -2,6 +2,9 @@ using System;
 using System.Collections;
 using UnityEngine;
 using FMOD.Studio;
+using UnityEngine.InputSystem;
+using FMODUnity;
+
 public class PlayerController : MonoBehaviour
 {
     public static PlayerController instance;
@@ -10,7 +13,9 @@ public class PlayerController : MonoBehaviour
     public static event Action<float> OnPlayerWalkDistance;
 
     private EventInstance playerFootsteps;
-
+    [SerializeField] private EventReference SwordDown;
+    [SerializeField] private EventReference SwordUp;
+    [SerializeField] private EventReference Slide;
     // Movement Parameters
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
@@ -47,7 +52,12 @@ public class PlayerController : MonoBehaviour
     public Transform weaponParent;
     public PlayerHealth playerHealth;
 
-
+    private NewControls inputActions; // New input actions class
+    private InputAction moveAction;
+    private InputAction dashAction;
+    private InputAction attackAction;
+    private InputAction fireWeaponAction;
+    private InputAction mousePositionAction;
     // Facing Direction
     [Header("Facing Direction")]
     private bool facingRight = true;
@@ -57,13 +67,23 @@ public class PlayerController : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject); // Prevent player object from being destroyed on scene load
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
         }
+
+        inputActions = new NewControls();
+        moveAction = inputActions.PlayerInput.Movement; // Assign the correct move action
+        dashAction = inputActions.PlayerInput.Dash;
+        attackAction = inputActions.PlayerInput.Sword;
+        fireWeaponAction = inputActions.PlayerInput.Attack;
+        mousePositionAction = inputActions.PlayerInput.PointerPosition;
+        inputActions.Enable(); // This should be called to activate input actions
+
     }
+
 
 
     void Start()
@@ -79,35 +99,36 @@ public class PlayerController : MonoBehaviour
     {
         if (isDead) return;
 
-        // Normal movement processing
-        movement.x = Input.GetAxis("Horizontal");
-        movement.y = Input.GetAxis("Vertical");
-
+        // Get movement input from new system
+        Vector2 inputMovement = moveAction.ReadValue<Vector2>();
+        movement.x = inputMovement.x;
+        movement.y = inputMovement.y;
 
         // Dash input
-        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
+        if (dashAction.triggered && canDash)
         {
             StartCoroutine(Dash());
         }
 
         // Attack input (V key)
-        if (Input.GetKeyDown(KeyCode.V) && canAttack && !isAttacking && !isAttackDelayActive)
+        if (attackAction.triggered && canAttack && !isAttacking && !isAttackDelayActive)
         {
             StartCoroutine(Attack());
         }
 
         // Weapon fire input (left-click)
-        if (Input.GetMouseButtonDown(0) && canFireWeapon && !isAttacking)
+        if (fireWeaponAction.triggered && canFireWeapon && !isAttacking)
         {
             FireWeapon();
         }
 
-        // Flip the sprite based on the mouse position
-        Vector3 mousePos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-        FlipPlayerBasedOnMouse(mousePos);
+        // Continuously check and update the player's facing direction based on the mouse position
+        Vector3 mousePos = mousePositionAction.ReadValue<Vector2>();
+        FlipPlayerBasedOnMouse(mousePos); // Flip player based on mouse position
 
-        // Correct weapon orientation based on mouse position
+        // Update weapon rotation based on mouse position
         CorrectWeaponOrientation(mousePos);
+
         if (playerHealth.currentHealth <= 0)
         {
             Die();
@@ -121,44 +142,34 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void FlipPlayerBasedOnMouse(Vector3 mousePos)
+ void FlipPlayerBasedOnMouse(Vector3 mousePos)
+{
+    // Convert mouse position from screen space to world space
+    Vector3 worldMousePos = mainCamera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, mainCamera.nearClipPlane));
+
+    // Compare the mouse's world position with the player's position
+    if (worldMousePos.x < transform.position.x && facingRight)
     {
-        if (mousePos.x < transform.position.x && facingRight)
-        {
-            Flip();
-        }
-        else if (mousePos.x > transform.position.x && !facingRight)
-        {
-            Flip();
-        }
+        Flip();
     }
+    else if (worldMousePos.x > transform.position.x && !facingRight)
+    {
+        Flip();
+    }
+}
+
+
+
 
     void Flip()
     {
         // Toggle the facing direction
         facingRight = !facingRight;
 
-        // Flip the player sprite
+        // Flip the player sprite by changing its scale
         Vector3 playerScale = transform.localScale;
         playerScale.x *= -1; // Flip the player's scale
         transform.localScale = playerScale;
-
-        // Ensure all gun objects under this GunRotation are flipped
-        if (weaponParent != null)
-        {
-            foreach (Transform gun in weaponParent)
-            {
-                Vector3 gunScale = new Vector3(Mathf.Abs(gun.localScale.x), gun.localScale.y, gun.localScale.z);
-                gunScale.x *= -1;
-                gun.localScale = gunScale;
-
-                GunRotation gunRotation = gun.GetComponent<GunRotation>();
-                if (gunRotation != null)
-                {
-                    gunRotation.UpdateGunRotation();
-                }
-            }
-        }
     }
 
     void CorrectWeaponOrientation(Vector3 mousePos)
@@ -172,11 +183,21 @@ public class PlayerController : MonoBehaviour
                 {
                     Vector3 direction = mousePos - child.position;
                     float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                    child.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
+
+                    // Correct weapon rotation based on mouse position and player facing direction
+                    if (!facingRight)
+                    {
+                        angle += 180f; // If the player is facing left, flip the gun's angle
+                    }
+
+                    child.rotation = Quaternion.Euler(new Vector3(0, 0, angle)); // Set the gun's rotation
                 }
             }
         }
     }
+
+
+
 
     IEnumerator Attack()
     {
@@ -188,6 +209,16 @@ public class PlayerController : MonoBehaviour
         {
             animator.SetTrigger("Attack");
         }
+        yield return new WaitForSeconds(0.2f); // Adjust delay duration as needed
+
+        // Play the first audio clip
+        AudioManager.instance.PlayOneShot(SwordDown, this.transform.position);
+
+        // Small delay between audio clips
+        yield return new WaitForSeconds(0.3f); // Adjust delay duration as needed
+
+        // Play the second audio clip
+        AudioManager.instance.PlayOneShot(SwordUp, this.transform.position);
 
         // Wait for the attack animation duration (adjust this duration as needed)
         yield return new WaitForSeconds(1.4f); // Increase duration for the attack animation
@@ -202,6 +233,7 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(attackCooldown);
         canAttack = true; // Reset attack flag after cooldown
     }
+
 
 
     IEnumerator AttackDelay()
@@ -230,7 +262,7 @@ public class PlayerController : MonoBehaviour
         canDash = false;
         isInvincible = true;
         animator.SetTrigger("Dash");
-
+        AudioManager.instance.PlayOneShot(Slide, this.transform.position);
         Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Arrow"), true);
 
         rb.velocity = movement * dashSpeed;
@@ -378,7 +410,7 @@ public class PlayerController : MonoBehaviour
     {
         return isDashing;
     }
-
+    
 
     private void UpdateSound()
     {
@@ -393,7 +425,8 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            playerFootsteps.stop(STOP_MODE.ALLOWFADEOUT);
+            playerFootsteps.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+
         }
     }
 }

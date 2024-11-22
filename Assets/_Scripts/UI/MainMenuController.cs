@@ -1,146 +1,132 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;  // Ensure this is included for Button functionality
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class MainMenuController : MonoBehaviour
 {
-    // References to the main menu and settings panels
-    public GameObject mainMenuPanel;
-    public GameObject settingsPanel;
+    public GameObject mainMenuUI; // The root of the Main Menu UI
+    public GameObject playButton; // Reference to the Play button in the Main Menu
+    public GameObject quitButton; // Reference to the Quit button in the Main Menu
 
-    // Reference to GunUIManager and the PlayerAmmo UI element
-    private GunUIManager gunUIManager;  // Reference to GunUIManager
-    private GameObject playerAmmo;      // Reference to PlayerAmmo
+    public InputActionReference navigateAction; // Bind this to the left stick or d-pad
+    public InputActionReference submitAction;   // Bind this to South button (A button or Enter)
+    public InputActionReference cancelAction;   // Bind this to B button or Escape
 
-    void Start()
+    private void Start()
     {
-        // Automatically find GunUIManager and its PlayerAmmo child if they exist
-        FindGunUIManager();
+        // Enable the input actions
+        navigateAction.action.Enable();
+        submitAction.action.Enable();
+        cancelAction.action.Enable();
 
-        // Adjust visibility based on current scene
-        AdjustPlayerAmmoVisibility();
+        // Set the default button to be selected when the menu opens
+        EventSystem.current.SetSelectedGameObject(mainMenuUI.transform.GetChild(0).gameObject); // First child is the first button (Play)
     }
 
-    // Function to start the game (as in your original code)
+    private void OnDisable()
+    {
+        // Disable the actions when not in use
+        navigateAction.action.Disable();
+        submitAction.action.Disable();
+        cancelAction.action.Disable();
+    }
+
+    private void Update()
+    {
+        // Handle menu navigation
+        HandleNavigation();
+
+        // Handle selection (submit action)
+        if (submitAction.action.triggered)
+        {
+            HandleSubmit();
+        }
+
+        // Handle cancel (back action)
+        if (cancelAction.action.triggered)
+        {
+            HandleCancel();
+        }
+    }
+
+    private void HandleNavigation()
+    {
+        // Get the navigation input (left stick or D-pad)
+        Vector2 navigationInput = navigateAction.action.ReadValue<Vector2>();
+
+        // Handle vertical navigation (up/down)
+        if (navigationInput.y > 0) // Up direction
+        {
+            MoveSelectionUp();
+        }
+        else if (navigationInput.y < 0) // Down direction
+        {
+            MoveSelectionDown();
+        }
+
+        // Handle horizontal navigation (left/right) if needed (skipped for simplicity)
+    }
+
+    private void MoveSelectionUp()
+    {
+        // Navigate up in the menu
+        GameObject previousSelected = EventSystem.current.currentSelectedGameObject;
+        if (previousSelected != null)
+        {
+            int previousIndex = previousSelected.transform.GetSiblingIndex();
+            if (previousIndex > 0)
+            {
+                EventSystem.current.SetSelectedGameObject(previousSelected.transform.parent.GetChild(previousIndex - 1).gameObject);
+            }
+        }
+    }
+
+    private void MoveSelectionDown()
+    {
+        // Navigate down in the menu
+        GameObject previousSelected = EventSystem.current.currentSelectedGameObject;
+        if (previousSelected != null)
+        {
+            int previousIndex = previousSelected.transform.GetSiblingIndex();
+            if (previousIndex < previousSelected.transform.parent.childCount - 1)
+            {
+                EventSystem.current.SetSelectedGameObject(previousSelected.transform.parent.GetChild(previousIndex + 1).gameObject);
+            }
+        }
+    }
+
+    private void HandleSubmit()
+    {
+        // Check if the selected UI element is a button and invoke the click
+        Button selectedButton = EventSystem.current.currentSelectedGameObject?.GetComponent<Button>();
+        if (selectedButton != null)
+        {
+            selectedButton.onClick.Invoke(); // Simulate the button click
+            Debug.Log("Button clicked: " + selectedButton.name);
+        }
+    }
+
+    private void HandleCancel()
+    {
+        // Handle cancel (back action), like quitting or doing other tasks
+        Debug.Log("Cancel action triggered.");
+        QuitGame();
+    }
+
+    // Function to start the game
     public void StartGame()
     {
-        // Ensure PlayerAmmo is enabled before starting the game scene
-        EnablePlayerAmmo();
-
-        // Load the game scene (replace "RoomContent" with your game scene)
-        Debug.Log("Start Game");
+        Debug.Log("Starting Game...");
+        // Replace "YourGameScene" with your actual scene name
         SceneManager.LoadScene("RoomContent");
     }
 
-    // Function to open the settings menu
-    public void OpenSettings()
-    {
-        // Disable the main menu panel and enable the settings panel
-        mainMenuPanel.SetActive(false);
-        settingsPanel.SetActive(true);
-    }
-
-    // Function to go back to the main menu from the settings menu
-    public void BackToMainMenu()
-    {
-        // Disable the settings panel and enable the main menu panel
-        settingsPanel.SetActive(false);
-        mainMenuPanel.SetActive(true);
-    }
-
-    // Function to quit the game (as in your original code)
+    // Function to quit the game
     public void QuitGame()
     {
-        Debug.Log("Quit Game");
+        Debug.Log("Quitting Game...");
         Application.Quit();
-    }
-
-    // Function to find the GunUIManager and its PlayerAmmo child
-    private void FindGunUIManager()
-    {
-        // Look for GunUIManager in the scene (it persists across scenes)
-        gunUIManager = FindObjectOfType<GunUIManager>();
-        if (gunUIManager != null)
-        {
-            // If found, get the reference to PlayerAmmo (child of GunUIManager)
-            playerAmmo = gunUIManager.transform.Find("PlayerAmmo")?.gameObject;
-
-            if (playerAmmo != null)
-            {
-                Debug.Log("PlayerAmmo found and will be managed based on scene.");
-            }
-            else
-            {
-                Debug.LogError("PlayerAmmo not found as a child of GunUIManager.");
-            }
-        }
-        else
-        {
-           // Debug.LogError("GunUIManager not found in the scene.");
-        }
-    }
-
-    // Function to enable PlayerAmmo in the game scene
-    private void EnablePlayerAmmo()
-    {
-        if (playerAmmo != null)
-        {
-            // Enable PlayerAmmo if it exists and is not already active
-            if (!playerAmmo.activeSelf)
-            {
-                playerAmmo.SetActive(true);
-                Debug.Log("PlayerAmmo enabled in the game scene.");
-            }
-        }
-        else
-        {
-            Debug.LogWarning("PlayerAmmo is null, cannot enable it.");
-        }
-    }
-
-    // Function to disable PlayerAmmo when in the Main Menu
-    private void DisablePlayerAmmo()
-    {
-        if (playerAmmo != null)
-        {
-            // Disable PlayerAmmo if it exists
-            if (playerAmmo.activeSelf)
-            {
-                playerAmmo.SetActive(false);
-                Debug.Log("PlayerAmmo disabled in the Main Menu.");
-            }
-        }
-        else
-        {
-            Debug.LogWarning("PlayerAmmo is null, cannot disable it.");
-        }
-    }
-
-    // Function to adjust PlayerAmmo visibility based on the current scene
-    private void AdjustPlayerAmmoVisibility()
-    {
-        string currentSceneName = SceneManager.GetActiveScene().name;
-
-        if (currentSceneName == "MainMenuSceene")
-        {
-            // If we're in the Main Menu, disable PlayerAmmo
-            DisablePlayerAmmo();
-        }
-        else
-        {
-            // In any other scene (e.g., RoomContent), enable PlayerAmmo
-            EnablePlayerAmmo();
-        }
-    }
-
-    // Listener for scene load events to handle visibility when the scene changes
-    [RuntimeInitializeOnLoadMethod]
-    static void OnSceneLoad()
-    {
-        // This will run whenever a scene is loaded to adjust visibility
-        var controller = FindObjectOfType<MainMenuController>();
-        if (controller != null)
-        {
-            controller.AdjustPlayerAmmoVisibility();
-        }
     }
 }

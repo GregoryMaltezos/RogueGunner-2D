@@ -1,0 +1,34 @@
+{
+    "name": "InputActions",
+    "maps": [
+        {
+            "name": "Game",
+            "id": "939aed82-93fd-4bd0-8da9-68f5847a3e7c",
+            "actions": [
+                {
+                    "name": "New action",
+                    "type": "Button",
+                    "id": "d50d2d80-d363-4dea-b81c-e1629073d299",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "9fa58b90-fae0-41a3-958a-af8a67e98883",
+                    "path": "<Gamepad>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "New action",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

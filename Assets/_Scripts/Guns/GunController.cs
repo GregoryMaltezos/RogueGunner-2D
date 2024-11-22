@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class GunController : MonoBehaviour
 {
@@ -29,23 +30,27 @@ public class GunController : MonoBehaviour
 
     void UpdateCursorIconPosition()
     {
-        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mousePosition.z = 0f; // Ensure the cursor icon stays on the same plane
-        cursorIconInstance.transform.position = mousePosition;
+        // Use the new Input System to get mouse position
+        Vector2 mousePosition = Mouse.current.position.ReadValue();
+        Vector3 worldPosition = Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, 0f));
+        worldPosition.z = 0f; // Ensure the cursor icon stays on the same plane
+        cursorIconInstance.transform.position = worldPosition;
 
         // Ensure the cursor icon is at the frontmost layer
         cursorIconInstance.GetComponent<SpriteRenderer>().sortingLayerName = "UI";
         cursorIconInstance.GetComponent<SpriteRenderer>().sortingOrder = 999;
     }
 
+
     void UpdateGunRotation()
     {
         // Get the mouse position in world space
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mousePos.z = 0f; // Ensure we are on the same plane
+        Vector2 mousePosition = Mouse.current.position.ReadValue();
+        Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, 0f));
+        mouseWorldPosition.z = 0f; // Ensure we are on the same plane
 
         // Get the direction from the gun to the mouse
-        Vector3 direction = mousePos - gunTransform.position;
+        Vector3 direction = mouseWorldPosition - gunTransform.position;
 
         // Calculate the target rotation angle based on the mouse position
         float targetAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
@@ -60,6 +65,7 @@ public class GunController : MonoBehaviour
         Quaternion rotation = Quaternion.Euler(0f, 0f, targetAngle);
         gunTransform.rotation = rotation; // Update the gun's rotation
     }
+
 
     void OnDestroy()
     {

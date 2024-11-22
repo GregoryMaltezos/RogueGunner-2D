@@ -98,11 +98,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93444dd71c618ad4e835540edfa5d228, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  throwForce: 80
+  throwForce: 35
   spinForce: 100
   explosionEffectPrefab: {fileID: 5583357990724408602, guid: 56e93fce7891e9d43adf5d0f50a6dc18, type: 3}
   explosionLayers:
     serializedVersion: 2
     m_Bits: 4294967295
   explosionRadius: 2
-  explosionDamage: 25
+  explosionDamage: 40
+  gunFired:
+    Guid:
+      Data1: -403846654
+      Data2: 1319143480
+      Data3: -1124770392
+      Data4: -60862565
+    Path: event:/SFX/Weapons/Grenade explosion

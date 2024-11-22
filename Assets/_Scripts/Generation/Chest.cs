@@ -1,34 +1,51 @@
 using UnityEngine;
+using UnityEngine.InputSystem; // Include Input System namespace
 using System.Collections.Generic;
 using FMODUnity;
+
 public class Chest : MonoBehaviour
 {
-    public Animator chestAnimator; // Reference to the Animator component
-    public GameObject[] weaponPrefabs; // Array of weapon prefabs
-    public Transform spawnPoint; // Point where the weapon will be spawned
-    public float interactionDistance = 2.0f; // Distance within which the player can interact
-    public float hoverHeight = 0.5f; // Height of the hovering effect
-    public float hoverSpeed = 2f; // Speed of the hovering effect
+    public Animator chestAnimator;
+    public GameObject[] weaponPrefabs;
+    public Transform spawnPoint;
+    public float interactionDistance = 2.0f;
+    public float hoverHeight = 0.5f;
+    public float hoverSpeed = 2f;
 
-    private bool isOpen = false; // Track whether the chest is open
-    private GameObject spawnedWeapon; // Reference to the spawned weapon
-    private Vector3 originalWeaponPosition; // Original position of the spawned weapon
-
+    private bool isOpen = false;
+    private GameObject spawnedWeapon;
+    private Vector3 originalWeaponPosition;
     private CorridorFirstDungeonGenerator dungeonGenerator;
 
     private StudioEventEmitter emitter;
     private bool hasPlayedIdleSound = false;
 
+    // Reference to the InputAction for interacting with the chest
+    private InputAction interactAction;
+
+    private void OnEnable()
+    {
+        // Initialize the InputAction and bind to the Interact method
+        var playerInput = new NewControls(); // Assuming you created PlayerInput in the Input Action Asset
+        interactAction = playerInput.PlayerInput.Interact;
+        interactAction.Enable();
+    }
+
+    private void OnDisable()
+    {
+        // Disable the input action when the object is disabled
+        interactAction.Disable();
+    }
+
     private void Start()
     {
         emitter = AudioManager.instance.InitializeEventEmitter(FMODEvents.instance.chestIdle, this.gameObject);
         emitter.Play();
-        // Find the CorridorFirstDungeonGenerator in the scene
         dungeonGenerator = FindObjectOfType<CorridorFirstDungeonGenerator>();
-        
+
         if (dungeonGenerator != null && dungeonGenerator.CurrentFloor == 1)
         {
-            ResetChest(); // Reset the chest contents if on the first floor
+            ResetChest();
         }
     }
 
@@ -39,20 +56,20 @@ public class Chest : MonoBehaviour
         // Check if player is in interaction range and reinitialize emitter
         if (distanceToPlayer < interactionDistance && !isOpen)
         {
-            if (!emitter.IsPlaying()) // Assuming emitter has a method to check if it's playing
+            if (!emitter.IsPlaying())
             {
                 emitter = AudioManager.instance.InitializeEventEmitter(FMODEvents.instance.chestIdle, this.gameObject);
                 emitter.Play();
             }
         }
 
-        // Check if the player is near and presses 'E' to open the chest
-        if (Vector3.Distance(PlayerController.instance.transform.position, transform.position) < interactionDistance && Input.GetKeyDown(KeyCode.E) && !isOpen)
+        // Check if the player presses the interact key (E) when near the chest
+        if (distanceToPlayer < interactionDistance && interactAction.triggered && !isOpen)
         {
             OpenChest();
         }
 
-        // Apply hovering effect to the spawned weapon if it exists
+        // Apply hovering effect to the spawned weapon
         if (spawnedWeapon != null)
         {
             float newY = originalWeaponPosition.y + Mathf.Sin(Time.time * hoverSpeed) * hoverHeight;
@@ -62,29 +79,27 @@ public class Chest : MonoBehaviour
 
     void OpenChest()
     {
-        if (isOpen) return; // If already open, do nothing
+        if (isOpen) return;
 
         isOpen = true;
-        chestAnimator.SetTrigger("Open"); // Play the opening animation
+        chestAnimator.SetTrigger("Open");
         emitter.Stop();
-        // Check if any challenge has been completed
+
         bool anyChallengeCompleted = CheckAnyChallengeCompleted();
 
         if (!anyChallengeCompleted)
         {
             Debug.LogWarning("Cannot spawn weapon: No challenges completed.");
-            return; // Exit without spawning anything
+            return;
         }
 
-        // Get the list of unlocked weapons and picked-up weapons
         List<int> unlockedWeapons = GameProgressManager.instance.GetUnlockedWeapons();
         List<int> pickedUpWeapons = WeaponManager.instance.GetPickedUpWeapons();
 
-        // Filter out weapons that the player has already picked up
         List<int> availableWeapons = new List<int>();
         foreach (int weaponIndex in unlockedWeapons)
         {
-            if (!pickedUpWeapons.Contains(weaponIndex)) // Only add weapons that have not been picked up yet
+            if (!pickedUpWeapons.Contains(weaponIndex))
             {
                 availableWeapons.Add(weaponIndex);
             }
@@ -94,61 +109,49 @@ public class Chest : MonoBehaviour
 
         if (availableWeapons.Count > 0)
         {
-            // Spawn a random weapon that hasn't been picked up yet
             SpawnRandomWeapon(availableWeapons);
         }
         else
         {
-            // If all weapons have been picked up, spawn from the full pool of unlocked weapons
             Debug.Log("All weapons have been picked up. Resetting weapon pool to unlocked weapons.");
-            SpawnRandomWeapon(unlockedWeapons); // Spawn from all unlocked weapons
+            SpawnRandomWeapon(unlockedWeapons);
         }
     }
 
     bool CheckAnyChallengeCompleted()
     {
-        // Implement logic to check if any challenge is completed
         foreach (ChallengeManager.Challenge challenge in ChallengeManager.instance.challenges)
         {
             if (challenge.completed)
             {
-                return true; // Return true if any challenge is completed
+                return true;
             }
         }
-        return false; // Return false if no challenges are completed
+        return false;
     }
 
     void SpawnRandomWeapon(List<int> availableWeapons)
     {
-        // Select a random weapon from the available weapons
         int randomIndex = Random.Range(0, availableWeapons.Count);
         int weaponIndex = availableWeapons[randomIndex];
         GameObject spawnedWeaponPrefab = weaponPrefabs[weaponIndex];
 
-        // Spawn the weapon at the specified spawn point
         spawnedWeapon = Instantiate(spawnedWeaponPrefab, spawnPoint.position, spawnPoint.rotation);
-
-        // Ensure the weapon is initially active when spawned
         spawnedWeapon.SetActive(true);
 
-        // Store the original position for hovering effect
         originalWeaponPosition = spawnedWeapon.transform.position;
-
-        // Notify the WeaponManager or other relevant systems about the spawned weapon
         NotifyWeaponPickedUp(weaponIndex);
     }
 
-    // Method to handle when a weapon is picked up from the chest
     void NotifyWeaponPickedUp(int weaponIndex)
     {
-        WeaponManager.instance.AddPickedUpWeapon(weaponIndex); // Add the weapon to the picked-up list
+        WeaponManager.instance.AddPickedUpWeapon(weaponIndex);
         Debug.Log("Weapon picked up from chest: " + weaponPrefabs[weaponIndex].name);
     }
 
-    // Method to reset chest contents for the first floor
     private void ResetChest()
     {
         Debug.Log("Chest reset for the first floor.");
-        WeaponManager.instance.ResetPickedUpWeapons(); // Reset the list of picked-up weapons
+        WeaponManager.instance.ResetPickedUpWeapons();
     }
 }

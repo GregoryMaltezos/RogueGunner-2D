@@ -36,7 +36,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -29.9, y: 63.1, z: 0}
-  m_LocalScale: {x: 4.2, y: 4.2, z: 4.2}
+  m_LocalScale: {x: 4, y: 4, z: 4}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7667575866004813600}
@@ -186,6 +186,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33fad44f6b840854ca3a0914d29d4817, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SwordDown:
+    Guid:
+      Data1: -754309329
+      Data2: 1100055803
+      Data3: -1907032387
+      Data4: -1404891562
+    Path: event:/SFX/Weapons/SwordDown
+  SwordUp:
+    Guid:
+      Data1: 920376482
+      Data2: 1226823094
+      Data3: 1918760892
+      Data4: 1164716378
+    Path: event:/SFX/Weapons/SwordUp
+  Slide:
+    Guid:
+      Data1: -1471414013
+      Data2: 1124040247
+      Data3: -2050396483
+      Data4: 170540840
+    Path: event:/SFX/Player/Slide
   moveSpeed: 5
   dashSpeed: 8
   dashDuration: 0.3
@@ -298,6 +319,13 @@ MonoBehaviour:
   throwPoint: {fileID: 5925747776739956511}
   maxGrenades: 3
   throwForce: 0
+  grenadePin:
+    Guid:
+      Data1: -1190794486
+      Data2: 1147237180
+      Data3: -1347574386
+      Data4: -830985491
+    Path: event:/SFX/Player/GrenadePin
 --- !u!1 &514796420967624630
 GameObject:
   m_ObjectHideFlags: 0
@@ -461,7 +489,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectilePrefab: {fileID: 2115820161184022471, guid: 926f8c41ce2d52a4cae71cf9436b6d91, type: 3}
   firePoint: {fileID: 4300827840191102243}
-  projectileSpeed: 85
+  projectileSpeed: 35
   isShotgun: 0
   shotgunPelletCount: 5
   shotgunSpreadAngle: 20
@@ -476,11 +504,18 @@ MonoBehaviour:
   clipsRemaining: 0
   gunFired:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: -101738615
+      Data2: 1230599861
+      Data3: -632847709
+      Data4: 1344331936
+    Path: event:/SFX/Weapons/Fire Grenade Launcher
+  gunReload:
+    Guid:
+      Data1: -1773087636
+      Data2: 1238613381
+      Data3: 163099783
+      Data4: -1565061892
+    Path: event:/SFX/Reloads/GrenadeLauncherReload
 --- !u!210 &4117294817895015833
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -621,11 +656,18 @@ MonoBehaviour:
   clipsRemaining: 0
   gunFired:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: 221637278
+      Data2: 1083491978
+      Data3: 747941794
+      Data4: -88853255
+    Path: event:/SFX/Weapons/Fire SMG
+  gunReload:
+    Guid:
+      Data1: -2084072513
+      Data2: 1212617197
+      Data3: -1342573433
+      Data4: -1349823594
+    Path: event:/SFX/Reloads/SMG Reload
 --- !u!1 &2362121040827898441
 GameObject:
   m_ObjectHideFlags: 0
@@ -976,11 +1018,18 @@ MonoBehaviour:
   clipsRemaining: 0
   gunFired:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: -993864558
+      Data2: 1270549853
+      Data3: -1519685456
+      Data4: -1092951507
+    Path: event:/SFX/Weapons/Fire AR
+  gunReload:
+    Guid:
+      Data1: -1772707127
+      Data2: 1122008324
+      Data3: -1112729691
+      Data4: -2145968393
+    Path: event:/SFX/Reloads/AR Reload
 --- !u!1 &3866738784251061682
 GameObject:
   m_ObjectHideFlags: 0
@@ -1140,11 +1189,18 @@ MonoBehaviour:
   clipsRemaining: 0
   gunFired:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: 648608011
+      Data2: 1264007196
+      Data3: 548729017
+      Data4: -1846622509
+    Path: event:/SFX/Weapons/Fire Shotgun
+  gunReload:
+    Guid:
+      Data1: 2009522802
+      Data2: 1125779881
+      Data3: 1164324021
+      Data4: -798122606
+    Path: event:/SFX/Reloads/ShotGunReload
 --- !u!1 &5599196395550941327
 GameObject:
   m_ObjectHideFlags: 0
@@ -1273,11 +1329,18 @@ MonoBehaviour:
   clipsRemaining: 0
   gunFired:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: 1862784131
+      Data2: 1143486009
+      Data3: 1868798885
+      Data4: 317330449
+    Path: event:/SFX/Weapons/Fire GolemArm
+  gunReload:
+    Guid:
+      Data1: -1208176770
+      Data2: 1322060607
+      Data3: 562990517
+      Data4: 702908323
+    Path: event:/SFX/Reloads/GolemArmReload
 --- !u!1 &6133910698529224587
 GameObject:
   m_ObjectHideFlags: 0
@@ -1386,7 +1449,7 @@ Transform:
   m_GameObject: {fileID: 6259312518225969400}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.0944, y: -0.005997465, z: 41.664}
+  m_LocalPosition: {x: 0.0751, y: -0.0862, z: 41.664}
   m_LocalScale: {x: 2.087011, y: 2.0355308, z: 10.248004}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1813,6 +1876,10 @@ PrefabInstance:
       value: event:/SFX/Weapons/FirePistol
       objectReference: {fileID: 0}
     - target: {fileID: 7490216100004448100, guid: 46a0581eaa5d63f45900e06723561e4c, type: 3}
+      propertyPath: gunReload.Path
+      value: event:/SFX/Reloads/PistolReload
+      objectReference: {fileID: 0}
+    - target: {fileID: 7490216100004448100, guid: 46a0581eaa5d63f45900e06723561e4c, type: 3}
       propertyPath: gunFired.Guid.Data1
       value: -1566925779
       objectReference: {fileID: 0}
@@ -1827,6 +1894,22 @@ PrefabInstance:
     - target: {fileID: 7490216100004448100, guid: 46a0581eaa5d63f45900e06723561e4c, type: 3}
       propertyPath: gunFired.Guid.Data4
       value: -1179255712
+      objectReference: {fileID: 0}
+    - target: {fileID: 7490216100004448100, guid: 46a0581eaa5d63f45900e06723561e4c, type: 3}
+      propertyPath: gunReload.Guid.Data1
+      value: -2041661100
+      objectReference: {fileID: 0}
+    - target: {fileID: 7490216100004448100, guid: 46a0581eaa5d63f45900e06723561e4c, type: 3}
+      propertyPath: gunReload.Guid.Data2
+      value: 1318115429
+      objectReference: {fileID: 0}
+    - target: {fileID: 7490216100004448100, guid: 46a0581eaa5d63f45900e06723561e4c, type: 3}
+      propertyPath: gunReload.Guid.Data3
+      value: 340674961
+      objectReference: {fileID: 0}
+    - target: {fileID: 7490216100004448100, guid: 46a0581eaa5d63f45900e06723561e4c, type: 3}
+      propertyPath: gunReload.Guid.Data4
+      value: -1404381123
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

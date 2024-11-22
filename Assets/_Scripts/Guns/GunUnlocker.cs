@@ -1,12 +1,15 @@
 using UnityEngine;
+using UnityEngine.InputSystem; // Include the new Input System namespace
 
 public class GunUnlocker : MonoBehaviour
 {
     public int gunIndexToUnlock; // Index of the gun to unlock in the WeaponManager's guns list
-    public KeyCode interactKey = KeyCode.E; // Key to press to interact
+    public string interactActionName = "Interact"; // Action name in the Input Action Asset (for example, "Interact" bound to 'E')
 
     private WeaponManager weaponManager; // Reference to the WeaponManager script on the player
     private bool canInteract = false; // Flag to track if player can interact
+
+    private InputAction interactAction; // Input action for interacting with the gun unlocker
 
     void Start()
     {
@@ -15,12 +18,22 @@ public class GunUnlocker : MonoBehaviour
         {
             Debug.LogWarning("GunUnlocker: WeaponManager not found in the scene.");
         }
+
+        // Get the PlayerInput component and the interact action from it
+        var playerInput = new NewControls(); // Assuming you have a PlayerInput action asset
+        interactAction = playerInput.PlayerInput.Interact; // Access the action by its name
+        interactAction.Enable(); // Enable the action
+    }
+
+    void OnDisable()
+    {
+        interactAction.Disable(); // Disable the action when the object is disabled
     }
 
     void Update()
     {
-        // Check for player interaction with 'E' key
-        if (canInteract && Input.GetKeyDown(interactKey))
+        // Check if the player is in range and presses the interact button
+        if (canInteract && interactAction.triggered)
         {
             UnlockGun();
         }
@@ -65,5 +78,4 @@ public class GunUnlocker : MonoBehaviour
 
         Destroy(gameObject); // Destroy the pickup item after unlocking the gun (optional)
     }
-
 }

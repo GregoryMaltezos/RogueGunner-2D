@@ -1,4 +1,6 @@
+using FMODUnity;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Grenade : MonoBehaviour
 {
@@ -20,7 +22,7 @@ public class Grenade : MonoBehaviour
     public float speedReductionRate = 0.1f; // Rate of speed reduction
     [Range(0.01f, 1f)]
     public float bounceSpeedReductionFactor = 0.5f; // Factor by which speed reduces on bounce
-
+    [SerializeField] private EventReference gunFired;
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -63,18 +65,21 @@ public class Grenade : MonoBehaviour
 
     private void ThrowGrenadeTowardsCursor()
     {
-        // Get the mouse position in world coordinates
-        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mousePosition.z = 0; // Set z to 0 for 2D
+        // Get the mouse position using the new Input System
+        Vector2 mousePosition = Mouse.current.position.ReadValue();
+
+        // Convert to world coordinates
+        Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
+        mouseWorldPosition.z = 0; // Set z to 0 for 2D
 
         // Calculate direction from grenade to mouse position
-        Vector2 throwDirection = (mousePosition - transform.position).normalized;
+        Vector2 throwDirection = (mouseWorldPosition - transform.position).normalized;
 
         // Set initial velocity of the grenade
         rb.velocity = throwDirection * throwForce;
 
         // Apply torque for spinning effect
-        rb.AddTorque(spinForce); // Apply torque for immediate spinning
+        rb.AddTorque(spinForce);
     }
 
     void EnablePlayerCollision()
@@ -91,6 +96,7 @@ public class Grenade : MonoBehaviour
 
     void Explode()
     {
+        AudioManager.instance.PlayOneShot(gunFired, this.transform.position);
         // Instantiate explosion effect
         GameObject explosionEffect = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
         Destroy(explosionEffect, 0.6f); // Destroy the explosion effect after 0.6 seconds

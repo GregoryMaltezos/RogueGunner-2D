@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
 
 [System.Serializable]
 public class GunInfo
@@ -31,7 +32,9 @@ public class WeaponManager : MonoBehaviour
 
 
 
-
+    private NewControls controls;
+    private InputAction dpadLeftAction;
+    private InputAction dpadRightAction;
 
     void Awake()
     {
@@ -44,6 +47,74 @@ public class WeaponManager : MonoBehaviour
         {
             Debug.LogWarning("Multiple instances of WeaponManager found. Destroying the new one.");
             Destroy(gameObject);
+        }
+        controls = new NewControls();
+    }
+    void OnEnable()
+    {
+        // Enable the input actions for DPad Left and DPad Right
+        dpadLeftAction = controls.PlayerInput.DpadL;
+        dpadRightAction = controls.PlayerInput.DpadR;
+
+        dpadLeftAction.Enable();
+        dpadRightAction.Enable();
+
+        // Set up action listeners for DPad buttons
+        dpadLeftAction.performed += ctx => SwitchWeaponLeft();
+        dpadRightAction.performed += ctx => SwitchWeaponRight();
+    }
+
+    void OnDisable()
+    {
+        // Disable the actions when the script is disabled
+        dpadLeftAction.Disable();
+        dpadRightAction.Disable();
+    }
+
+    public void SwitchWeaponLeft()
+    {
+        int previousIndex = currentGunIndex - 1;
+        if (previousIndex < 0)
+        {
+            previousIndex = equippedGunIndices.Count - 1; // Loop to the last weapon if we're at the first one
+        }
+
+        SwitchWeaponByIndex(previousIndex);
+    }
+
+    public void SwitchWeaponRight()
+    {
+        int nextIndex = currentGunIndex + 1;
+        if (nextIndex >= equippedGunIndices.Count)
+        {
+            nextIndex = 0; // Loop to the first weapon if we're at the last one
+        }
+
+        SwitchWeaponByIndex(nextIndex);
+    }
+
+    private void SwitchWeaponByIndex(int index)
+    {
+        int weaponIndex = equippedGunIndices[index];
+
+        // Check if the selected weapon index is valid and not locked
+        if (weaponIndex >= 0 && weaponIndex < guns.Count && !guns[weaponIndex].locked)
+        {
+            // Stop reload sound of the current weapon
+            if (currentGunIndex >= 0 && currentGunIndex < guns.Count)
+            {
+                Gun currentGun = guns[currentGunIndex].gunObject.GetComponent<Gun>();
+                if (currentGun != null)
+                {
+                    currentGun.StopReloadSound();  // Stop the reload sound of the current weapon
+                    currentGun.ResetReloadingState();  // Reset any reloading state
+                }
+            }
+
+            // Update the current gun index to the new weapon
+            currentGunIndex = weaponIndex;
+            UpdateGunsVisibility();
+            GunUIManager.instance.UpdateUI(); // Update UI when weapon is switched
         }
     }
 
@@ -85,7 +156,7 @@ public class WeaponManager : MonoBehaviour
     {
         for (int i = 0; i < 8; i++) // Check for weapon switch inputs from 1 to 8
         {
-            if (Input.GetKeyDown((KeyCode)System.Enum.Parse(typeof(KeyCode), "Alpha" + (i + 1))))
+            if (Keyboard.current[(Key)(Key.Digit1 + i)].wasPressedThisFrame)
             {
                 SwitchWeapon(i);
                 break;
