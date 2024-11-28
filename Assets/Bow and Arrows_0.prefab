@@ -129,6 +129,20 @@ MonoBehaviour:
   projectilePrefab: {fileID: 6970989804087164485, guid: 13fca238de1add048af5133be1eb39b7, type: 3}
   firePoint: {fileID: 2640777415857791256}
   shootInterval: 1.3
+  bowPull:
+    Guid:
+      Data1: -587429175
+      Data2: 1193371584
+      Data3: -168911728
+      Data4: -699410233
+    Path: event:/SFX/Enemy/Bow/BowPull
+  bowRelease:
+    Guid:
+      Data1: 1408866642
+      Data2: 1215464319
+      Data3: 802644139
+      Data4: 1665488367
+    Path: event:/SFX/Enemy/Bow/BowRelease
 --- !u!210 &4214453542482992367
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -201,6 +215,21 @@ MonoBehaviour:
   currentHealth: 50
   maxHealth: 50
   isDead: 0
+  death:
+    Guid:
+      Data1: -1649567162
+      Data2: 1214807594
+      Data3: 722031785
+      Data4: -1818480083
+    Path: event:/SFX/Enemy/Bow/BowDestoy
+  hit:
+    Guid:
+      Data1: 246019744
+      Data2: 1334404210
+      Data3: -1134791801
+      Data4: 1839273396
+    Path: event:/SFX/Enemy/Bow/BowHit
+  hitSoundCooldown: 0.5
   OnHitWithReference:
     m_PersistentCalls:
       m_Calls: []

@@ -15,7 +15,7 @@ public class AgentMover : MonoBehaviour
 
     // Variable to control movement
     private bool canMove = true;
-
+    private bool isMoving = false;
     // Adjustable knockback force in the inspector
     [SerializeField]
     private float bulletKnockbackForce = 5f; // Default value, adjustable in inspector
@@ -34,10 +34,12 @@ public class AgentMover : MonoBehaviour
             {
                 oldMovementInput = MovementInput;
                 currentSpeed += acceleration * maxSpeed * Time.deltaTime;
+                isMoving = true;
             }
             else
             {
                 currentSpeed -= deacceleration * maxSpeed * Time.deltaTime;
+                isMoving = false;
             }
             currentSpeed = Mathf.Clamp(currentSpeed, 0, maxSpeed);
             rb2d.velocity = oldMovementInput * currentSpeed;
@@ -46,7 +48,12 @@ public class AgentMover : MonoBehaviour
         {
             // If the agent can't move, stop all movement
             rb2d.velocity = Vector2.zero;
+            isMoving = false;
         }
+    }
+    public bool IsMoving()
+    {
+        return isMoving;  // Return if the agent is moving
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -86,6 +93,7 @@ public class AgentMover : MonoBehaviour
         if (!enabled)
         {
             rb2d.velocity = Vector2.zero;
+            isMoving = false;
         }
     }
 }

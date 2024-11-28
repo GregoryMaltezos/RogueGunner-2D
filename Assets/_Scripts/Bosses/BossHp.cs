@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using FMODUnity;
 
 public class BossHp : MonoBehaviour
 {
@@ -16,6 +17,13 @@ public class BossHp : MonoBehaviour
 
     [SerializeField] private GameObject portalPrefab; // Drag the Portal prefab here in the Inspector
     [SerializeField] private float deathAnimationDuration = 1f; // Duration of the death animation
+                                                                // -------------------- Hit Sound Cooldown --------------------
+    [Header("Hit Sound Settings")]
+    [SerializeField]
+    private float hitSoundCooldown = 0.5f; // Minimum time between hit sounds
+    private float lastHitSoundTime = -Mathf.Infinity; // Time the last hit sound was played
+    [SerializeField] private EventReference death;
+    [SerializeField] private EventReference hit;
     public float CurrentHp => currentHp; // Expose current health
     private BossHp bossHp;
     private void Start()
@@ -36,6 +44,7 @@ public class BossHp : MonoBehaviour
         if (!canTakeDamage || currentHp <= 0) return; // Prevent damage if flying or already dead
 
         currentHp -= amount; // Reduce HP
+        PlayHitSound();
         if (currentHp < 0) currentHp = 0; // Prevent negative HP
         UpdateHealthBar(); // Update health bar
 
@@ -78,6 +87,7 @@ public class BossHp : MonoBehaviour
     public IEnumerator Die()
     {
         Debug.Log("Boss is dead!");
+        AudioManager.instance.PlayOneShot(death, this.transform.position);
         GetComponent<Animator>().SetTrigger("Die");
         yield return new WaitForSeconds(deathAnimationDuration);
         SpawnPortal();
@@ -109,5 +119,14 @@ public class BossHp : MonoBehaviour
     public void SetCanTakeDamage(bool value)
     {
         canTakeDamage = value;
+    }
+    private void PlayHitSound()
+    {
+        // Only play the hit sound if enough time has passed since the last one
+        if (Time.time >= lastHitSoundTime + hitSoundCooldown)
+        {
+            AudioManager.instance.PlayOneShot(hit, this.transform.position);
+            lastHitSoundTime = Time.time; // Update the time of the last hit sound
+        }
     }
 }

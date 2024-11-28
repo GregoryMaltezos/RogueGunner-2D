@@ -62,6 +62,21 @@ public class ChallengeManager : MonoBehaviour
 
     void InitializeChallenges()
     {
+        if (!File.Exists(saveFilePath))
+        {
+            // Load default challenges from Resources
+            TextAsset defaultChallenges = Resources.Load<TextAsset>("challenges");
+            if (defaultChallenges != null)
+            {
+                File.WriteAllText(saveFilePath, defaultChallenges.text);
+                Debug.Log("Default challenges file copied to persistent data path.");
+            }
+            else
+            {
+                Debug.LogError("Default challenges file not found in Resources.");
+            }
+        }
+
         LoadChallenges();
 
         if (challenges.Count == 0) // If challenges haven't been initialized yet

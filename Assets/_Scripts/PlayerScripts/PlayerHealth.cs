@@ -1,7 +1,8 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using FMOD.Studio; // Include FMOD namespace
+using FMODUnity; // Include FMODUnity for EventReference
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -16,11 +17,17 @@ public class PlayerHealth : MonoBehaviour
     private HealthBarUI healthBarUI;  // Reference to the HealthBarUI script
     public const string PlayerHealthKey = "PlayerHealth";
     private Animator animator;
+
+    [Header("Audio Settings")]
+    [SerializeField] private EventReference gruntNoise; // FMOD Event Reference for grunt noises
+    private EventInstance gruntInstance; // Instance to manage the grunt sound
+
     private void Start()
     {
         currentHealth = maxHealth;
         healthBarUI = FindObjectOfType<HealthBarUI>(); // Find HealthBarUI once and cache the reference
         animator = GetComponent<Animator>();
+
         if (healthBarUI != null)
         {
             StartCoroutine(healthBarUI.UpdateHealthBarSmoothly());  // Start the animation coroutine
@@ -30,6 +37,14 @@ public class PlayerHealth : MonoBehaviour
             Debug.LogError("HealthBarUI component not found in the scene.");
         }
 
+        // Create an instance for the grunt noise
+        gruntInstance = RuntimeManager.CreateInstance(gruntNoise);
+    }
+
+    private void OnDestroy()
+    {
+        // Ensure the grunt instance is released when the object is destroyed
+        gruntInstance.release();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -59,6 +74,8 @@ public class PlayerHealth : MonoBehaviour
         if (isDead) return;
 
         currentHealth -= amount;
+         // Play the grunt noise when taking damage
+
         if (currentHealth <= 0)
         {
             currentHealth = 0;
@@ -68,6 +85,7 @@ public class PlayerHealth : MonoBehaviour
         {
             // Trigger hurt animation
             PlayHurtAnimation();
+            PlayGruntNoise();
         }
 
         if (healthBarUI != null)
@@ -75,6 +93,15 @@ public class PlayerHealth : MonoBehaviour
             StartCoroutine(healthBarUI.UpdateHealthBarSmoothly());  // Trigger the health bar update
         }
     }
+
+    private void PlayGruntNoise()
+    {
+        if (gruntInstance.isValid())
+        {
+            gruntInstance.start(); // Play the grunt noise
+        }
+    }
+
     private void PlayHurtAnimation()
     {
         if (animator != null)
@@ -101,9 +128,7 @@ public class PlayerHealth : MonoBehaviour
 
         // Notify the PlayerController about the death
         PlayerController.instance.Die(); // Call the Die method in PlayerController to show the death menu
-
     }
-
 
     public void Heal(float amount)
     {
@@ -122,8 +147,6 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-
-
     // Make this method public
     public void UpdateHealthBar()
     {
@@ -133,8 +156,6 @@ public class PlayerHealth : MonoBehaviour
             healthBarUI.UpdateHealthBarSmoothly();
         }
     }
-
-
 
     public void SavePlayerHealth()
     {
@@ -154,5 +175,4 @@ public class PlayerHealth : MonoBehaviour
         }
         UpdateHealthBar(); // Update the health bar to reflect loaded health
     }
-
 }

@@ -60,7 +60,7 @@ public class GunUnlocker : MonoBehaviour
     void UnlockGun()
     {
         weaponManager.UnlockGun(gunIndexToUnlock); // Unlock the gun
-
+        
         // Check if the gun is already unlocked
         if (!weaponManager.guns[gunIndexToUnlock].locked)
         {

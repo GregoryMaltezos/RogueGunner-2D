@@ -56,6 +56,13 @@ MonoBehaviour:
     m_Bits: 256
   attackDistance: 1.5
   stopDistance: 1
+  mimicAttack:
+    Guid:
+      Data1: 1087186002
+      Data2: 1155501827
+      Data3: 787169409
+      Data4: -468488504
+    Path: event:/SFX/Enemy/Mimic/MimicAttack
 --- !u!114 &3431600794679355338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -553,6 +560,10 @@ PrefabInstance:
       value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: hit.Path
+      value: event:/SFX/Enemy/Mimic/MimicHit
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: maxHealth
       value: 20
       objectReference: {fileID: 0}
@@ -560,6 +571,10 @@ PrefabInstance:
       propertyPath: ammoPrefab
       value: 
       objectReference: {fileID: 3235366390622418501, guid: 93e9f732336ed2c4a8a3af9c6b831abf, type: 3}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: death.Path
+      value: event:/SFX/Enemy/Mimic/MimicDeath
+      objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: healthPrefab
       value: 
@@ -571,6 +586,38 @@ PrefabInstance:
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: ammoDropChance
       value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: hit.Guid.Data1
+      value: -1683714518
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: hit.Guid.Data2
+      value: 1113481884
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: hit.Guid.Data3
+      value: 1975691672
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: hit.Guid.Data4
+      value: -382584729
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: death.Guid.Data1
+      value: 186159027
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: death.Guid.Data2
+      value: 1271349488
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: death.Guid.Data3
+      value: 521975712
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: death.Guid.Data4
+      value: -1524760914
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: healthDropChance
@@ -654,6 +701,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206651, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: m_BodyType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206652, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: reverseFlipping
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206653, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
@@ -1004,6 +1055,13 @@ MonoBehaviour:
         m_CallState: 2
   movementInput: {x: 0, y: 0}
   movementDirectionSolver: {fileID: 8413207685032385467}
+  movementSoundEvent:
+    Guid:
+      Data1: 382242291
+      Data2: 1282056769
+      Data3: 937519759
+      Data4: -1353899639
+    Path: event:/SFX/Enemy/Mimic/MimicMove
 --- !u!61 &5315265059331083406
 BoxCollider2D:
   m_ObjectHideFlags: 0

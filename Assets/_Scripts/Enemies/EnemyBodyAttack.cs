@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using FMODUnity;
 
 public class EnemyBodyAttack : MonoBehaviour
 {
@@ -19,11 +20,13 @@ public class EnemyBodyAttack : MonoBehaviour
 
     private DamageSource damageSource;
 
-    // Add these two fields
     [SerializeField]
     private float attackDistance = 1.5f; // Distance within which the enemy can attack
     [SerializeField]
     private float stopDistance = 0.5f; // Distance at which the enemy should stop moving toward the player
+    [SerializeField] private EventReference mimicAttack;
+
+    private PlayerHealth playerHealth; // Cached reference to the player's health
 
     private void Start()
     {
@@ -31,6 +34,13 @@ public class EnemyBodyAttack : MonoBehaviour
         if (damageSource == null)
         {
             Debug.LogError("DamageSource component not found on the enemy!");
+        }
+
+        // Cache the player's health component
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            playerHealth = player.GetComponent<PlayerHealth>();
         }
     }
 
@@ -41,6 +51,14 @@ public class EnemyBodyAttack : MonoBehaviour
 
     private void Update()
     {
+        // Check if the player exists and is alive
+        if (playerHealth == null || playerHealth.isDead)
+        {
+            // Stop attacking and reset attacking state
+            IsAttacking = false;
+            return;
+        }
+
         // Check if enemy is close to the player and attack if possible
         GameObject player = GameObject.FindWithTag("Player");
         if (player != null)
@@ -77,9 +95,12 @@ public class EnemyBodyAttack : MonoBehaviour
 
     public void Attack()
     {
-        if (attackBlocked)
+        // Check if the player is alive before attacking
+        if (playerHealth == null || playerHealth.isDead || attackBlocked)
             return;
+
         animator.SetTrigger("Attack");
+        AudioManager.instance.PlayOneShot(mimicAttack, this.transform.position);
         IsAttacking = true;
         attackBlocked = true;
         StartCoroutine(HandleAttack());
@@ -102,7 +123,7 @@ public class EnemyBodyAttack : MonoBehaviour
 
     private void DetectColliders()
     {
-        if (attackOrigin == null) return;
+        if (attackOrigin == null || playerHealth == null || playerHealth.isDead) return;
 
         Debug.Log($"Detecting colliders at position: {attackOrigin.position} with radius: {attackRadius}");
 

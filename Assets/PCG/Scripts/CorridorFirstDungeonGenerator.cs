@@ -352,12 +352,13 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         // Run procedural generation with updated corridor count
         RunProceduralGeneration();
 
-        // Restore guns for the new dungeon
-        WeaponManager.instance.RestoreAllGunAmmoData();
+        // Restore guns for the new dungeon (this currently restores all ammo)
+        WeaponManager.instance.RestoreSomeGunAmmoData();
 
         // Show floor notification with effects
         StartCoroutine(ShowFloorNotification());
     }
+
 
     private void OnDrawGizmosSelected()
     {

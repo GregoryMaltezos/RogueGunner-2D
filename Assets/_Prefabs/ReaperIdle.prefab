@@ -139,6 +139,27 @@ MonoBehaviour:
   additionalDelay: 1
   invincibleDuration: 1.2
   invincibilityChance: 0.3
+  attack:
+    Guid:
+      Data1: -687026954
+      Data2: 1297885139
+      Data3: 1470483110
+      Data4: -1174222209
+    Path: event:/SFX/Enemy/Bosses/Reaper/Attack
+  detectionNoiseEvent:
+    Guid:
+      Data1: 1339775028
+      Data2: 1293540734
+      Data3: -1569807191
+      Data4: -1319320521
+    Path: event:/SFX/Enemy/Bosses/Reaper/RHover
+  orb:
+    Guid:
+      Data1: 229606508
+      Data2: 1329743381
+      Data3: 196522370
+      Data4: -1084416537
+    Path: event:/SFX/Enemy/Bosses/Reaper/Orb
 --- !u!50 &-1859023713105104762
 Rigidbody2D:
   serializedVersion: 4
@@ -195,6 +216,21 @@ MonoBehaviour:
   bossId: 3
   portalPrefab: {fileID: 5634491413255316653, guid: f905073b1c6ffb441ac09af5eb4c40a7, type: 3}
   deathAnimationDuration: 1.4
+  hitSoundCooldown: 1.4
+  death:
+    Guid:
+      Data1: -535302186
+      Data2: 1193563185
+      Data3: -1510529614
+      Data4: -1590832351
+    Path: event:/SFX/Enemy/Bosses/Reaper/Death
+  hit:
+    Guid:
+      Data1: -396796654
+      Data2: 1236845892
+      Data3: 1295767485
+      Data4: -1267595693
+    Path: event:/SFX/Enemy/Bosses/Reaper/Hit
 --- !u!61 &8125896018060994580
 BoxCollider2D:
   m_ObjectHideFlags: 0

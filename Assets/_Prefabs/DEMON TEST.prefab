@@ -56,6 +56,13 @@ MonoBehaviour:
     m_Bits: 256
   attackDistance: 1.5
   stopDistance: 1
+  mimicAttack:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!114 &3431600794679355338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -569,6 +576,10 @@ PrefabInstance:
       value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: hit.Path
+      value: event:/SFX/Enemy/Demon/DemonHit
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: maxHealth
       value: 70
       objectReference: {fileID: 0}
@@ -576,6 +587,10 @@ PrefabInstance:
       propertyPath: ammoPrefab
       value: 
       objectReference: {fileID: 3235366390622418501, guid: 93e9f732336ed2c4a8a3af9c6b831abf, type: 3}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: death.Path
+      value: event:/SFX/Enemy/Demon/DemonDeath
+      objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: healthPrefab
       value: 
@@ -587,6 +602,42 @@ PrefabInstance:
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: ammoDropChance
       value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: hit.Guid.Data1
+      value: -1016573383
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: hit.Guid.Data2
+      value: 1336465062
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: hit.Guid.Data3
+      value: 584885658
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: hit.Guid.Data4
+      value: -1201930103
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: death.Guid.Data1
+      value: 706750700
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: death.Guid.Data2
+      value: 1305606494
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: death.Guid.Data3
+      value: -261063551
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: death.Guid.Data4
+      value: -1541862691
+      objectReference: {fileID: 0}
+    - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
+      propertyPath: hitSoundCooldown
+      value: 1.4
       objectReference: {fileID: 0}
     - target: {fileID: 2334184184601206648, guid: bfdae5ea0a2bf4f4ba045235b0f22eb0, type: 3}
       propertyPath: OnHitWithReference.m_PersistentCalls.m_Calls.Array.size
@@ -966,6 +1017,7 @@ MonoBehaviour:
   targets: []
   obstacles: []
   currentTarget: {fileID: 0}
+  maxChaseDistance: 7
 --- !u!114 &5961086909165061165
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -989,6 +1041,7 @@ MonoBehaviour:
   aiUpdateDelay: 0.06
   attackDelay: 1
   attackDistance: 0.8
+  chaseRadius: 10
   OnAttackPressed:
     m_PersistentCalls:
       m_Calls:
@@ -1036,6 +1089,13 @@ MonoBehaviour:
         m_CallState: 2
   movementInput: {x: 0, y: 0}
   movementDirectionSolver: {fileID: 8413207685032385467}
+  movementSoundEvent:
+    Guid:
+      Data1: -820679248
+      Data2: 1137342221
+      Data3: 410314118
+      Data4: -1154507132
+    Path: event:/SFX/Enemy/Demon/DemonFlap 2
 --- !u!61 &5315265059331083406
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1096,11 +1156,19 @@ MonoBehaviour:
   speed: 2
   maxSpeed: 2
   acceleration: 50
-  stopDistance: 5
+  stopDistance: 4
   minMovementTime: 1
   maxMovementTime: 3
   attackCooldown: 2
   attackDuration: 1
+  chaseRadius: 10
+  attack:
+    Guid:
+      Data1: -1330952834
+      Data2: 1151814942
+      Data3: -126368863
+      Data4: 2063574910
+    Path: event:/SFX/Enemy/Demon/DemonAttack
 --- !u!61 &9048238266176906753
 BoxCollider2D:
   m_ObjectHideFlags: 0

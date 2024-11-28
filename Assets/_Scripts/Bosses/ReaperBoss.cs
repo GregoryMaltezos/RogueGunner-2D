@@ -1,6 +1,6 @@
 using System.Collections;
 using UnityEngine;
-
+using FMODUnity;
 public class ReaperBoss : MonoBehaviour
 {
     public Animator animator;             // Reference to the Animator component
@@ -31,7 +31,10 @@ public class ReaperBoss : MonoBehaviour
     private bool isDead = false;            // Flag to indicate if the boss is dead
     private SpriteRenderer spriteRenderer;  // Reference to the SpriteRenderer component
     private BossHp bossHp;                  // Reference to the BossHp script
-
+    [SerializeField] private EventReference attack;
+    [SerializeField] private EventReference detectionNoiseEvent;
+    private FMOD.Studio.EventInstance detectionNoiseInstance;
+    [SerializeField] private EventReference orb;
     private void Start()
     {
         // Automatically find the player in the scene
@@ -72,6 +75,7 @@ public class ReaperBoss : MonoBehaviour
 
         // Start the idle and invincibility coroutine
         StartCoroutine(IdleAndInvincibilitySequence());
+        detectionNoiseInstance = RuntimeManager.CreateInstance(detectionNoiseEvent);
     }
 
     private void Update()
@@ -89,10 +93,30 @@ public class ReaperBoss : MonoBehaviour
             if (!playerDetected && Vector2.Distance(transform.position, player.position) <= detectionRadius)
             {
                 playerDetected = true; // Player detected for the first time
+                PlayDetectionNoise();
+            }
+            else if (playerDetected && Vector2.Distance(transform.position, player.position) > detectionRadius)
+            {
+                playerDetected = false; // Player is no longer detected
+                StopDetectionNoise();   // Stop the noise when player exits detection range
             }
         }
     }
+    private void PlayDetectionNoise()
+    {
+        if (detectionNoiseInstance.isValid())
+        {
+            detectionNoiseInstance.start();  // Start the sound effect if not already playing
+        }
+    }
 
+    private void StopDetectionNoise()
+    {
+        if (detectionNoiseInstance.isValid())
+        {
+            detectionNoiseInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);  // Stop the sound effect immediately
+        }
+    }
     private void MoveTowardsPlayer()
     {
         // Flip the sprite to face the player
@@ -186,6 +210,7 @@ public class ReaperBoss : MonoBehaviour
         if (spawnPrefab != null)
         {
             Vector3 spawnPosition = new Vector3(transform.position.x, transform.position.y + spawnHeight, transform.position.z);
+            AudioManager.instance.PlayOneShot(orb, this.transform.position);
             GameObject spawnedObject = Instantiate(spawnPrefab, spawnPosition, Quaternion.identity);
 
             // Set the boss as the parent of the spawned object
@@ -201,7 +226,7 @@ public class ReaperBoss : MonoBehaviour
         if (player == null || isDead) yield break;
 
         animator.SetTrigger("AttackAnimation");
-
+        AudioManager.instance.PlayOneShot(attack, this.transform.position);
         // Initial dash direction toward the player
         Vector2 direction = (player.position - transform.position).normalized;
         rb.velocity = direction * dashSpeed;
@@ -317,9 +342,11 @@ public class ReaperBoss : MonoBehaviour
         isDead = true; // Set the dead flag
         rb.velocity = Vector2.zero; // Stop all movement
         animator.SetTrigger("Die"); // Trigger death animation
-        // Optionally, destroy the boss object after a delay
+        StopDetectionNoise(); // Stop the detection noise when the boss dies
+                              // Optionally, destroy the boss object after a delay
         Destroy(gameObject, 2f); // Adjust the delay as needed
     }
+
 
     // Optional: Method to flash red color
     public void FlashRed()

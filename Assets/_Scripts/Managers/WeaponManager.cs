@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
-
+using FMODUnity;
 [System.Serializable]
 public class GunInfo
 {
@@ -35,7 +35,7 @@ public class WeaponManager : MonoBehaviour
     private NewControls controls;
     private InputAction dpadLeftAction;
     private InputAction dpadRightAction;
-
+    [SerializeField] private EventReference weaponSwitch;
     void Awake()
     {
         if (instance == null)
@@ -96,7 +96,7 @@ public class WeaponManager : MonoBehaviour
     private void SwitchWeaponByIndex(int index)
     {
         int weaponIndex = equippedGunIndices[index];
-
+        AudioManager.instance.PlayOneShot(weaponSwitch, this.transform.position);
         // Check if the selected weapon index is valid and not locked
         if (weaponIndex >= 0 && weaponIndex < guns.Count && !guns[weaponIndex].locked)
         {
@@ -183,7 +183,7 @@ public class WeaponManager : MonoBehaviour
                         currentGun.ResetReloadingState();
                     }
                 }
-
+                AudioManager.instance.PlayOneShot(weaponSwitch, this.transform.position);
                 // Update the current gun index to the new weapon
                 currentGunIndex = weaponIndex;
                 UpdateGunsVisibility();
@@ -366,6 +366,33 @@ public class WeaponManager : MonoBehaviour
                 }
             }
         }
+    }
+    public void RestoreSomeGunAmmoData()
+    {
+        foreach (var gun in guns)
+        {
+            int gunIndex = GetGunIndex(gun.gunObject);
+            if (gunIndex != -1)
+            {
+                Gun gunComponent = gun.gunObject.GetComponent<Gun>();
+                if (gunComponent != null)
+                {
+                    // Calculate quarter of the maximum ammo to restore
+                    int ammoToRestore = Mathf.CeilToInt(gunComponent.maxAmmo * 0.25f);  // 25% of the max ammo
+
+                    gunComponent.bulletsRemaining = ammoToRestore;  // Restore the total bullets remaining
+                    gunComponent.clipsRemaining = Mathf.FloorToInt(ammoToRestore / gunComponent.ammoPerClip);  // How many full clips
+                    gunComponent.currentClipAmmo = Mathf.Min(gunComponent.ammoPerClip, ammoToRestore); // Restore ammo in the current clip
+
+                    // Optional debug log to check the ammo restoration
+                    Debug.Log($"Restored ammo for gun {gunIndex} - Bullets: {gunComponent.bulletsRemaining}, Clips: {gunComponent.clipsRemaining}, Current Clip Ammo: {gunComponent.currentClipAmmo}");
+                }
+            }
+        }
+
+        // Call this after updating ammo data to ensure UI updates and state is saved
+        GunUIManager.instance.UpdateUI();
+        Debug.Log("Dungeon regenerated. Ammo data restored (quarter of max ammo).");
     }
 
     // Save gun ammo data to PlayerPrefs

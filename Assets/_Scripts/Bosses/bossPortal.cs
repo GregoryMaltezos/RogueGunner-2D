@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement; // For loading the main menu
 using TMPro;
 using System.Collections;
+using UnityEngine.InputSystem; // For the new input system
 
 public class bossPortal : MonoBehaviour
 {
@@ -19,6 +20,9 @@ public class bossPortal : MonoBehaviour
     private Canvas thanksCanvas; // The canvas that holds the Thanks message
     private TextMeshProUGUI thanksForPlayingText; // The specific text object
     private GameObject blackBackground; // The black background behind the text
+
+    // Reference to the InputAction for interacting with the portal
+    private InputAction interactAction;
 
     private void Start()
     {
@@ -65,6 +69,23 @@ public class bossPortal : MonoBehaviour
         {
             Debug.LogError("BlackBackground panel not found in the ThanksCanvas.");
         }
+
+        // Initialize the InputAction and bind to the interact method
+        var playerInput = new NewControls(); // Assuming NewControls is your input action asset
+        interactAction = playerInput.PlayerInput.Interact; // Assuming 'Interact' is the action name
+        interactAction.Enable();
+    }
+
+    private void OnEnable()
+    {
+        // Enable the input action when the object is enabled
+        interactAction.Enable();
+    }
+
+    private void OnDisable()
+    {
+        // Disable the input action when the object is disabled
+        interactAction.Disable();
     }
 
     private void Update()
@@ -72,7 +93,7 @@ public class bossPortal : MonoBehaviour
         // Check if player is near and can interact
         if (isPlayerNearby && canInteract)
         {
-            if (Input.GetKeyDown(KeyCode.E))
+            if (interactAction.triggered) // Check if the interact action was triggered
             {
                 if (dungeonGenerator.currentFloor == 4) // Check if the player is on the 4th floor
                 {
@@ -83,6 +104,9 @@ public class bossPortal : MonoBehaviour
                     // Proceed with regular portal interaction logic
                     StartCoroutine(FadeToBlackAndProceed());
                 }
+
+                // Start cooldown after interaction
+                StartCoroutine(InteractionCooldown());
             }
         }
     }

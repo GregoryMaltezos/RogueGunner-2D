@@ -61,6 +61,7 @@ public class PlayerController : MonoBehaviour
     // Facing Direction
     [Header("Facing Direction")]
     private bool facingRight = true;
+    [SerializeField] private EventReference death;
 
     void Awake()
     {
@@ -323,6 +324,7 @@ public class PlayerController : MonoBehaviour
         if (animator != null)
         {
             animator.SetBool("IsDead", true);
+            AudioManager.instance.PlayOneShot(death, this.transform.position);
             animator.SetTrigger("Die");
         }
 

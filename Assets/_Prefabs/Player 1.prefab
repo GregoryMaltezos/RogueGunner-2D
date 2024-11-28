@@ -36,7 +36,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -29.9, y: 63.1, z: 0}
-  m_LocalScale: {x: 4, y: 4, z: 4}
+  m_LocalScale: {x: 3.5, y: 3.5, z: 3.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7667575866004813600}
@@ -174,6 +174,13 @@ MonoBehaviour:
   currentHealth: 268.4
   respawnTime: 5
   isDead: 0
+  gruntNoise:
+    Guid:
+      Data1: 1814969475
+      Data2: 1187270994
+      Data3: -1063953251
+      Data4: -44340652
+    Path: event:/SFX/Player/Grunts
 --- !u!114 &2287606177832248037
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219,6 +226,13 @@ MonoBehaviour:
   isInvincible: 0
   weaponParent: {fileID: 1985542200416273952}
   playerHealth: {fileID: -3596271313554946687}
+  death:
+    Guid:
+      Data1: -198211013
+      Data2: 1196838021
+      Data3: -842944888
+      Data4: 1778128504
+    Path: event:/SFX/Player/Death
 --- !u!61 &3972042074098561728
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -303,6 +317,13 @@ MonoBehaviour:
     locked: 1
   - gunObject: {fileID: 5599196395550941327}
     locked: 1
+  weaponSwitch:
+    Guid:
+      Data1: 686126540
+      Data2: 1149638060
+      Data3: -395383148
+      Data4: -90023948
+    Path: event:/SFX/Player/WeaponSwitch
 --- !u!114 &318904316501267918
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,12 +1,13 @@
 using System.Collections;
 using UnityEngine;
+using FMODUnity;
 
 public class BossMovement : MonoBehaviour
 {
     public float speed = 2f;
     public float changeDirectionTime = 2f;
     public float movementRadius = 5f;
-    public float attackRange = 3f;
+    public float attackRange = 8f;
     public float attackCooldown = 2f;
     public int attackDamage = 10;
     public GameObject projectilePrefab;
@@ -36,6 +37,13 @@ public class BossMovement : MonoBehaviour
     public LayerMask obstacleLayer; // New variable for obstacle layer mask
     private bool isDead = false; // New variable to track if the boss is dead
 
+    [SerializeField]
+    private EventReference constantSoundEvent; // FMOD Event Reference for the constant sound
+
+    private FMOD.Studio.EventInstance constantSoundInstance; // FMOD sound instance
+    [SerializeField] private EventReference attackStart;
+    [SerializeField] private EventReference releaseStone;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -47,6 +55,8 @@ public class BossMovement : MonoBehaviour
 
         StartCoroutine(ChangeDirection());
         FindPlayer();
+
+        // Don't start constant sound in Start() anymore
     }
 
     private void FixedUpdate()
@@ -61,7 +71,18 @@ public class BossMovement : MonoBehaviour
                 FacePlayer();
             }
 
-            if (Vector2.Distance(player.position, rb.position) <= attackRange && canAttack)
+            float distanceToPlayer = Vector2.Distance(player.position, rb.position);
+            // Start constant sound if within attack range, stop if out of range
+            if (distanceToPlayer <= attackRange && !constantSoundInstance.isValid())
+            {
+                StartConstantSound();
+            }
+            else if (distanceToPlayer > attackRange && constantSoundInstance.isValid())
+            {
+                StopConstantSound();
+            }
+
+            if (distanceToPlayer <= attackRange && canAttack)
             {
                 StartCoroutine(Attack());
             }
@@ -151,12 +172,12 @@ public class BossMovement : MonoBehaviour
         canAttack = false;
         isAttacking = true;
         animator.SetTrigger("Attack");
-
+        AudioManager.instance.PlayOneShot(attackStart, this.transform.position);
         float animationDuration = 2.01f; // Adjust as needed for your animation
         yield return new WaitForSeconds(animationDuration);
 
         FireProjectiles();
-
+        AudioManager.instance.PlayOneShot(releaseStone, this.transform.position);
         yield return new WaitForSeconds(attackCooldown);
 
         canAttack = true;
@@ -254,6 +275,7 @@ public class BossMovement : MonoBehaviour
         if (currentHealth <= 0 && !isDead) // Check if boss is dead
         {
             isDead = true; // Set dead flag
+            StopConstantSound(); // Stop the sound
             StartCoroutine(Die()); // Start dying process
         }
     }
@@ -267,16 +289,26 @@ public class BossMovement : MonoBehaviour
         Destroy(gameObject); // Destroy the boss game object
     }
 
-    private void FlashRed()
+    private void StartConstantSound()
     {
-        StartCoroutine(FlashRedCoroutine());
+        if (!constantSoundInstance.isValid())
+        {
+            constantSoundInstance = RuntimeManager.CreateInstance(constantSoundEvent);
+            constantSoundInstance.start();
+        }
     }
 
-    private IEnumerator FlashRedCoroutine()
+    private void StopConstantSound()
     {
-        Color originalColor = spriteRenderer.color;
-        spriteRenderer.color = flashColor;
-        yield return new WaitForSeconds(flashDuration);
-        spriteRenderer.color = originalColor;
+        if (constantSoundInstance.isValid())
+        {
+            constantSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            constantSoundInstance.release();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        StopConstantSound();
     }
 }

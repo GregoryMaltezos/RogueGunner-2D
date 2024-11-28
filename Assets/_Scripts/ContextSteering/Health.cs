@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
+using FMODUnity;
 
 public class Health : MonoBehaviour
 {
@@ -14,6 +15,14 @@ public class Health : MonoBehaviour
 
     [SerializeField]
     public bool isDead = false; // Is the entity dead?
+    [SerializeField] private EventReference death;
+    [SerializeField] private EventReference hit;
+
+    // -------------------- Hit Sound Cooldown --------------------
+    [Header("Hit Sound Settings")]
+    [SerializeField]
+    private float hitSoundCooldown = 0.5f; // Minimum time between hit sounds
+    private float lastHitSoundTime = -Mathf.Infinity; // Time the last hit sound was played
 
     // -------------------- Events --------------------
     [Header("Health Events")]
@@ -89,7 +98,18 @@ public class Health : MonoBehaviour
         }
         else
         {
+            PlayHitSound();
             HandleHit(sender);
+        }
+    }
+
+    private void PlayHitSound()
+    {
+        // Only play the hit sound if enough time has passed since the last one
+        if (Time.time >= lastHitSoundTime + hitSoundCooldown)
+        {
+            AudioManager.instance.PlayOneShot(hit, this.transform.position);
+            lastHitSoundTime = Time.time; // Update the time of the last hit sound
         }
     }
 
@@ -103,6 +123,7 @@ public class Health : MonoBehaviour
                 agentMover.SetMovement(false); // Stop movement
             }
 
+            AudioManager.instance.PlayOneShot(death, this.transform.position);
             // Trigger the "Die" animation and start the coroutine to destroy after a delay
             agentAnimations.TriggerDeathAnimation();
             StartCoroutine(DestroyAfterDelay(deathAnimationDuration));
@@ -114,6 +135,7 @@ public class Health : MonoBehaviour
             {
                 agentMover.SetMovement(false); // Stop movement
             }
+            AudioManager.instance.PlayOneShot(death, this.transform.position);
             Destroy(gameObject);
         }
     }

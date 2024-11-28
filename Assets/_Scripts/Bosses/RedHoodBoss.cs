@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI; // For UI elements like health bars
-
+using FMODUnity;
 public class RedHoodBoss : MonoBehaviour
 {
     public float waitTime = 15f; // Time before the boss starts the disappear sequence
@@ -27,7 +27,9 @@ public class RedHoodBoss : MonoBehaviour
     private Color originalBackgroundColor;
     private Color originalFillColor;
     private Color shadowOriginalColor;
-
+    [SerializeField] private EventReference teleport;
+    [SerializeField] private EventReference attack;
+    [SerializeField] private EventReference tpOut;
     private bool isDead = false; // Track whether the boss is dead
 
     void Start()
@@ -85,6 +87,7 @@ public class RedHoodBoss : MonoBehaviour
 
                 Debug.Log("Boss is teleporting");
                 TeleportFurtherFromPlayer();
+                AudioManager.instance.PlayOneShot(teleport, transform.position);
 
                 // Start shadow with low opacity while moving towards the player
                 if (shadowRenderer != null)
@@ -113,7 +116,7 @@ public class RedHoodBoss : MonoBehaviour
                     animator.SetTrigger("Attack");
                     yield return StartCoroutine(WaitForAnimation(animator, "Attack"));
                 }
-
+                AudioManager.instance.PlayOneShot(attack, transform.position);
                 // Deal damage to the player
                 DealDamageToPlayer();
 
@@ -127,7 +130,7 @@ public class RedHoodBoss : MonoBehaviour
 
                 Debug.Log("Boss is running away");
                 yield return StartCoroutine(MoveAwayFromPlayer());
-
+                AudioManager.instance.PlayOneShot(tpOut, transform.position);
                 Debug.Log("Boss is disappearing again");
                 if (animator)
                 {
@@ -192,10 +195,11 @@ public class RedHoodBoss : MonoBehaviour
         if (!positionFound)
         {
             teleportPosition = (Vector2)player.position - playerFacingDirection * teleportRadius;
+           
         }
 
         transform.position = teleportPosition;
-
+        
         // Ensure shadow stays invisible after teleporting
         if (shadowRenderer != null)
         {

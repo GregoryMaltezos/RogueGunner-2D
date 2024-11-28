@@ -229,6 +229,27 @@ MonoBehaviour:
   chaseDistanceThreshold: 0.8
   chaseSpeed: 2
   attackDamage: 18
+  teleport:
+    Guid:
+      Data1: -576731070
+      Data2: 1283304770
+      Data3: -1235495037
+      Data4: -1319277721
+    Path: event:/SFX/Enemy/Bosses/RedHood/LaughTP
+  attack:
+    Guid:
+      Data1: -1918645749
+      Data2: 1160070317
+      Data3: -1212807547
+      Data4: -1632786040
+    Path: event:/SFX/Enemy/Bosses/RedHood/Attack
+  tpOut:
+    Guid:
+      Data1: -503478977
+      Data2: 1101276073
+      Data3: 2054862495
+      Data4: 1861070839
+    Path: event:/SFX/Enemy/Bosses/RedHood/tpOut
 --- !u!210 &-8040247705653738786
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -320,6 +341,21 @@ MonoBehaviour:
   bossId: 2
   portalPrefab: {fileID: 5634491413255316653, guid: f905073b1c6ffb441ac09af5eb4c40a7, type: 3}
   deathAnimationDuration: 1
+  hitSoundCooldown: 0.5
+  death:
+    Guid:
+      Data1: 1267471327
+      Data2: 1178189310
+      Data3: 1797467048
+      Data4: -799025791
+    Path: event:/SFX/Enemy/Bosses/RedHood/Death
+  hit:
+    Guid:
+      Data1: -1348030918
+      Data2: 1126295802
+      Data3: -2084042332
+      Data4: 127962077
+    Path: event:/SFX/Enemy/Bosses/RedHood/RedHit
 --- !u!114 &1713316692980930733
 MonoBehaviour:
   m_ObjectHideFlags: 0

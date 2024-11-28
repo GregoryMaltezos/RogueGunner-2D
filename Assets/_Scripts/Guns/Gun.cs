@@ -33,7 +33,7 @@ public class Gun : MonoBehaviour
     private InputAction reloadAction;
     private InputAction fireAction;
     private bool isFiring = false;
-
+    public bool isFirstSpawn = true;
     [SerializeField] private EventReference gunFired;
     [SerializeField] private EventReference gunReload;
     void Awake()
@@ -60,16 +60,25 @@ public class Gun : MonoBehaviour
 
         if (gunIndex != -1)
         {
-            bulletsRemaining = WeaponManager.instance.GetGunBulletsRemaining(gunIndex);
-            clipsRemaining = WeaponManager.instance.GetGunClipsRemaining(gunIndex);
-            currentClipAmmo = WeaponManager.instance.GetGunClipAmmo(gunIndex);
-
-            if (currentClipAmmo <= 0 || infiniteAmmo)
+            if (isFirstSpawn)
             {
-                currentClipAmmo = ammoPerClip;
+                // Initialize the gun ammo to full values on first spawn
+                currentClipAmmo = ammoPerClip;  // Full clip loaded
+                clipsRemaining = (maxAmmo - ammoPerClip) / ammoPerClip; // Reserve clips
+                bulletsRemaining = maxAmmo - currentClipAmmo; // Remaining bullets in reserve
             }
-            WeaponManager.instance.SetGunClipAmmo(gunIndex, currentClipAmmo);
+            else
+            {
+                // On level transition, restore ammo using quarter logic
+                RestoreAmmoFromLevelTransition();
+            }
 
+            // Set the ammo in WeaponManager (ensure these values are reflected correctly)
+            WeaponManager.instance.SetGunClipAmmo(gunIndex, currentClipAmmo);
+            WeaponManager.instance.SetGunBulletsRemaining(gunIndex, bulletsRemaining);
+            WeaponManager.instance.SetGunClipsRemaining(gunIndex, clipsRemaining);
+
+            // Update the UI or ammo state
             UpdateAmmoState();
         }
         else
@@ -83,6 +92,46 @@ public class Gun : MonoBehaviour
         fireAction.performed += OnFirePerformed;
         fireAction.canceled += OnFireCanceled; // Subscribe to stopping fire
     }
+
+
+
+    public void RestoreAmmoFromLevelTransition()
+    {
+        // Restore a quarter of the total ammo on level transition
+        int ammoToRestore = Mathf.FloorToInt(maxAmmo / 4f); // Calculate 1/4 of max ammo
+
+        // Add quarter ammo to the current clip and reserve ammo
+        if (!infiniteAmmo)
+        {
+            // If the remaining bullets plus ammo to restore exceeds maxAmmo, clamp it to maxAmmo
+            bulletsRemaining = Mathf.Min(bulletsRemaining + ammoToRestore, maxAmmo);
+
+            // Update clips remaining based on the updated bullets remaining
+            clipsRemaining = bulletsRemaining / ammoPerClip;
+        }
+        else
+        {
+            // If infinite ammo is enabled, we don't need to restore reserve ammo
+            Debug.Log("Ammo is infinite; no bullets were restored.");
+        }
+
+        // Set the current clip ammo to the maximum per clip, unless there is less remaining ammo
+        currentClipAmmo = Mathf.Min(ammoPerClip, bulletsRemaining);
+
+        Debug.Log($"Ammo Restored on Level Transition - CurrentClipAmmo: {currentClipAmmo}, BulletsRemaining: {bulletsRemaining}, ClipsRemaining: {clipsRemaining}");
+
+        // Update the WeaponManager with the new ammo state
+        if (gunIndex != -1)
+        {
+            WeaponManager.instance.SetGunClipAmmo(gunIndex, currentClipAmmo);
+            WeaponManager.instance.SetGunBulletsRemaining(gunIndex, bulletsRemaining);
+            WeaponManager.instance.SetGunClipsRemaining(gunIndex, clipsRemaining);
+        }
+
+        // Update UI to reflect the current ammo state
+        UpdateAmmoState();
+    }
+
 
     void OnDestroy()
     {
@@ -134,12 +183,21 @@ public class Gun : MonoBehaviour
 
     private void OnReloadPerformed(InputAction.CallbackContext context)
     {
+        // Early exit if the gun is inactive
+        if (!gameObject.activeInHierarchy)
+        {
+            Debug.LogWarning("Cannot reload because the weapon is inactive.");
+            return;
+        }
+
         // Trigger reload if the action is performed
-        if (clipsRemaining > 0 || infiniteAmmo)
+        if (clipsRemaining > 0 || bulletsRemaining > 0 || infiniteAmmo)
         {
             StartCoroutine(Reload());
         }
+
     }
+
     void AttemptToFire()
     {
         // Check if the gun is currently reloading
@@ -260,61 +318,81 @@ public class Gun : MonoBehaviour
     }
 
     private FMOD.Studio.EventInstance reloadSoundInstance;
-    IEnumerator Reload()
+    private IEnumerator Reload()
     {
+        // Check if the weapon is active before starting the reload
+        if (!gameObject.activeInHierarchy)
+        {
+            Debug.LogWarning("Cannot reload because the weapon is inactive.");
+            yield break;  // Exit the coroutine early if the weapon is inactive
+        }
+
+        // Prevent reloading if already reloading
         if (isReloading) yield break;
+
+        // Prevent reloading if there's no reserve ammo left and no clips remaining
+        if (bulletsRemaining <= 0 && clipsRemaining <= 0)
+        {
+            Debug.LogWarning("No ammo left to reload!");
+            yield break;  // Exit if no ammo to reload
+        }
 
         isReloading = true;
         Debug.Log("Reloading...");
+
         reloadSoundInstance = AudioManager.instance.PlayOneShot(gunReload, this.transform.position);
-        yield return new WaitForSeconds(reloadTime);
+
+        yield return new WaitForSeconds(reloadTime);  // Wait for reload to complete
 
         if (infiniteAmmo)
         {
-            currentClipAmmo = ammoPerClip; // Reset currentClipAmmo to the maximum per clip
-            Debug.Log($"Reloaded! Current Clip Ammo: {currentClipAmmo}");
+            currentClipAmmo = ammoPerClip; // Set the current clip ammo to the maximum per clip
+            Debug.Log($"Reloaded with infinite ammo! Current Clip Ammo: {currentClipAmmo}");
             shotsFired = 0; // Reset shots fired count
         }
         else
         {
-            if (clipsRemaining > 0)
+            // How much ammo we need to fill the clip
+            int ammoNeededForClip = ammoPerClip - currentClipAmmo;
+
+            // If reserve ammo is less than ammo needed to fill the clip, use whatever is available
+            int ammoToLoad = Mathf.Min(ammoNeededForClip, bulletsRemaining);
+
+            // Add the ammo to the current clip
+            currentClipAmmo += ammoToLoad;
+
+            // Subtract the ammo we loaded from the remaining bullets
+            bulletsRemaining -= ammoToLoad;
+
+            // If there are any remaining bullets, calculate how many full clips are left
+            clipsRemaining = bulletsRemaining / ammoPerClip;
+
+            Debug.Log($"Reloaded! Current Clip Ammo: {currentClipAmmo}, Bullets Remaining: {bulletsRemaining}, Clips Remaining: {clipsRemaining}");
+
+            // If ammo is less than required to fill the clip, it will just fill with the remaining reserve ammo
+            if (ammoToLoad <= 0)
             {
-                // Save the current clip ammo before reloading
-                int leftoverAmmo = currentClipAmmo;
-
-                // Determine how much ammo to load into the clip
-                int ammoToLoad = Mathf.Min(ammoPerClip, bulletsRemaining + leftoverAmmo);
-                currentClipAmmo = ammoToLoad;
-
-                // Calculate new bullets remaining
-                if (leftoverAmmo > 0)
-                {
-                    // Only add the leftover ammo if it's greater than zero
-                    bulletsRemaining += leftoverAmmo;
-                }
-
-                bulletsRemaining -= ammoToLoad; // Subtract loaded ammo from total
-                clipsRemaining = bulletsRemaining / ammoPerClip; // Update clips remaining
-                Debug.Log($"Reloaded! Current Clip Ammo: {currentClipAmmo}, Bullets Remaining: {bulletsRemaining}, Clips Remaining: {clipsRemaining}");
-            }
-            else
-            {
-                Debug.Log("No clips remaining to reload.");
+                Debug.LogWarning("Not enough ammo to reload.");
             }
         }
 
-        // Update weapon manager as before...
+        // Update the WeaponManager with the new ammo state
         if (gunIndex != -1)
         {
             WeaponManager.instance.SetGunBulletsRemaining(gunIndex, bulletsRemaining);
             WeaponManager.instance.SetGunClipsRemaining(gunIndex, clipsRemaining);
             WeaponManager.instance.SetGunClipAmmo(gunIndex, currentClipAmmo);
         }
+
         reloadSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
         reloadSoundInstance.release();
-        UpdateAmmoState(); // Update UI after reloading
+
+        UpdateAmmoState();  // Update UI after reloading
+
         isReloading = false;
     }
+
+
     public void StopReloadSound()
     {
         if (reloadSoundInstance.isValid())

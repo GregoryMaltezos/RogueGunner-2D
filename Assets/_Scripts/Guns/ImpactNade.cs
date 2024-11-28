@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using FMODUnity;
 using UnityEngine.InputSystem;
+
 public class ImpactNade : MonoBehaviour
 {
     public float throwForce = 10f;
@@ -14,14 +15,17 @@ public class ImpactNade : MonoBehaviour
     private Rigidbody2D rb;
     private bool exploded = false;
     [SerializeField] private EventReference gunFired;
+
+    private Vector2 throwDirection;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
 
         // Calculate direction from grenade to mouse position
-        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mousePosition.z = 0; // Set z to 0 for 2D
-        Vector2 throwDirection = (mousePosition - transform.position).normalized;
+        Vector2 mousePosition = Mouse.current.position.ReadValue();
+        mousePosition = Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, 0));
+        throwDirection = (mousePosition - (Vector2)transform.position).normalized;
 
         // Set initial velocity of the grenade
         rb.velocity = throwDirection * throwForce;
@@ -88,8 +92,6 @@ public class ImpactNade : MonoBehaviour
 
         Destroy(gameObject); // Destroy the grenade
     }
-
-
 
     // Draw the explosion radius in the editor for visual debugging
     private void OnDrawGizmosSelected()

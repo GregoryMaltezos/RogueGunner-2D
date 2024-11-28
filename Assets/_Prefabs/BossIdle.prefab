@@ -138,8 +138,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 2
   changeDirectionTime: 1
-  movementRadius: 5
-  attackRange: 5
+  movementRadius: 7
+  attackRange: 12
   attackCooldown: 2
   attackDamage: 10
   projectilePrefab: {fileID: 9051951479836635146, guid: a692284f5a6b35c4a8bc02e79aa35f7d, type: 3}
@@ -155,6 +155,27 @@ MonoBehaviour:
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 2048
+  constantSoundEvent:
+    Guid:
+      Data1: -869941522
+      Data2: 1103192276
+      Data3: -1122576222
+      Data4: -1044588921
+    Path: event:/SFX/Enemy/Bosses/Golem/GolemHUm
+  attackStart:
+    Guid:
+      Data1: -1208176770
+      Data2: 1322060607
+      Data3: 562990517
+      Data4: 702908323
+    Path: event:/SFX/Reloads/GolemArmReload
+  releaseStone:
+    Guid:
+      Data1: 1862784131
+      Data2: 1143486009
+      Data3: 1868798885
+      Data4: 317330449
+    Path: event:/SFX/Weapons/Fire GolemArm
 --- !u!50 &3443943286876380343
 Rigidbody2D:
   serializedVersion: 4
@@ -244,6 +265,21 @@ MonoBehaviour:
   bossId: 1
   portalPrefab: {fileID: 5634491413255316653, guid: f905073b1c6ffb441ac09af5eb4c40a7, type: 3}
   deathAnimationDuration: 2
+  hitSoundCooldown: 0.5
+  death:
+    Guid:
+      Data1: -332948727
+      Data2: 1130832759
+      Data3: -874405704
+      Data4: -944703297
+    Path: event:/SFX/Enemy/Bosses/Golem/Death
+  hit:
+    Guid:
+      Data1: -1344199990
+      Data2: 1227047283
+      Data3: 1974621343
+      Data4: 932137491
+    Path: event:/SFX/Enemy/Bosses/Golem/GolemHit
 --- !u!1001 &4348728172090143331
 PrefabInstance:
   m_ObjectHideFlags: 0

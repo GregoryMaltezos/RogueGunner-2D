@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using FMODUnity;
 public class Ballista : MonoBehaviour
 {
     public float detectionRange = 10f;   // Range within which the ballista can detect the player
@@ -9,10 +9,10 @@ public class Ballista : MonoBehaviour
     public GameObject projectilePrefab;   // The projectile the ballista will shoot
     public Transform firePoint;           // The point from where the projectile will be fired
     public float shootInterval = 1f;      // Time between shots
-
     private Transform player;             // Reference to the player's transform
     private float shootTimer;
-
+    [SerializeField] private EventReference bowPull;
+    [SerializeField] private EventReference bowRelease;
     private void Start()
     {
         // Automatically find the player in the scene by tag
@@ -39,10 +39,11 @@ public class Ballista : MonoBehaviour
             Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, angle));
 
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-
+            
             shootTimer += Time.deltaTime;
             if (shootTimer >= shootInterval)
             {
+                AudioManager.instance.PlayOneShot(bowPull, this.transform.position);
                 Shoot();
                 shootTimer = 0f;
             }
@@ -55,8 +56,8 @@ public class Ballista : MonoBehaviour
 
     private void Shoot()
     {
-      //  Debug.Log("Shooting projectile");
-
+        //  Debug.Log("Shooting projectile");
+        AudioManager.instance.PlayOneShot(bowRelease, this.transform.position);
         GameObject projectile = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
         Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
         if (rb != null)

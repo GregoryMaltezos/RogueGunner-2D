@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using FMODUnity;
+using FMOD.Studio;
 
 public class DemonController : MonoBehaviour
 {
@@ -26,6 +28,11 @@ public class DemonController : MonoBehaviour
     [SerializeField]
     private float attackDuration = 1f;       // How long the attack lasts
 
+    [SerializeField]
+    private float chaseRadius = 10f;         // Chase radius within which the demon will follow the player
+
+    [SerializeField] private EventReference attack;
+
     private Transform player;                // Reference to the player's transform
     private float currentSpeed = 0f;         // Current speed of the enemy
     private Vector2 randomDirection;         // Direction to move in randomly
@@ -46,7 +53,7 @@ public class DemonController : MonoBehaviour
     {
         FindPlayer();                          // Attempt to find the player at startup
         SetRandomDirection();                  // Set the initial random direction
-        movementTimer = Random.Range(minMovementTime, maxMovementTime); // Set initial timer
+    
     }
 
     void FixedUpdate()
@@ -55,6 +62,7 @@ public class DemonController : MonoBehaviour
         if (health != null && health.isDead)
         {
             rb2d.velocity = Vector2.zero; // Stop all movement
+                      // Stop movement sound if dead
             return; // Exit the method if dead
         }
 
@@ -66,30 +74,39 @@ public class DemonController : MonoBehaviour
 
         float distanceToPlayer = Vector2.Distance(rb2d.position, player.position);
 
-        if (distanceToPlayer <= stopDistance && !isAttacking && !attackOnCooldown)
+        // If the player is within chase radius
+        if (distanceToPlayer <= chaseRadius)
         {
-            StartCoroutine(AttackPlayer());    // Start attack coroutine
-        }
-
-        if (canMove && !isAttacking)           // Move only if not attacking
-        {
-            if (distanceToPlayer > stopDistance)
+            if (distanceToPlayer <= stopDistance && !isAttacking && !attackOnCooldown)
             {
-                // Move semi-randomly towards the player without going directly to them
-                SemiRandomMovement();
-            }
-            else
-            {
-                // Move randomly while avoiding obstacles
-                RandomMovement();
+                StartCoroutine(AttackPlayer());    // Start attack coroutine if within attack range
             }
 
-            // Apply velocity based on current speed
-            rb2d.velocity = randomDirection * currentSpeed;
+            if (canMove && !isAttacking)           // Move only if not attacking
+            {
+                if (distanceToPlayer > stopDistance)
+                {
+                    // Move semi-randomly towards the player without going directly to them
+                    SemiRandomMovement();
+                }
+                else
+                {
+                    // Move randomly while avoiding obstacles
+                    RandomMovement();
+                }
+
+                // Apply velocity based on current speed
+                rb2d.velocity = randomDirection * currentSpeed;
+            }
+            else if (isAttacking)
+            {
+                // If attacking, stop movement
+                rb2d.velocity = Vector2.zero;
+            }
         }
-        else if (isAttacking)
+        else
         {
-            // If attacking, stop movement
+            // Stop moving when outside of chase radius
             rb2d.velocity = Vector2.zero;
         }
     }
@@ -141,13 +158,16 @@ public class DemonController : MonoBehaviour
         randomDirection = new Vector2(randomX, randomY).normalized; // Normalize to maintain consistent speed
     }
 
+
+
+
     private void OnDrawGizmos()
     {
         // Optional: Visualize the stopDistance for debugging
         if (player != null)
         {
             Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(player.position, stopDistance);
+            Gizmos.DrawWireSphere(player.position, chaseRadius);
         }
     }
 
@@ -158,6 +178,7 @@ public class DemonController : MonoBehaviour
         rb2d.velocity = Vector2.zero;            // Stop the enemy movement
 
         // Make the agent perform the attack
+        AudioManager.instance.PlayOneShot(attack, this.transform.position);
         agent.PerformAttack();                   // Trigger the attack using Agent script
 
         // Wait for the attack duration

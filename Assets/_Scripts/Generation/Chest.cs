@@ -35,6 +35,13 @@ public class Chest : MonoBehaviour
     {
         // Disable the input action when the object is disabled
         interactAction.Disable();
+        StopChestSound();
+    }
+
+    private void OnDestroy()
+    {
+        // Stop sound when chest is destroyed
+        StopChestSound();
     }
 
     private void Start()
@@ -153,5 +160,14 @@ public class Chest : MonoBehaviour
     {
         Debug.Log("Chest reset for the first floor.");
         WeaponManager.instance.ResetPickedUpWeapons();
+    }
+
+    private void StopChestSound()
+    {
+        // Stop any playing sound from the emitter when the chest is disabled or destroyed
+        if (emitter != null && emitter.IsPlaying())
+        {
+            emitter.Stop();
+        }
     }
 }
