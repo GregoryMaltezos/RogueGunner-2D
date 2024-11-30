@@ -56,7 +56,10 @@ public class AudioManager : MonoBehaviour
         InitializeAmbiance(FMODEvents.instance.ambiance);
         InitializeMusic(FMODEvents.instance.music);
     }
-
+    public void SetMusicArea(MusicType type)
+    {
+        musicEventInstance.setParameterByName("Combat", (float)type);
+    }
     private void Awake()
     {
         if (instance != null)

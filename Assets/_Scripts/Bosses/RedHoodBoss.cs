@@ -88,7 +88,7 @@ public class RedHoodBoss : MonoBehaviour
                 Debug.Log("Boss is teleporting");
                 TeleportFurtherFromPlayer();
                 AudioManager.instance.PlayOneShot(teleport, transform.position);
-
+                AudioManager.instance.SetMusicArea(MusicType.Boss);
                 // Start shadow with low opacity while moving towards the player
                 if (shadowRenderer != null)
                 {
@@ -131,11 +131,13 @@ public class RedHoodBoss : MonoBehaviour
                 Debug.Log("Boss is running away");
                 yield return StartCoroutine(MoveAwayFromPlayer());
                 AudioManager.instance.PlayOneShot(tpOut, transform.position);
+
                 Debug.Log("Boss is disappearing again");
                 if (animator)
                 {
                     animator.SetTrigger("Disappear");
                     yield return new WaitForSeconds(0.8f);
+                    AudioManager.instance.SetMusicArea(MusicType.Peacefull);
                 }
 
                 SetBossVisibility(false);

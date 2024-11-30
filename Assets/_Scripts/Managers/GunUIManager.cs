@@ -5,11 +5,10 @@ using System.Collections;
 
 public class GunUIManager : MonoBehaviour
 {
-    // Reference to the ammo text UI element
-    public TextMeshProUGUI ammoText; // This will be assigned automatically
+    public TextMeshProUGUI ammoText; // UI element for ammo
+    public TextMeshProUGUI grenadeText; // UI element for grenades
     public static GunUIManager instance;
 
-    // Reference to PlayerAmmo UI element
     private GameObject playerAmmo;
 
     void Awake()
@@ -17,7 +16,7 @@ public class GunUIManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject); // Persist across scenes
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -25,50 +24,29 @@ public class GunUIManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        // Find PlayerAmmo in the GunUIManager
         playerAmmo = transform.Find("PlayerAmmo")?.gameObject;
 
-        // Register to handle scene loaded event
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     void Start()
     {
-        // Adjust visibility when the game starts
         AdjustPlayerAmmoVisibility();
 
-        // Automatically assign ammoText from PlayerHP > Panel > AmmoText
         GameObject playerHPObject = GameObject.Find("PlayerHP");
         if (playerHPObject != null)
         {
-            Transform panelTransform = playerHPObject.transform.Find("Panel"); // Find the Panel
+            Transform panelTransform = playerHPObject.transform.Find("Panel");
             if (panelTransform != null)
             {
-                Transform ammoTextTransform = panelTransform.Find("AmmoText"); // Find the AmmoText
-                if (ammoTextTransform != null)
-                {
-                    ammoText = ammoTextTransform.GetComponent<TextMeshProUGUI>(); // Assign the TextMeshProUGUI component
-                    if (ammoText == null)
-                    {
-                        Debug.LogError("AmmoText does not have a TextMeshProUGUI component.");
-                    }
-                    else
-                    {
-                        Debug.Log("ammoText assigned successfully.");
-                    }
-                }
-                else
-                {
-                    Debug.LogError("AmmoText grandchild not found under Panel.");
-                }
+                ammoText = panelTransform.Find("AmmoText")?.GetComponent<TextMeshProUGUI>();
+                grenadeText = panelTransform.Find("GrenadeText")?.GetComponent<TextMeshProUGUI>();
+
+                if (ammoText == null) Debug.LogError("AmmoText not found or missing TextMeshProUGUI component.");
+                if (grenadeText == null) Debug.LogError("GrenadeText not found or missing TextMeshProUGUI component.");
             }
         }
-        else
-        {
-            Debug.LogError("PlayerHP object not found in the hierarchy.");
-        }
 
-        // Initialize UI
         StartCoroutine(InitializeUI());
     }
 
@@ -76,21 +54,19 @@ public class GunUIManager : MonoBehaviour
     {
         while (WeaponManager.instance == null)
         {
-            yield return null; // Wait until the next frame
+            yield return null;
         }
-        UpdateUI(); // Now it's safe to call
+        UpdateUI();
     }
 
     public void UpdateUI()
     {
-        // Check if WeaponManager.instance is available
         if (WeaponManager.instance == null)
         {
             Debug.LogWarning("WeaponManager instance is null. Cannot update UI.");
             return;
         }
 
-        // Ensure that the current gun index is valid
         int currentGunIndex = WeaponManager.instance.GetCurrentGunIndex();
         Gun currentGun = WeaponManager.instance.GetGun(currentGunIndex);
 
@@ -99,18 +75,13 @@ public class GunUIManager : MonoBehaviour
             int clipAmmo = currentGun.currentClipAmmo;
             int bulletsRemaining = currentGun.bulletsRemaining;
 
-            if (currentGun.infiniteAmmo)
-            {
-                ammoText.text = $"{clipAmmo}/∞";
-            }
-            else
-            {
-                ammoText.text = $"{clipAmmo}/{bulletsRemaining}";
-            }
+            ammoText.text = currentGun.infiniteAmmo ? $"{clipAmmo}/∞" : $"{clipAmmo}/{bulletsRemaining}";
         }
-        else
+
+        // Update grenade count
+        if (grenadeText != null && PlayerGrenade.instance != null)
         {
-            Debug.LogWarning("Current gun is null. Unable to update UI.");
+            grenadeText.text = $"{PlayerGrenade.instance.GetCurrentGrenades()}";
         }
     }
 
@@ -119,61 +90,52 @@ public class GunUIManager : MonoBehaviour
         UpdateUI();
     }
 
-    // Adjust PlayerAmmo visibility based on the scene
     private void AdjustPlayerAmmoVisibility()
     {
-        // Check the current scene
         string currentSceneName = SceneManager.GetActiveScene().name;
 
         if (currentSceneName == "MainMenu")
         {
-            // Disable PlayerAmmo in the Main Menu
             DisablePlayerAmmo();
         }
         else
         {
-            // Enable PlayerAmmo in any game scene
             EnablePlayerAmmo();
         }
     }
 
-    // Enable PlayerAmmo when in game scenes
     private void EnablePlayerAmmo()
     {
         if (playerAmmo != null && !playerAmmo.activeSelf)
         {
             playerAmmo.SetActive(true);
-            Debug.Log("PlayerAmmo enabled in the game scene.");
-        }
-        else
-        {
-            Debug.LogWarning("PlayerAmmo is null or already enabled.");
         }
     }
 
-    // Disable PlayerAmmo when in the Main Menu
     private void DisablePlayerAmmo()
     {
         if (playerAmmo != null && playerAmmo.activeSelf)
         {
             playerAmmo.SetActive(false);
-            Debug.Log("PlayerAmmo disabled in the Main Menu.");
-        }
-        else
-        {
-            Debug.LogWarning("PlayerAmmo is null or already disabled.");
         }
     }
 
-    // Handle scene loaded events to adjust visibility based on the scene
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         AdjustPlayerAmmoVisibility();
     }
 
-    // Clean up the event subscription when this object is destroyed
     void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    // Update grenades specifically
+    public void UpdateGrenadeUI(int currentGrenades)
+    {
+        if (grenadeText != null)
+        {
+            grenadeText.text = $"{currentGrenades}";
+        }
     }
 }

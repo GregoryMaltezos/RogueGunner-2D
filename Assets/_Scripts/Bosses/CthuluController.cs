@@ -1,5 +1,7 @@
 using System.Collections;
 using UnityEngine;
+using FMODUnity;
+using FMOD.Studio;
 
 public class CthuluController : MonoBehaviour
 {
@@ -48,16 +50,24 @@ public class CthuluController : MonoBehaviour
     private float colliderXOffset;
     private BossHp bossHp;
     private bool isDead = false;
-
+    private PlayerHealth playerHealth;
     // Damage Settings
     [Header("Damage Settings")]
     private float damageCooldown = 2f; // Time in seconds before damage can be applied again
     private float lastDamageTime;
 
+    [Header("FMOD Sound Settings")]
+    public string bossMoveEvent = "event:/SFX/Enemy/Bosses/Cthulu/CWalk"; // FMOD event path
+    [SerializeField] private EventReference fly;
+    [SerializeField] private EventReference attack;
+    private FMOD.Studio.EventInstance flySoundInstance;
+    private EventInstance moveSoundInstance; // FMOD event instance
+    private bool isSoundPlaying = false; // Flag to check if sound is playing
+
     void Start()
     {
         player = GameObject.FindWithTag("Player").transform;
-
+        playerHealth = player.GetComponent<PlayerHealth>();
         if (player == null)
         {
             Debug.LogError("Player not found! Make sure the player object has the 'Player' tag.");
@@ -83,7 +93,7 @@ public class CthuluController : MonoBehaviour
         {
             Debug.LogError("BossHp component not found on the boss.");
         }
-
+        AudioManager.instance.SetMusicArea(MusicType.Boss);
         // Start the flying routine
         StartCoroutine(FlyingRoutine());
     }
@@ -96,7 +106,11 @@ public class CthuluController : MonoBehaviour
             HandleDeath();
             return; // Exit update to stop further actions
         }
-
+        if (playerHealth != null && playerHealth.currentHealth <= 0)
+        {
+            StopBossActions(); // Stop all actions of the boss
+            return; // Exit early to prevent further actions
+        }
         // Check and adjust oscillation parameters based on boss's health
         if (bossHp != null)
         {
@@ -239,6 +253,8 @@ public class CthuluController : MonoBehaviour
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
         float closeDistanceThreshold = 5f;
 
+        bool isMovingTowardsPlayer = false;
+
         if (distanceToPlayer < closeDistanceThreshold)
         {
             float offset = 2f;
@@ -268,46 +284,61 @@ public class CthuluController : MonoBehaviour
 
         if (direction != Vector2.zero)
         {
-            // Use Raycast to detect obstacles before moving
+            // Move the boss towards the player
             RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, flyingSpeed * Time.deltaTime, obstacleLayer);
 
-            if (hit.collider == null) // Only move if no obstacle in the way
+            if (hit.collider == null) // No obstacles
             {
                 transform.position += (Vector3)(direction * flyingSpeed * Time.deltaTime);
 
-                // Update sprite flip based on movement direction
-                if (Mathf.Abs(direction.x) > 0.1f)
-                {
-                    spriteRenderer.flipX = direction.x < 0; // Flip sprite to face the movement direction
-
-                    // Optional: If you have colliders that should also react to the flip
-                    foreach (Transform child in transform)
-                    {
-                        // Optionally adjust child collider settings here
-                        // Example: child.GetComponent<Collider2D>().isTrigger = !child.GetComponent<Collider2D>().isTrigger;
-                    }
-                }
+                // Update the sprite flip based on direction
+                spriteRenderer.flipX = direction.x < 0;
 
                 if (!isMoving)
                 {
                     isMoving = true;
                     TriggerWalkingAnimation();
                 }
-            }
-            else
-            {
-                // If there's an obstacle, stop movement
-                StopWalkingAnimation();
+
+                // Play FMOD sound if not playing already
+                if (!isSoundPlaying)
+                {
+                    // Create and start the FMOD sound event
+                    moveSoundInstance = FMODUnity.RuntimeManager.CreateInstance(bossMoveEvent);
+                    moveSoundInstance.start(); // Start the sound
+                    isSoundPlaying = true;
+                }
             }
         }
         else
         {
+            // Stop the FMOD sound if the boss stops moving
+            if (isSoundPlaying)
+            {
+                moveSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT); // Stop the sound with fade-out
+                isSoundPlaying = false;
+            }
+
             StopWalkingAnimation();
         }
     }
 
 
 
+    private void OnDestroy()
+    {
+        if (moveSoundInstance.isValid())
+        {
+            moveSoundInstance.release(); // Release the event instance
+        }
+    }
+
+
+    private IEnumerator PlaySoundWithDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay); // Wait for the specified delay
+        AudioManager.instance.PlayOneShot(attack, this.transform.position); // Play the sound after the delay
+    }
 
     private void TriggerAttack()
     {
@@ -315,48 +346,70 @@ public class CthuluController : MonoBehaviour
         {
             isAttacking = true; // Set attacking state
 
+            // Pause the sound when the attack starts
+            PauseMoveSound();
+
             // Check the facing direction and set the appropriate trigger
             if (spriteRenderer.flipX) // If facing left
             {
                 animator.SetTrigger("AttackL"); // Trigger left attack animation
+                StartCoroutine(PlaySoundWithDelay(0.25f)); // Start the coroutine to play the sound after a delay
             }
             else // If facing right
             {
                 animator.SetTrigger("Attack"); // Trigger right attack animation
+                StartCoroutine(PlaySoundWithDelay(0.25f));
             }
 
             Debug.Log("Attack Triggered!");
 
-            float walkingAnimationDelay = 0.6f; // Set your desired delay here
-            StartCoroutine(AttackAndRetreatRoutine(walkingAnimationDelay)); // Pass the delay to the routine
+            // Set attack state and start retreating logic after attack
+            StartCoroutine(AttackAndRetreatRoutine(0.6f)); // Pass the delay to the routine
+        }
+    }
+    private void PauseMoveSound()
+    {
+        if (isSoundPlaying && !isFlying) // Only pause if not flying
+        {
+            moveSoundInstance.setPaused(true); // Pause the sound
         }
     }
 
+    private void ResumeMoveSound()
+    {
+        if (isSoundPlaying && !isFlying) // Only resume if not flying
+        {
+            moveSoundInstance.setPaused(false); // Resume the sound
+        }
+    }
 
     private IEnumerator AttackAndRetreatRoutine(float walkingAnimationDelay)
-    {
-        // Wait for the attack animation duration
-        float attackDuration = 0.6f; // Adjust this based on the length of your attack animation
-        yield return new WaitForSeconds(attackDuration); // Wait for the attack to finish
+{
+    // Wait for the attack animation duration
+    float attackDuration = 0.6f; // Adjust this based on the length of your attack animation
+    yield return new WaitForSeconds(attackDuration); // Wait for the attack to finish
 
-        // Delay before starting to walk again
-        yield return new WaitForSeconds(walkingAnimationDelay); // Add your custom delay here
-
+    // Delay before starting to walk again
+    yield return new WaitForSeconds(walkingAnimationDelay); // Add your custom delay here
+        ResumeMoveSound();
         // Now set the walking animation
         TriggerWalkingAnimation(); // Start walking animation
 
-        // Start moving away from the player
-        yield return StartCoroutine(MoveAwayFromPlayer(2f)); // Move away for 2 seconds
+    // Start moving away from the player
+    yield return StartCoroutine(MoveAwayFromPlayer(2f)); // Move away for 2 seconds
 
-        TriggerBreathingAnimation();
+    // After moving away, resume the sound
+    
 
-        // Wait for the breathing animation to finish (assuming 1.5 seconds for breathing)
-        float breathingDuration = 2.5f; // Adjust based on breathing animation length
-        yield return new WaitForSeconds(breathingDuration);
+    TriggerBreathingAnimation();
 
-        // Reset the attacking state after retreating
-        isAttacking = false; // Allow attacking again after moving away
-    }
+    // Wait for the breathing animation to finish (assuming 1.5 seconds for breathing)
+    float breathingDuration = 2.5f; // Adjust based on breathing animation length
+    yield return new WaitForSeconds(breathingDuration);
+
+    // Reset the attacking state after retreating
+    isAttacking = false; // Allow attacking again after moving away
+}
 
     private IEnumerator ReturnToWalking(float delay)
     {
@@ -413,10 +466,10 @@ public class CthuluController : MonoBehaviour
             {
                 bossHp.SetCanTakeDamage(false); // Disable damage while flying
             }
-
+            PauseMoveSound();
             isFlying = true; // Set flying state
             TriggerFlyingAnimation(); // Start flying animation
-
+            
             // Fly to the center (0,0)
             Vector2 targetPosition = Vector2.zero;
             while (Vector2.Distance(transform.position, targetPosition) > 0.1f)
@@ -448,6 +501,7 @@ public class CthuluController : MonoBehaviour
             isFiring = false; // Reset firing state
             isFlying = false; // Exit flying state
             StopFlyingAnimation(); // Stop the flying animation
+            ResumeMoveSound();
             StopBreathingAnimation();
             TriggerWalkingAnimation(); // Transition to walking after flying
             isMoving = true; // Set moving state to true for walking
@@ -670,6 +724,7 @@ public class CthuluController : MonoBehaviour
         StopBreathingAnimation();
         StopWalkingAnimation();
         StopFlyingAnimation(); 
+        StopMoveSound();
     }
 
 
@@ -684,6 +739,35 @@ public class CthuluController : MonoBehaviour
             animator.SetTrigger("IsBreathing"); // Trigger breathing animation
             breathingDurationLeft = 2.5f; // Set the breathing animation duration (adjust based on your animation length)
             StartCoroutine(BreathingWaitCoroutine()); // Start coroutine to track breathing duration
+
+            // Stop the FMOD sound when the boss starts breathing
+            if (isSoundPlaying)
+            {
+                moveSoundInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE); // Stop the sound immediately
+                isSoundPlaying = false;
+            }
+        }
+    }
+
+
+    // This function handles playing the sound when the boss moves
+    private void StartMoveSound()
+    {
+        if (!isSoundPlaying && !isFlying) // Ensure sound only plays when not flying
+        {
+            // Create and start the FMOD sound event
+            moveSoundInstance = FMODUnity.RuntimeManager.CreateInstance("event:/BossMoveSound");
+            moveSoundInstance.start(); // Start the sound
+            isSoundPlaying = true;
+        }
+    }
+
+    private void StopMoveSound()
+    {
+        if (isSoundPlaying)
+        {
+            moveSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT); // Stop the sound with fade-out
+            isSoundPlaying = false;
         }
     }
     private IEnumerator BreathingWaitCoroutine()
@@ -698,6 +782,12 @@ public class CthuluController : MonoBehaviour
         // Breathing is done, so stop the animation and transition to walking
         StopBreathingAnimation();
         TriggerWalkingAnimation();
+
+        // If the boss is still moving, restart the sound
+        if (isMoving)
+        {
+            StartMoveSound();  // Re-start the movement sound if the boss is still moving
+        }
     }
 
     private void StopBreathingAnimation()
@@ -726,10 +816,12 @@ public class CthuluController : MonoBehaviour
     private void TriggerFlyingAnimation()
     {
         animator.SetTrigger("IsFlying"); // Trigger flying animation
+        flySoundInstance = AudioManager.instance.PlayOneShot(fly, this.transform.position);
     }
 
     private void StopFlyingAnimation()
     {
         animator.ResetTrigger("IsFlying"); // Reset flying animation trigger
+        flySoundInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
     }
 }

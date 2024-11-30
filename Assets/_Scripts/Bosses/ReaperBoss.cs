@@ -121,7 +121,7 @@ public class ReaperBoss : MonoBehaviour
     {
         // Flip the sprite to face the player
         FlipSprite();
-
+        AudioManager.instance.SetMusicArea(MusicType.Boss);
         // Move the boss towards the player at the move speed
         Vector2 direction = (player.position - transform.position).normalized;
         rb.velocity = direction * moveSpeed;

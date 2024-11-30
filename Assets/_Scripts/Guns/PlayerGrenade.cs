@@ -1,48 +1,59 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using FMODUnity;
+
 public class PlayerGrenade : MonoBehaviour
 {
+    public static PlayerGrenade instance; // Singleton for UI updates
+
     public GameObject grenadePrefab;
-    public Transform throwPoint;  // The point from which the grenade is thrown
+    public Transform throwPoint;
     public int maxGrenades = 3;
-    public float throwForce = 10f;  // The force applied to the grenade
+    public float throwForce = 10f;
     private int currentGrenades;
 
-    private PlayerController playerController; // Reference to the PlayerController script
-
-    private NewControls inputActions; // Reference to the NewControls input asset
+    private PlayerController playerController;
+    private NewControls inputActions;
     private InputAction grenadeAction;
+
     [SerializeField] private EventReference grenadePin;
+
     void Awake()
     {
-        inputActions = new NewControls(); // Create an instance of the NewControls asset
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Debug.LogWarning("Multiple PlayerGrenade instances found. Destroying the new one.");
+            Destroy(gameObject);
+        }
+
+        inputActions = new NewControls();
         grenadeAction = inputActions.PlayerInput.Grenade;
     }
+
     void OnEnable()
     {
-        // Enable the grenade action when the object is enabled
         grenadeAction.Enable();
-        grenadeAction.performed += _ => ThrowGrenade(); // Subscribe to the performed event, triggering ThrowGrenade
+        grenadeAction.performed += _ => ThrowGrenade();
     }
 
     void OnDisable()
     {
-        // Disable the grenade action when the object is disabled to avoid memory leaks
         grenadeAction.Disable();
-        grenadeAction.performed -= _ => ThrowGrenade(); // Unsubscribe from the performed event
+        grenadeAction.performed -= _ => ThrowGrenade();
     }
+
     void Start()
     {
         currentGrenades = maxGrenades;
-        playerController = PlayerController.instance; // Get reference to PlayerController
-    }
+        playerController = PlayerController.instance;
 
-    void Update()
-    {
-        // No longer need to check for the key press here, it's handled by the Input Action
+        // Update UI initially
+        GunUIManager.instance?.UpdateGrenadeUI(currentGrenades);
     }
 
     void ThrowGrenade()
@@ -50,32 +61,29 @@ public class PlayerGrenade : MonoBehaviour
         if (currentGrenades > 0)
         {
             AudioManager.instance.PlayOneShot(grenadePin, this.transform.position);
-            // Create the grenade at the throw point
-            GameObject grenade = Instantiate(grenadePrefab, throwPoint.position, throwPoint.rotation);
 
-            // Get the position of the mouse in world space
+            GameObject grenade = Instantiate(grenadePrefab, throwPoint.position, throwPoint.rotation);
             Vector3 mousePosition = Mouse.current.position.ReadValue();
-            mousePosition.z = Camera.main.WorldToScreenPoint(throwPoint.position).z;  // Maintain correct z distance
+            mousePosition.z = Camera.main.WorldToScreenPoint(throwPoint.position).z;
             Vector3 targetPosition = Camera.main.ScreenToWorldPoint(mousePosition);
 
-            // Calculate the direction from the throw point to the mouse position
             Vector3 throwDirection = (targetPosition - throwPoint.position).normalized;
 
-            // Check if the player is facing left and adjust the throw direction accordingly
             if (!playerController.IsFacingRight())
             {
-                // If the player is facing left, reverse the throw direction's x component
-                throwDirection.x = -Mathf.Abs(throwDirection.x); // Make sure x is negative
+                throwDirection.x = -Mathf.Abs(throwDirection.x);
             }
 
-            // Apply force to the grenade in the calculated throw direction
             Rigidbody2D grenadeRb = grenade.GetComponent<Rigidbody2D>();
             if (grenadeRb != null)
             {
-                grenadeRb.AddForce(throwDirection * throwForce, ForceMode2D.Impulse); // Use Impulse for immediate force
+                grenadeRb.AddForce(throwDirection * throwForce, ForceMode2D.Impulse);
             }
 
             currentGrenades--;
+
+            // Update grenade count in UI
+            GunUIManager.instance?.UpdateGrenadeUI(currentGrenades);
         }
     }
 
@@ -84,7 +92,12 @@ public class PlayerGrenade : MonoBehaviour
         if (currentGrenades < maxGrenades)
         {
             currentGrenades++;
+            GunUIManager.instance?.UpdateGrenadeUI(currentGrenades);
         }
     }
 
+    public int GetCurrentGrenades()
+    {
+        return currentGrenades;
+    }
 }

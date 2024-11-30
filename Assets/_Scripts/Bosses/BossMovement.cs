@@ -43,6 +43,7 @@ public class BossMovement : MonoBehaviour
     private FMOD.Studio.EventInstance constantSoundInstance; // FMOD sound instance
     [SerializeField] private EventReference attackStart;
     [SerializeField] private EventReference releaseStone;
+    
 
     private void Start()
     {
@@ -73,6 +74,12 @@ public class BossMovement : MonoBehaviour
 
             float distanceToPlayer = Vector2.Distance(player.position, rb.position);
             // Start constant sound if within attack range, stop if out of range
+            if (distanceToPlayer <= attackRange)
+            {
+                // Trigger boss music when the player is within attack range
+                AudioManager.instance.SetMusicArea(MusicType.Boss); // No need for a reference, use the singleton
+            }
+         
             if (distanceToPlayer <= attackRange && !constantSoundInstance.isValid())
             {
                 StartConstantSound();

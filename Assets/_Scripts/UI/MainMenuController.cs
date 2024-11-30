@@ -1,18 +1,22 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;  // Ensure this is included for Button functionality
+using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class MainMenuController : MonoBehaviour
 {
-    public GameObject mainMenuUI; // The root of the Main Menu UI
-    public GameObject playButton; // Reference to the Play button in the Main Menu
-    public GameObject quitButton; // Reference to the Quit button in the Main Menu
+    public GameObject mainMenuUI; // Main Menu UI root
+    public GameObject controlsPanel; // Reference to the Controls Panel
+    public GameObject playButton; // Reference to the Play button
+    public GameObject quitButton; // Reference to the Quit button
+    public GameObject backButton; // Back button in the controls panel
 
-    public InputActionReference navigateAction; // Bind this to the left stick or d-pad
-    public InputActionReference submitAction;   // Bind this to South button (A button or Enter)
-    public InputActionReference cancelAction;   // Bind this to B button or Escape
+    public InputActionReference navigateAction; // For navigation
+    public InputActionReference submitAction;   // For selection
+    public InputActionReference cancelAction;   // For cancel/back actions
+
+    private GameObject previousPanel; // Track the previous active panel for navigation
 
     private void Start()
     {
@@ -21,57 +25,35 @@ public class MainMenuController : MonoBehaviour
         submitAction.action.Enable();
         cancelAction.action.Enable();
 
-        // Set the default button to be selected when the menu opens
-        EventSystem.current.SetSelectedGameObject(mainMenuUI.transform.GetChild(0).gameObject); // First child is the first button (Play)
+        // Set the default selected button
+        EventSystem.current.SetSelectedGameObject(playButton);
     }
 
     private void OnDisable()
     {
-        // Disable the actions when not in use
         navigateAction.action.Disable();
         submitAction.action.Disable();
         cancelAction.action.Disable();
     }
 
-    private void Update()
-    {
-        // Handle menu navigation
-        HandleNavigation();
-
-        // Handle selection (submit action)
-        if (submitAction.action.triggered)
-        {
-            HandleSubmit();
-        }
-
-        // Handle cancel (back action)
-        if (cancelAction.action.triggered)
-        {
-            HandleCancel();
-        }
-    }
+ 
 
     private void HandleNavigation()
     {
-        // Get the navigation input (left stick or D-pad)
         Vector2 navigationInput = navigateAction.action.ReadValue<Vector2>();
 
-        // Handle vertical navigation (up/down)
-        if (navigationInput.y > 0) // Up direction
+        if (navigationInput.y > 0) // Navigate up
         {
             MoveSelectionUp();
         }
-        else if (navigationInput.y < 0) // Down direction
+        else if (navigationInput.y < 0) // Navigate down
         {
             MoveSelectionDown();
         }
-
-        // Handle horizontal navigation (left/right) if needed (skipped for simplicity)
     }
 
     private void MoveSelectionUp()
     {
-        // Navigate up in the menu
         GameObject previousSelected = EventSystem.current.currentSelectedGameObject;
         if (previousSelected != null)
         {
@@ -85,7 +67,6 @@ public class MainMenuController : MonoBehaviour
 
     private void MoveSelectionDown()
     {
-        // Navigate down in the menu
         GameObject previousSelected = EventSystem.current.currentSelectedGameObject;
         if (previousSelected != null)
         {
@@ -97,29 +78,85 @@ public class MainMenuController : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        HandleNavigation();
+
+        if (submitAction.action.triggered)
+        {
+            Debug.Log("Submit action triggered");
+            HandleSubmit();
+        }
+
+        if (cancelAction.action.triggered)
+        {
+            Debug.Log("Cancel action triggered");
+            HandleCancel();
+        }
+    }
+
     private void HandleSubmit()
     {
-        // Check if the selected UI element is a button and invoke the click
-        Button selectedButton = EventSystem.current.currentSelectedGameObject?.GetComponent<Button>();
-        if (selectedButton != null)
+        GameObject selectedGameObject = EventSystem.current.currentSelectedGameObject;
+        if (selectedGameObject != null)
         {
-            selectedButton.onClick.Invoke(); // Simulate the button click
-            Debug.Log("Button clicked: " + selectedButton.name);
+            Button selectedButton = selectedGameObject.GetComponent<Button>();
+            if (selectedButton != null)
+            {
+                Debug.Log("Selected button: " + selectedButton.name);
+                if (selectedButton.name == "ControlsButton")
+                {
+                    OpenControlsPanel();
+                }
+                else
+                {
+                    selectedButton.onClick.Invoke(); // Simulate button click
+                }
+            }
+            else
+            {
+                Debug.LogWarning("No Button component found on selected GameObject.");
+            }
         }
+        else
+        {
+            Debug.LogWarning("No GameObject is currently selected.");
+        }
+    }
+
+
+    public void OpenControlsPanel()
+    {
+        previousPanel = mainMenuUI; // Save the current panel
+        mainMenuUI.SetActive(false); // Hide Main Menu
+        controlsPanel.SetActive(true); // Show Controls Panel
+
+        // Set the default selected button in the controls panel
+        EventSystem.current.SetSelectedGameObject(null); // Clear selection first
+        EventSystem.current.SetSelectedGameObject(backButton); // Set the Back button as selected
+
+        Debug.Log("Opened Controls Panel");
     }
 
     private void HandleCancel()
     {
-        // Handle cancel (back action), like quitting or doing other tasks
-        Debug.Log("Cancel action triggered.");
-        QuitGame();
+        // If the controls panel is active, go back to the main menu
+        if (controlsPanel.activeSelf)
+        {
+            BackToMainMenu();
+        }
+        else
+        {
+            // Default cancel action (e.g., quit game)
+            Debug.Log("Cancel action triggered.");
+            QuitGame();
+        }
     }
 
     // Function to start the game
     public void StartGame()
     {
         Debug.Log("Starting Game...");
-        // Replace "YourGameScene" with your actual scene name
         SceneManager.LoadScene("RoomContent");
     }
 
@@ -128,5 +165,17 @@ public class MainMenuController : MonoBehaviour
     {
         Debug.Log("Quitting Game...");
         Application.Quit();
+    }
+
+
+
+    // Go back to the Main Menu
+    public void BackToMainMenu()
+    {
+        controlsPanel.SetActive(false); // Hide Controls Panel
+        mainMenuUI.SetActive(true); // Show Main Menu
+
+        // Set the default selected button in the main menu
+        EventSystem.current.SetSelectedGameObject(playButton);
     }
 }

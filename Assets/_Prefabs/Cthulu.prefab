@@ -304,6 +304,21 @@ MonoBehaviour:
   bossId: 4
   portalPrefab: {fileID: 5634491413255316653, guid: f905073b1c6ffb441ac09af5eb4c40a7, type: 3}
   deathAnimationDuration: 2
+  hitSoundCooldown: 1
+  death:
+    Guid:
+      Data1: 199483574
+      Data2: 1270910380
+      Data3: 530940046
+      Data4: 1443929112
+    Path: event:/SFX/Enemy/Bosses/Cthulu/Death
+  hit:
+    Guid:
+      Data1: 1830150185
+      Data2: 1226006309
+      Data3: 362237618
+      Data4: -559715074
+    Path: event:/SFX/Enemy/Bosses/Cthulu/Hurt
 --- !u!114 &6669111905538719222
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -338,6 +353,21 @@ MonoBehaviour:
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 2048
+  bossMoveEvent: event:/SFX/Enemy/Bosses/Cthulu/CWalk
+  fly:
+    Guid:
+      Data1: -1163380923
+      Data2: 1281601992
+      Data3: -1657439338
+      Data4: 1634007747
+    Path: event:/SFX/Enemy/Bosses/Cthulu/Fly
+  attack:
+    Guid:
+      Data1: 442520469
+      Data2: 1218180880
+      Data3: -95956090
+      Data4: -955537529
+    Path: event:/SFX/Enemy/Bosses/Cthulu/Attack
 --- !u!61 &7881144375359437630
 BoxCollider2D:
   m_ObjectHideFlags: 0

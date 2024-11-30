@@ -21,6 +21,9 @@ public class PlayerHealth : MonoBehaviour
     [Header("Audio Settings")]
     [SerializeField] private EventReference gruntNoise; // FMOD Event Reference for grunt noises
     private EventInstance gruntInstance; // Instance to manage the grunt sound
+    [Header("Damage Cooldown")]
+    private float damageCooldown = 0.4f;  // Cooldown duration (seconds)
+    private float lastDamageTime = -Mathf.Infinity;  // Time when the player last took damage
 
     private void Start()
     {
@@ -49,6 +52,10 @@ public class PlayerHealth : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (Time.time - lastDamageTime < damageCooldown)
+        {
+            return;  // Ignore damage if within cooldown
+        }
         // Check if the player is invincible in PlayerController before applying damage
         if (PlayerController.instance != null && PlayerController.instance.isInvincible)
         {
@@ -74,7 +81,7 @@ public class PlayerHealth : MonoBehaviour
         if (isDead) return;
 
         currentHealth -= amount;
-         // Play the grunt noise when taking damage
+        lastDamageTime = Time.time;
 
         if (currentHealth <= 0)
         {

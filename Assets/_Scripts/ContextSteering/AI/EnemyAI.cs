@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using FMODUnity;
-using FMOD.Studio;  // Required for accessing playback state
+using FMOD.Studio;
 
 public class EnemyAI : MonoBehaviour
 {
@@ -23,9 +23,11 @@ public class EnemyAI : MonoBehaviour
     private float attackDistance = 0.5f;
 
     [SerializeField]
-    private float chaseRadius = 10f;  // New chase radius
+    private float chaseRadius = 10f;
 
-    // Inputs sent from the Enemy AI to the Enemy controller
+    [Header("Music Change Settings")]
+    [SerializeField] private MusicType musicType;
+
     public UnityEvent OnAttackPressed;
     public UnityEvent<Vector2> OnMovementInput, OnPointerInput;
 
@@ -38,16 +40,29 @@ public class EnemyAI : MonoBehaviour
     bool following = false;
 
     [SerializeField]
-    private EventReference movementSoundEvent; // FMOD Event Reference (assign in inspector)
+    private EventReference movementSoundEvent;
 
     private FMOD.Studio.EventInstance movementSoundInstance;
+
+    private Health healthScript; // Reference to the health script
 
     private void Start()
     {
         // Detecting Player and Obstacles around
         InvokeRepeating("PerformDetection", 0, detectionDelay);
         movementSoundInstance = RuntimeManager.CreateInstance(movementSoundEvent);
+
+        // Get the Health script and attach the death event
+        healthScript = GetComponent<Health>();
+        if (healthScript != null)
+        {
+            healthScript.OnDeathWithReference.AddListener(OnEnemyDeath);
+        }
+
+        // Register the enemy with the manager
+        EnemyManager.instance?.RegisterEnemy(this);
     }
+
 
     private void PerformDetection()
     {
@@ -59,32 +74,35 @@ public class EnemyAI : MonoBehaviour
 
     private void Update()
     {
+        if (healthScript != null && healthScript.isDead)
+        {
+            // If the enemy is already dead, stop further updates
+            return;
+        }
+
         if (aiData.currentTarget != null)
         {
-            // Calculate the distance between the enemy and the player (target)
             float distanceToPlayer = Vector2.Distance(aiData.currentTarget.position, transform.position);
 
-            // Check if the target is within the chase radius
-            if (distanceToPlayer > chaseRadius)  // Player is out of chase radius
+            if (distanceToPlayer > chaseRadius) // Player is out of chase radius
             {
-                StopChasing(); // Stop chasing if the player is out of range
+                StopChasing();
             }
             else
             {
-                // If we're within chase radius, ensure the enemy starts or continues chasing
                 if (!following)
                 {
                     following = true;
-                    StartCoroutine(ChaseAndAttack());  // Start chasing if it's not already chasing
-                    PlayMovementSound(); // Play the movement sound when the enemy starts chasing
+                    StartCoroutine(ChaseAndAttack());
+                    PlayMovementSound();
+                    ChangeMusic();
                 }
 
-                // Calculate and adjust the target position to aim slightly below the player's collider center
                 BoxCollider2D playerCollider = aiData.currentTarget.GetComponent<BoxCollider2D>();
                 if (playerCollider != null)
                 {
                     Vector3 targetCenter = aiData.currentTarget.position;
-                    targetCenter.y -= (playerCollider.size.y / 2) + 1.5f; // Adjust this value to set the desired offset
+                    targetCenter.y -= (playerCollider.size.y / 2) + 1.5f;
 
                     OnPointerInput?.Invoke(targetCenter);
                 }
@@ -96,39 +114,32 @@ public class EnemyAI : MonoBehaviour
         }
         else
         {
-            // If there is no current target and we have a list of targets, pick the first one
             if (aiData.GetTargetsCount() > 0)
             {
                 aiData.currentTarget = aiData.targets[0];
             }
             else
             {
-                // If no targets are found, stop chasing
                 StopChasing();
             }
         }
 
-        // Moving the Agent
         OnMovementInput?.Invoke(movementInput);
 
-        // Control sound based on whether the agent is moving
         AgentMover agentMover = GetComponent<AgentMover>();
         if (agentMover != null)
         {
-            if (agentMover.IsMoving())  // Check if the agent is actually moving
+            if (agentMover.IsMoving())
             {
-                // Play sound if it's not already playing
                 PlayMovementSound();
             }
             else
             {
-                // Stop sound if it's playing
                 StopMovementSound();
             }
         }
     }
 
-    // Stop chasing and halt movement
     private void StopChasing()
     {
         if (following)
@@ -136,22 +147,21 @@ public class EnemyAI : MonoBehaviour
             following = false; // Set the flag to false to stop chasing
             movementInput = Vector2.zero; // Stop movement when the player is out of range
             StopMovementSound(); // Stop sound when no longer chasing
+            ChangeMusic(); // Notify the manager
         }
     }
 
-    // Play the movement sound
     private void PlayMovementSound()
     {
-        if (!IsSoundPlaying()) // Check if the sound isn't already playing
+        if (!IsSoundPlaying())
         {
-            movementSoundInstance.start();  // Start the movement sound
+            movementSoundInstance.start();
         }
     }
 
-    // Stop the movement sound
     private void StopMovementSound()
     {
-        if (IsSoundPlaying())  // Stop the sound if it is currently playing
+        if (IsSoundPlaying())
         {
             movementSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
         }
@@ -166,6 +176,9 @@ public class EnemyAI : MonoBehaviour
 
     private void OnDestroy()
     {
+        // Notify the EnemyManager that this enemy is no longer active
+        EnemyManager.instance?.NotifyEnemyStoppedChasing(this);
+
         // Stop the FMOD event when the object is destroyed
         if (IsSoundPlaying())
         {
@@ -174,12 +187,11 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+
     private IEnumerator ChaseAndAttack()
     {
         if (aiData.currentTarget == null)
         {
-            // Stopping Logic
-            Debug.Log("Stopping");
             movementInput = Vector2.zero;
             following = false;
             if (IsSoundPlaying())
@@ -194,7 +206,6 @@ public class EnemyAI : MonoBehaviour
 
             if (distance < attackDistance)
             {
-                // Attack logic
                 movementInput = Vector2.zero;
                 OnAttackPressed?.Invoke();
                 yield return new WaitForSeconds(attackDelay);
@@ -202,7 +213,6 @@ public class EnemyAI : MonoBehaviour
             }
             else
             {
-                // Chase logic
                 movementInput = movementDirectionSolver.GetDirectionToMove(steeringBehaviours, aiData);
                 yield return new WaitForSeconds(aiUpdateDelay);
                 StartCoroutine(ChaseAndAttack());
@@ -210,18 +220,27 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    // For debugging: visualize the target aiming in the Scene view
-    void OnDrawGizmos()
+    private void ChangeMusic()
     {
-        if (aiData.currentTarget != null)
+        if (following)
         {
-            BoxCollider2D playerCollider = aiData.currentTarget.GetComponent<BoxCollider2D>();
-            if (playerCollider != null)
-            {
-                Vector3 targetCenter = aiData.currentTarget.position - new Vector3(0, playerCollider.size.y / 2 + 1.5f, 0);
-                Gizmos.color = Color.red;
-                Gizmos.DrawLine(transform.position, targetCenter);
-            }
+            // Notify the manager that this enemy is chasing
+            EnemyManager.instance?.NotifyEnemyChasing(this);
+        }
+        else
+        {
+            // Notify the manager that this enemy stopped chasing
+            EnemyManager.instance?.NotifyEnemyStoppedChasing(this);
         }
     }
+
+
+
+    // Triggered when the enemy dies
+    private void OnEnemyDeath(GameObject sender)
+    {
+        StopMovementSound(); // Stop any movement sound
+        EnemyManager.instance?.NotifyEnemyStoppedChasing(this); // Notify the manager about the death
+    }
+
 }

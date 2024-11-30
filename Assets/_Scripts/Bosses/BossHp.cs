@@ -91,7 +91,7 @@ public class BossHp : MonoBehaviour
         GetComponent<Animator>().SetTrigger("Die");
         yield return new WaitForSeconds(deathAnimationDuration);
         SpawnPortal();
-
+        AudioManager.instance.SetMusicArea(MusicType.Peacefull);
         if (bossId == "1")
         {
             ChallengeManager.instance.CompleteChallenge("DefeatBoss1");

@@ -115,7 +115,7 @@ public class ChallengeManager : MonoBehaviour
             {
                 CompleteGrenadeKillsChallenge(challengeToComplete);
             }
-            else if (challengeId == "DefeatBoss1") // Handle the new challenge
+            else if (challengeId == "DefeatGolem") // Handle the new challenge
             {
                 CompleteDefeatBoss1Challenge(challengeToComplete);
             }

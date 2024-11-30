@@ -33,22 +33,32 @@ public class AmmoPickup : MonoBehaviour
         // Check if the player presses the interact button and is in range
         if (isPlayerInRange && interactAction.triggered)
         {
-            // Find the player's gun component
+            // Restore ammo to the player's gun
             Gun playerGun = FindObjectOfType<Gun>();
             if (playerGun != null)
             {
-                // Restore ammo to the current gun
                 playerGun.RestoreAmmoFromPickup();
-
-                // Optionally, play a sound effect or animation here
-
-                // Destroy the ammo pickup object after it has been collected
-                Destroy(gameObject);
             }
             else
             {
                 Debug.LogError("Gun component not found in the scene.");
             }
+
+            // Restore 1 grenade to the player
+            PlayerGrenade playerGrenade = FindObjectOfType<PlayerGrenade>();
+            if (playerGrenade != null)
+            {
+                playerGrenade.AddGrenade();
+            }
+            else
+            {
+                Debug.LogError("PlayerGrenade component not found in the scene.");
+            }
+
+            // Optionally, play a sound effect or animation here
+
+            // Destroy the ammo pickup object after it has been collected
+            Destroy(gameObject);
         }
     }
 
