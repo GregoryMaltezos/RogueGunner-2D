@@ -179,6 +179,13 @@ MonoBehaviour:
   interactionDistance: 1.2
   hoverHeight: 0.2
   hoverSpeed: 2
+  open:
+    Guid:
+      Data1: 1684934615
+      Data2: 1258233097
+      Data3: -357145166
+      Data4: -2058402006
+    Path: event:/SFX/Misc/ChestOpen
 --- !u!114 &-6049216430867014938
 MonoBehaviour:
   m_ObjectHideFlags: 0

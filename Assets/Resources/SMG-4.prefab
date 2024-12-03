@@ -100,7 +100,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gunIndexToUnlock: 3
-  interactKey: 101
+  interactActionName: Interact
+  pickup:
+    Guid:
+      Data1: 1786774114
+      Data2: 1245177206
+      Data3: -2003328853
+      Data4: 200135782
+    Path: event:/SFX/Misc/pickup
 --- !u!61 &-2490002430274279156
 BoxCollider2D:
   m_ObjectHideFlags: 0

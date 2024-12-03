@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem; // For the new Input System
+using FMODUnity; // For FMOD audio
 
 public class AmmoPickup : MonoBehaviour
 {
@@ -7,6 +8,8 @@ public class AmmoPickup : MonoBehaviour
 
     // Reference to the InputAction for interacting
     private InputAction interactAction;
+
+    [SerializeField] private EventReference pickupSound; // Reference to the pickup sound event
 
     private void Start()
     {
@@ -55,7 +58,8 @@ public class AmmoPickup : MonoBehaviour
                 Debug.LogError("PlayerGrenade component not found in the scene.");
             }
 
-            // Optionally, play a sound effect or animation here
+            // Play the sound effect when the pickup is collected
+            AudioManager.instance.PlayOneShot(pickupSound, this.transform.position);
 
             // Destroy the ammo pickup object after it has been collected
             Destroy(gameObject);

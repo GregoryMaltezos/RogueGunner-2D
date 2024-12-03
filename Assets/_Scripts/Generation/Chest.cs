@@ -22,7 +22,7 @@ public class Chest : MonoBehaviour
 
     // Reference to the InputAction for interacting with the chest
     private InputAction interactAction;
-
+    [SerializeField] private EventReference open;
     private void OnEnable()
     {
         // Initialize the InputAction and bind to the Interact method
@@ -90,6 +90,7 @@ public class Chest : MonoBehaviour
 
         isOpen = true;
         chestAnimator.SetTrigger("Open");
+        AudioManager.instance.PlayOneShot(open, this.transform.position);
         emitter.Stop();
 
         bool anyChallengeCompleted = CheckAnyChallengeCompleted();
