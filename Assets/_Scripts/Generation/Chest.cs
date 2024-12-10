@@ -22,7 +22,7 @@ public class Chest : MonoBehaviour
 
     // Reference to the InputAction for interacting with the chest
     private InputAction interactAction;
-
+    [SerializeField] private EventReference open;
     private void OnEnable()
     {
         // Initialize the InputAction and bind to the Interact method
@@ -83,6 +83,32 @@ public class Chest : MonoBehaviour
             spawnedWeapon.transform.position = new Vector3(originalWeaponPosition.x, newY, originalWeaponPosition.z);
         }
     }
+    public void RefreshAvailableWeapons()
+    {
+        List<int> unlockedWeapons = GameProgressManager.instance.GetUnlockedWeapons();
+        List<int> pickedUpWeapons = WeaponManager.instance.GetPickedUpWeapons();
+
+        List<int> availableWeapons = new List<int>();
+        foreach (int weaponIndex in unlockedWeapons)
+        {
+            if (!pickedUpWeapons.Contains(weaponIndex))
+            {
+                availableWeapons.Add(weaponIndex);
+            }
+        }
+
+        Debug.Log($"Available weapons count: {availableWeapons.Count}");
+
+        if (availableWeapons.Count > 0)
+        {
+            SpawnRandomWeapon(availableWeapons);
+        }
+        else
+        {
+            Debug.Log("All weapons have been picked up. Resetting weapon pool to unlocked weapons.");
+            SpawnRandomWeapon(unlockedWeapons);
+        }
+    }
 
     void OpenChest()
     {
@@ -90,6 +116,7 @@ public class Chest : MonoBehaviour
 
         isOpen = true;
         chestAnimator.SetTrigger("Open");
+        AudioManager.instance.PlayOneShot(open, this.transform.position);
         emitter.Stop();
 
         bool anyChallengeCompleted = CheckAnyChallengeCompleted();

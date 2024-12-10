@@ -15,16 +15,25 @@ public class BossRoom : RoomGenerator
     // Reference to CorridorFirstDungeonGenerator to track the current floor
     private CorridorFirstDungeonGenerator dungeonGenerator;
 
+
+    /// <summary>
+    /// Processes the boss room by spawning a boss. The boss type depends on the floor level.
+    /// If it's the 4th floor, a special boss is placed; otherwise, a random boss is selected.
+    /// </summary>
+    /// <param name="roomCenter">The center position of the room (not used for boss placement).</param>
+    /// <param name="roomFloor">The full floor area of the room.</param>
+    /// <param name="roomFloorNoCorridors">The floor area excluding corridors (not directly used here).</param>
+    /// <returns>A list of game objects placed in the room, primarily the boss.</returns>
     public override List<GameObject> ProcessRoom(Vector2Int roomCenter, HashSet<Vector2Int> roomFloor, HashSet<Vector2Int> roomFloorNoCorridors)
     {
         ItemPlacementHelper itemPlacementHelper = new ItemPlacementHelper(roomFloor, roomFloorNoCorridors);
         List<GameObject> placedObjects = new List<GameObject>();
-
+        // Find the dungeon generator if not already cached
         if (dungeonGenerator == null)
         {
             dungeonGenerator = FindObjectOfType<CorridorFirstDungeonGenerator>(); // Get reference to the dungeon generator
         }
-
+        // Ensure boss data exists and there is at least one boss to place
         if (dungeonGenerator != null && bossPlacementData != null && bossPlacementData.Count > 0)
         {
             EnemyPlacementData bossData = null;
@@ -44,12 +53,12 @@ public class BossRoom : RoomGenerator
                 // Set boss's position directly to (0, 0)
                 Vector2Int bossPosition = Vector2Int.zero; // Boss appears at the center (0, 0)
 
-                // No placement restrictions
+                // Spawn the boss without placement restrictions
                 GameObject boss = prefabPlacer.PlaceSingleItem(bossData.enemyPrefab, bossPosition, true);
 
                 if (boss != null)
                 {
-                    placedObjects.Add(boss);
+                    placedObjects.Add(boss); // Add the boss to the list of placed objects
                 }
             }
         }
@@ -57,6 +66,11 @@ public class BossRoom : RoomGenerator
         return placedObjects;
     }
 
+    /// <summary>
+    /// Selects a boss randomly from the list of unused bosses. If all bosses have been used,
+    /// it resets the unused list to allow repetition.
+    /// </summary>
+    /// <returns>The data of the chosen boss.</returns>
     private EnemyPlacementData ChooseBoss()
     {
         // Initialize the unusedBosses list if it's empty

@@ -92,15 +92,24 @@ MonoBehaviour:
       minQuantity: 3
       maxQuantity: 5
   itemData:
-  - minQuantity: 3
-    maxQuantity: 6
-    itemData: {fileID: 11400000, guid: 70bb79b25760ec54d8a3c2f4d30fbde2, type: 2}
-  - minQuantity: 2
+  - minQuantity: 1
     maxQuantity: 4
+    itemData: {fileID: 11400000, guid: ebbf79afb4d727b42b7d6c54b43589ad, type: 2}
+  - minQuantity: 1
+    maxQuantity: 2
     itemData: {fileID: 11400000, guid: d33f6fea7db47904a997959b7bdf3e4c, type: 2}
-  - minQuantity: 2
-    maxQuantity: 3
+  - minQuantity: 0
+    maxQuantity: 2
     itemData: {fileID: 11400000, guid: 5f3d5b8de05ac3e4abb6fd4d3eab4aed, type: 2}
-  - minQuantity: 2
+  - minQuantity: 1
     maxQuantity: 3
+    itemData: {fileID: 11400000, guid: bc85049b5ae789b49a11f11343190c4b, type: 2}
+  - minQuantity: 1
+    maxQuantity: 2
+    itemData: {fileID: 11400000, guid: 95124f6aa1f9b7c4c985c3d23be223c1, type: 2}
+  - minQuantity: 1
+    maxQuantity: 2
     itemData: {fileID: 11400000, guid: f42e9114019933d4cbe2ee1cf58e5165, type: 2}
+  - minQuantity: 1
+    maxQuantity: 2
+    itemData: {fileID: 11400000, guid: 7416d77aab11e3d42aa17ab6db942b4f, type: 2}

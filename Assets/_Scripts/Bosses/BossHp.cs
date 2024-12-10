@@ -5,19 +5,19 @@ using FMODUnity;
 
 public class BossHp : MonoBehaviour
 {
-    [SerializeField] private Slider slider; // Drag the Slider from the UI Canvas here
+    [SerializeField] private Slider slider; 
     [SerializeField] private float maxHp = 100f; // Default maximum HP
     private float currentHp;
     private bool hasFlashed = false; // To ensure the flash only happens once
     private bool canTakeDamage = true; // New variable to track if the boss can take damage
 
-    public string bossId; // Add this field for the boss ID
+    public string bossId; // field for the boss ID
 
     private CorridorFirstDungeonGenerator dungeonGenerator; // Reference to the dungeon generator
 
-    [SerializeField] private GameObject portalPrefab; // Drag the Portal prefab here in the Inspector
+    [SerializeField] private GameObject portalPrefab; 
     [SerializeField] private float deathAnimationDuration = 1f; // Duration of the death animation
-                                                                // -------------------- Hit Sound Cooldown --------------------
+                                                              
     [Header("Hit Sound Settings")]
     [SerializeField]
     private float hitSoundCooldown = 0.5f; // Minimum time between hit sounds

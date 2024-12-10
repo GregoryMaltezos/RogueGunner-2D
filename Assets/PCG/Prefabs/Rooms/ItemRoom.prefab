@@ -49,4 +49,10 @@ MonoBehaviour:
   - minQuantity: 4
     maxQuantity: 4
     itemData: {fileID: 11400000, guid: a86781740217fdd478a31e4e6e5cba42, type: 2}
+  - minQuantity: 2
+    maxQuantity: 4
+    itemData: {fileID: 11400000, guid: f42e9114019933d4cbe2ee1cf58e5165, type: 2}
+  - minQuantity: 3
+    maxQuantity: 5
+    itemData: {fileID: 11400000, guid: 5f3d5b8de05ac3e4abb6fd4d3eab4aed, type: 2}
   treasurePrefab: {fileID: 2511524559775265664, guid: acd3075b4005f504c9a6a2ddc060180f, type: 3}

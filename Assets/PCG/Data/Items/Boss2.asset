@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a83f2a5bea8447489822be80764763e, type: 3}
-  m_Name: Bookshelf
+  m_Name: Boss2
   m_EditorClassIdentifier: 
-  sprite: {fileID: -964130277685616312, guid: fc5028170ab84ed4bbf43948f12a52d6, type: 3}
+  sprite: {fileID: -867404685, guid: a820046b9e202934b94d892dd4f0059f, type: 3}
   size: {x: 1, y: 1}
-  placementType: 1
+  placementType: 0
   addOffset: 0
   health: 2
   nonDestructible: 0
-  obstacle: 1
+  obstacle: 0

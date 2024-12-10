@@ -133,6 +133,11 @@ public class ChallengeManager : MonoBehaviour
         Debug.Log("Challenge completed: " + challenge.challengeId);
         Debug.Log("Weapon unlocked: " + challenge.weaponIndexToUnlock);
         GameProgressManager.instance.UnlockWeapon(challenge.weaponIndexToUnlock); // Unlock the weapon
+        Chest chest = FindObjectOfType<Chest>();
+        if (chest != null)
+        {
+            chest.RefreshAvailableWeapons(); // Ensure the chest refreshes its available weapons
+        }
     }
 
     void CompleteDieOnceChallenge(Challenge challenge)
@@ -141,6 +146,12 @@ public class ChallengeManager : MonoBehaviour
         SaveChallenges();
         Debug.Log("Challenge completed: " + challenge.challengeId);
         Debug.Log("Weapon unlocked: " + challenge.weaponIndexToUnlock);
+        GameProgressManager.instance.UnlockWeapon(challenge.weaponIndexToUnlock);
+        Chest chest = FindObjectOfType<Chest>();
+        if (chest != null)
+        {
+            chest.RefreshAvailableWeapons(); // Ensure the chest refreshes its available weapons
+        }
     }
 
     void CompleteWalkDistanceChallenge(Challenge challenge)
@@ -149,6 +160,12 @@ public class ChallengeManager : MonoBehaviour
         SaveChallenges();
         Debug.Log("Challenge completed: " + challenge.challengeId);
         Debug.Log("Weapon unlocked: " + challenge.weaponIndexToUnlock);
+        GameProgressManager.instance.UnlockWeapon(challenge.weaponIndexToUnlock);
+        Chest chest = FindObjectOfType<Chest>();
+        if (chest != null)
+        {
+            chest.RefreshAvailableWeapons(); // Ensure the chest refreshes its available weapons
+        }
     }
 
     void CompleteDefeatEnemiesQuicklyChallenge(Challenge challenge)
@@ -157,6 +174,12 @@ public class ChallengeManager : MonoBehaviour
         SaveChallenges();
         Debug.Log("Challenge completed: " + challenge.challengeId);
         Debug.Log("Weapon unlocked: " + challenge.weaponIndexToUnlock);
+        GameProgressManager.instance.UnlockWeapon(challenge.weaponIndexToUnlock);
+        Chest chest = FindObjectOfType<Chest>();
+        if (chest != null)
+        {
+            chest.RefreshAvailableWeapons(); // Ensure the chest refreshes its available weapons
+        }
     }
 
     void CompleteGrenadeKillsChallenge(Challenge challenge)
@@ -165,6 +188,12 @@ public class ChallengeManager : MonoBehaviour
         SaveChallenges();
         Debug.Log("Challenge completed: " + challenge.challengeId);
         Debug.Log("Weapon unlocked: " + challenge.weaponIndexToUnlock);
+        GameProgressManager.instance.UnlockWeapon(challenge.weaponIndexToUnlock);
+        Chest chest = FindObjectOfType<Chest>();
+        if (chest != null)
+        {
+            chest.RefreshAvailableWeapons(); // Ensure the chest refreshes its available weapons
+        }
     }
 
     void SaveChallenges()

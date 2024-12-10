@@ -3,6 +3,8 @@ using UnityEngine.SceneManagement; // For loading the main menu
 using TMPro;
 using System.Collections;
 using UnityEngine.InputSystem; // For the new input system
+using FMOD.Studio;
+using FMODUnity;
 
 public class bossPortal : MonoBehaviour
 {
@@ -14,6 +16,15 @@ public class bossPortal : MonoBehaviour
     // Cooldown variables
     private bool canInteract = true;
     private float interactionCooldown = 1.5f;
+
+    // FMOD Event Reference
+    [SerializeField]
+    private string portalSpawnSound = "event:/PortalSpawn"; // FMOD event path for the spawn sound
+    private EventInstance portalSoundInstance; // FMOD EventInstance for controlling the sound
+
+    // Maximum distance at which the sound is audible
+    [SerializeField]
+    private float maxSoundDistance = 10f;
 
     // UI Elements
     private Canvas[] canvasesToDisable;
@@ -78,7 +89,11 @@ public class bossPortal : MonoBehaviour
 
     private void OnEnable()
     {
-        // Enable the input action when the object is enabled
+        if (interactAction == null)
+        {
+            Debug.LogError("Interact Action is not initialized. Please check NewControls setup.");
+            return;
+        }
         interactAction.Enable();
     }
 
@@ -108,6 +123,28 @@ public class bossPortal : MonoBehaviour
                 // Start cooldown after interaction
                 StartCoroutine(InteractionCooldown());
             }
+        }
+
+        // Update the sound's position and distance-based attributes
+        if (portalSoundInstance.isValid())
+        {
+            UpdatePortalSoundPosition();
+        }
+    }
+
+    private void UpdatePortalSoundPosition()
+    {
+        if (GameObject.FindWithTag("Player") != null)
+        {
+            Vector3 playerPosition = GameObject.FindWithTag("Player").transform.position;
+            float distance = Vector3.Distance(transform.position, playerPosition);
+
+            // Set 3D attributes to change the sound's spatialization
+            portalSoundInstance.set3DAttributes(RuntimeUtils.To3DAttributes(transform.position));
+
+            // Adjust volume based on distance (attenuate if beyond max distance)
+            float volume = Mathf.Clamp01(1 - (distance / maxSoundDistance)); // Volume fades out beyond max distance
+            portalSoundInstance.setVolume(volume); // Apply the volume adjustment
         }
     }
 

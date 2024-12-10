@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a83f2a5bea8447489822be80764763e, type: 3}
   m_Name: Table_Long
   m_EditorClassIdentifier: 
-  sprite: {fileID: -4302411898996096202, guid: fc5028170ab84ed4bbf43948f12a52d6, type: 3}
+  sprite: {fileID: -1437743770, guid: a820046b9e202934b94d892dd4f0059f, type: 3}
   size: {x: 2, y: 1}
   placementType: 0
   addOffset: 1

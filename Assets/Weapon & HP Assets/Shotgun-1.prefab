@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 1969617136536433870}
   - component: {fileID: 6184098419514089013}
   - component: {fileID: 8469893202831917557}
+  - component: {fileID: 9012365320537660865}
   m_Layer: 0
   m_Name: Shotgun-1
   m_TagString: Untagged
@@ -217,4 +218,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gunIndexToUnlock: 1
-  interactKey: 101
+  interactActionName: Interact
+  pickup:
+    Guid:
+      Data1: 1786774114
+      Data2: 1245177206
+      Data3: -2003328853
+      Data4: 200135782
+    Path: event:/SFX/Misc/pickup
+--- !u!114 &9012365320537660865
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4204341758394100099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b675929ee0a682439fe59f7f8f400ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  promptMessage: Press 'E' to interact
+  interactionDistance: 2
+  customFont: {fileID: 12800000, guid: fa6a978401107774787e2be22f0d2128, type: 3}
+  offset: {x: 0, y: 1, z: 0}

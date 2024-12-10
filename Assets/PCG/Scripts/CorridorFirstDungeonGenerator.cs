@@ -1,19 +1,19 @@
 ﻿using UnityEngine;
-using TMPro; // Import TextMeshPro namespace
-using UnityEngine.UI; // For UI components
-using UnityEngine.Events; // For UnityEvent
+using TMPro; 
+using UnityEngine.UI; 
+using UnityEngine.Events; 
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq; // For Linq methods
-using System; // For Guid
+using System.Linq; 
+using System;
 
 public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
 {
     // PCG parameters
     [SerializeField]
-    private int corridorLength = 14; // Corridor length stays constant
+    private int corridorLength = 14; 
     [SerializeField]
-    private int corridorCount = 5;   // Corridor count will increase by 4 each time
+    private int corridorCount = 5;   
     [SerializeField]
     [Range(0.1f, 1)]
     private float roomPercent = 0.8f;
@@ -38,7 +38,7 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     private Vector2 startNotificationPosition = new Vector2(0, 0); // Default to top middle
 
     private RectTransform floorNotificationRectTransform; // For UI positioning and scaling
-    public int currentFloor = 1; // Starting floor number
+    public int currentFloor = 1; 
 
     // PCG Data
     private Dictionary<Vector2Int, HashSet<Vector2Int>> roomsDictionary = new Dictionary<Vector2Int, HashSet<Vector2Int>>();
@@ -61,26 +61,43 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
 
     void Start()
     {
-        currentFloor = 1; // Example starting value
-    }
-    public void StartDungeonGeneration()
-    {
-        // This method can be called publicly to start the dungeon generation process
-        RunProceduralGeneration();
+        currentFloor = 1; // Initialize starting floor to 1
     }
 
+    /// <summary>
+    /// Starts the dungeon generation process.
+    /// This method can be called publicly to initiate the generation of the dungeon.
+    /// </summary>
+    public void StartDungeonGeneration()
+    {
+        Debug.Log("Starting dungeon generation...");
+        // This method can be called publicly to start the dungeon generation process
+        RunProceduralGeneration();
+
+    }
+
+
+    /// <summary>
+    /// Runs the main procedural generation logic for the dungeon.
+    /// It creates corridors, generates rooms, and handles dungeon events.
+    /// </summary>
     protected override void RunProceduralGeneration()
     {
+        Debug.Log("Running procedural generation...");
         CorridorFirstGeneration();
         DungeonData data = new DungeonData
         {
-            roomsDictionary = this.roomsDictionary,
-            corridorPositions = this.corridorPositions,
-            floorPositions = this.floorPositions
+            roomsDictionary = this.roomsDictionary, // Save the generated rooms data
+            corridorPositions = this.corridorPositions, // Save corridor positions
+            floorPositions = this.floorPositions // Save floor positions
         };
-        OnDungeonFloorReady?.Invoke(data);
+        OnDungeonFloorReady?.Invoke(data); // Notify listeners that dungeon floor is ready
     }
 
+    /// <summary>
+    /// Generates the first floor of the dungeon, starting by creating corridors and then generating rooms at the ends of these corridors.
+    /// It also handles resetting player preferences (related to guns) when the first floor is generated.
+    /// </summary>
     private void CorridorFirstGeneration()
     {
         if (!isFirstFloorGenerated && currentFloor == 1)
@@ -89,16 +106,21 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
             isFirstFloorGenerated = true; // Ensure the reset happens only once
         }
 
-        floorPositions = new HashSet<Vector2Int>();
-        HashSet<Vector2Int> potentialRoomPositions = new HashSet<Vector2Int>();
-
-        CreateCorridors(floorPositions, potentialRoomPositions);
-        GenerateRooms(potentialRoomPositions);
-
+        floorPositions = new HashSet<Vector2Int>(); // Clear the current floor positions
+        HashSet<Vector2Int> potentialRoomPositions = new HashSet<Vector2Int>(); // Set up potential room positions
+        Debug.Log("Generating corridors...");
+        CreateCorridors(floorPositions, potentialRoomPositions); // Create corridors and add positions to floor
+        Debug.Log($"Corridor generation completed. Floor positions: {string.Join(", ", floorPositions.Select(p => p.ToString()))}");
+        Debug.Log("Generating rooms...");
+        GenerateRooms(potentialRoomPositions); // Generate rooms based on corridor ends
+        Debug.Log($"Room generation completed. Room positions: {string.Join(", ", potentialRoomPositions.Select(p => p.ToString()))}");
         // Show floor notification with effects
         StartCoroutine(ShowFloorNotification());
     }
 
+    /// <summary>
+    /// Handles the fade-in effect for the floor notification UI, including moving and scaling the text.
+    /// </summary>
     public IEnumerator ShowFloorNotification()
     {
         // Initialize CanvasGroup and TextMeshProUGUI
@@ -173,6 +195,11 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         floorNotificationText.gameObject.SetActive(true);
     }
 
+    /// <summary>
+    /// Generates the rooms in the dungeon by selecting potential room positions, 
+    /// which are primarily located at the ends of the generated corridors.
+    /// This includes room generation for regular rooms, as well as a reserved boss room.
+    /// </summary>
     private void GenerateRooms(HashSet<Vector2Int> potentialRoomPositions)
     {
         if (potentialRoomPositions.Count == 0)
@@ -182,11 +209,11 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         }
 
         // Ensure the boss room position is selected and reserved
-        Vector2Int bossRoomPosition = new Vector2Int(0, 0); // Set your desired square room position here
+        Vector2Int bossRoomPosition = new Vector2Int(0, 0); //Desired square room position here if not procedural
         roomContentGenerator.SetBossRoomPosition(bossRoomPosition); // Pass the boss room position to RoomContentGenerator
 
         // Generate a square boss room at the specified position
-        HashSet<Vector2Int> bossRoomFloor = CreateSquareRoom(bossRoomPosition, 20); // Assuming a 5x5 square room
+        HashSet<Vector2Int> bossRoomFloor = CreateSquareRoom(bossRoomPosition, 20); //5x5 square room
         floorPositions.UnionWith(bossRoomFloor); // Add boss room floor positions to overall floor positions
 
         // Remove boss room position from potential rooms
@@ -199,20 +226,23 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         CreateRoomsAtDeadEnd(deadEnds, roomPositions);
         floorPositions.UnionWith(roomPositions);
 
-        tilemapVisualizer.PaintFloorTiles(floorPositions);
-        WallGenerator.CreateWalls(floorPositions, tilemapVisualizer);
+        tilemapVisualizer.PaintFloorTiles(floorPositions);// Paint the floor tiles in the dungeon
+        WallGenerator.CreateWalls(floorPositions, tilemapVisualizer);// Create walls around the dungeon
     }
 
-    // New method to create a square room
+    /// <summary>
+    /// Creates a square-shaped room at the specified center position and size.
+    /// </summary>
     private HashSet<Vector2Int> CreateSquareRoom(Vector2Int centerPosition, int size)
     {
+        // Loop through a square area around the center position
         HashSet<Vector2Int> squareRoomPositions = new HashSet<Vector2Int>();
 
         for (int x = -size / 2; x < size / 2; x++)
         {
             for (int y = -size / 2; y < size / 2; y++)
             {
-                squareRoomPositions.Add(centerPosition + new Vector2Int(x, y));
+                squareRoomPositions.Add(centerPosition + new Vector2Int(x, y)); // Add each tile to the room
             }
         }
 
@@ -220,80 +250,112 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     }
 
 
-
+    /// <summary>
+    /// Coroutine to generate rooms asynchronously.
+    /// </summary>
     private IEnumerator GenerateRoomsCoroutine(HashSet<Vector2Int> potentialRoomPositions)
     {
-        yield return new WaitForSeconds(2);
-        tilemapVisualizer.Clear();
-        GenerateRooms(potentialRoomPositions);
+        yield return new WaitForSeconds(2); // Wait for 2 seconds before starting room generation
+        tilemapVisualizer.Clear(); // Clear the previous dungeon visualization
+        GenerateRooms(potentialRoomPositions); // Generate rooms with given positions
         DungeonData data = new DungeonData
         {
             roomsDictionary = this.roomsDictionary,
             corridorPositions = this.corridorPositions,
             floorPositions = this.floorPositions
         };
-        OnDungeonFloorReady?.Invoke(data);
+        OnDungeonFloorReady?.Invoke(data); // Notify listeners that dungeon floor is ready
     }
 
+    /// <summary>
+    /// Creates rooms at dead-end points in the dungeon.
+    /// This is done by randomly selecting a dead-end position and running a random walk to create the room.
+    /// </summary>
     private void CreateRoomsAtDeadEnd(List<Vector2Int> deadEnds, HashSet<Vector2Int> roomFloors)
     {
+        // Iterate over each dead-end position in the dungeon
         foreach (var position in deadEnds)
         {
+            // Check if the position is not already part of an existing room floor
             if (roomFloors.Contains(position) == false)
             {
+                // Run gen algorithm from the dead-end position to generate a room
                 var room = RunRandomWalk(randomWalkParameters, position);
-                SaveRoomData(position, room);
-                roomFloors.UnionWith(room);
+                SaveRoomData(position, room);  // Save the generated room's position and floor tiles to the room data
+                roomFloors.UnionWith(room); // Add the generated room's floor tiles to the overall collection of room floors
             }
         }
     }
 
+
+    /// <summary>
+    /// Finds all the dead-end points in the dungeon based on floor positions.
+    /// Dead ends are positions surrounded by walls with only one path leading to them.
+    /// </summary>
     private List<Vector2Int> FindAllDeadEnds(HashSet<Vector2Int> floorPositions)
     {
+         // Initialize a list to store all the dead-end positions
         List<Vector2Int> deadEnds = new List<Vector2Int>();
+        // Iterate over each position on the floor
         foreach (var position in floorPositions)
         {
             int neighboursCount = 0;
-            foreach (var direction in Direction2D.cardinalDirectionsList)
+            foreach (var direction in Direction2D.cardinalDirectionsList)  // Check all cardinal directions (up, down, left, right) for neighboring positions
             {
-                if (floorPositions.Contains(position + direction))
+                if (floorPositions.Contains(position + direction))  // If the neighboring position exists in floorPositions, increment the neighbour count
                     neighboursCount++;
             }
-            if (neighboursCount == 1)
+            if (neighboursCount == 1)  // A position is considered a dead-end if it only has 1 neighbor
                 deadEnds.Add(position);
         }
         return deadEnds;
     }
 
+
+    /// <summary>
+    /// Generates rooms in the dungeon using random walk at selected potential positions.
+    /// This function uses a percentage to determine how many rooms to generate.
+    /// </summary>
     private HashSet<Vector2Int> CreateRooms(HashSet<Vector2Int> potentialRoomPositions)
     {
-        HashSet<Vector2Int> roomPositions = new HashSet<Vector2Int>();
-        int roomToCreateCount = Mathf.RoundToInt(potentialRoomPositions.Count * roomPercent);
+        HashSet<Vector2Int> roomPositions = new HashSet<Vector2Int>(); 
+        int roomToCreateCount = Mathf.RoundToInt(potentialRoomPositions.Count * roomPercent);  // Calculate how many rooms to generate based on the roomPercent
 
-        List<Vector2Int> roomsToCreate = potentialRoomPositions.OrderBy(x => Guid.NewGuid()).Take(roomToCreateCount).ToList();
-        ClearRoomData();
-        foreach (var roomPosition in roomsToCreate)
+        List<Vector2Int> roomsToCreate = potentialRoomPositions.OrderBy(x => Guid.NewGuid()).Take(roomToCreateCount).ToList();  // Randomly select positions for the rooms based on the calculated count
+        ClearRoomData(); 
+        foreach (var roomPosition in roomsToCreate)  // Iterate through the selected room positions and create a room at each position
         {
-            var roomFloor = RunRandomWalk(randomWalkParameters, roomPosition);
+            var roomFloor = RunRandomWalk(randomWalkParameters, roomPosition);  // Use random walk to generate the room floor at the given position
 
-            SaveRoomData(roomPosition, roomFloor);
-            roomPositions.UnionWith(roomFloor);
+            SaveRoomData(roomPosition, roomFloor);  // Save the generated room data, such as its position and floor layout
+            roomPositions.UnionWith(roomFloor); // Add the generated room's floor positions to the overall room positions
         }
         return roomPositions;
     }
 
+
+    /// <summary>
+    /// Clears the data related to previously generated rooms (room positions and colors).
+    /// </summary>
     private void ClearRoomData()
     {
         roomsDictionary.Clear();
         roomColors.Clear();
     }
 
+    /// <summary>
+    /// Saves data about a room including its position and the set of floor tiles that make up the room.
+    /// </summary>
     private void SaveRoomData(Vector2Int roomPosition, HashSet<Vector2Int> roomFloor)
     {
         roomsDictionary[roomPosition] = roomFloor;
         roomColors.Add(UnityEngine.Random.ColorHSV());
     }
 
+    /// <summary>
+    /// Creates corridors in the dungeon by adding walkable paths between rooms or sections.
+    /// Corridors are placed randomly between various positions to connect rooms.
+    /// </summary>
     private void CreateCorridors(HashSet<Vector2Int> floorPositions,
         HashSet<Vector2Int> potentialRoomPositions)
     {
@@ -310,7 +372,9 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         corridorPositions = new HashSet<Vector2Int>(floorPositions);
     }
 
-    // Call this when the boss is defeated
+    /// <summary>
+    /// Called when the boss is defeated. It increases the difficulty of the dungeon by adding more corridors.
+    /// </summary>
     public void OnBossDefeated()
     {
         bossKills++; // Increment boss kill count
@@ -329,7 +393,10 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         StartCoroutine(RegenerateDungeon());
     }
 
-    // Method to reset player preferences for guns
+
+    /// <summary>
+    /// Resets gun preferences to their default state, clearing stored data in PlayerPrefs.
+    /// </summary>
     private void ResetGunPreferences()
     {
         PlayerPrefs.DeleteKey(WeaponManager.UnlockedGunsKey); // Remove the unlocked guns key
@@ -342,6 +409,10 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         Debug.Log("Player gun preferences reset.");
     }
 
+
+    /// <summary>
+    /// Regenerates the dungeon after a boss kill or other event. This clears the current dungeon and creates a new one.
+    /// </summary>
     public IEnumerator RegenerateDungeon()
     {
         yield return new WaitForSeconds(1); // A brief delay to simulate transition
@@ -360,6 +431,9 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     }
 
 
+    /// <summary>
+    /// Visualizes rooms and corridors using Gizmos, which helps with debugging and visualization in the editor.
+    /// </summary>
     private void OnDrawGizmosSelected()
     {
         if (showRoomGizmo)
@@ -390,6 +464,11 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
             }
         }
     }
+
+
+    /// <summary>
+    /// Resets the dungeon for a new game by clearing relevant data and resetting parameters.
+    /// </summary>
     public void ResetForNewGame()
 {
     // Reset dungeon parameters for a new game

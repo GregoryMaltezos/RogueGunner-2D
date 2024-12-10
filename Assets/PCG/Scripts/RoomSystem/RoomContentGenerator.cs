@@ -4,6 +4,11 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
+
+/// <summary>
+/// Handles the generation of content for rooms in a dungeon, including boss rooms, item rooms,
+/// player rooms, and default rooms. Also manages spawned objects and sets up the camera focus.
+/// </summary>
 public class RoomContentGenerator : MonoBehaviour
 {
     [SerializeField]
@@ -20,96 +25,117 @@ public class RoomContentGenerator : MonoBehaviour
 
     public UnityEvent RegenerateDungeon;
 
-    
 
+    /// <summary>
+    /// Generates content for all rooms in the dungeon, including player, boss, item, and default rooms.
+    /// Cleans up previously spawned objects before generating new content.
+    /// </summary>
+    /// <param name="dungeonData">Data structure containing information about the dungeon layout.</param>
     public void GenerateRoomContent(DungeonData dungeonData)
     {
-        foreach (GameObject item in spawnedObjects)
+        foreach (GameObject item in spawnedObjects) // Clean up any previously spawned objects to ensure the dungeon is recreated fresh
         {
             DestroyImmediate(item);
         }
         spawnedObjects.Clear();
 
-        // Spawn boss room first at the farthest position from any room
-        SpawnBossRoom(dungeonData);
+        SpawnBossRoom(dungeonData);  // Spawn the boss room first at a fixed position (0, 0)
 
-        // Spawn item room at a random position
-        SpawnItemRoom(dungeonData);
+        
+        SpawnItemRoom(dungeonData);  // Spawn the item room at a random valid position
 
-        // Then spawn player room
-        SelectPlayerSpawnPoint(dungeonData);
+        
+        SelectPlayerSpawnPoint(dungeonData); // Select and spawn the player room at the farthest position from the boss room
 
-        // Spawn all other rooms
-        SelectEnemySpawnPoints(dungeonData);
+       
+        SelectEnemySpawnPoints(dungeonData);  // Spawn all other enemy rooms, avoiding boss and item rooms
 
-        foreach (GameObject item in spawnedObjects)
+        foreach (GameObject item in spawnedObjects) // Organize all spawned objects under the itemParent transform
         {
             if (item != null)
                 item.transform.SetParent(itemParent, false);
         }
     }
-
+    /// <summary>
+    /// Sets the position of the boss room.
+    /// </summary>
+    /// <param name="position">Position to set for the boss room.</param>
     public void SetBossRoomPosition(Vector2Int position)
     {
         bossRoomPosition = position;
     }
 
+    /// <summary>
+    /// Sets the position of the item room.
+    /// </summary>
+    /// <param name="position">Position to set for the item room.</param>
     public void SetItemRoomPosition(Vector2Int position)
     {
         itemRoomPosition = position;
     }
 
+    /// <summary>
+    /// Selects the player spawn point, which is the farthest position from the boss room.
+    /// </summary>
+    /// <param name="dungeonData">Data structure containing information about the dungeon layout.</param>
     private void SelectPlayerSpawnPoint(DungeonData dungeonData)
     {
-        // Calculate the farthest position from the boss room
-        Vector2Int farthestPosition = Vector2Int.zero;
-        float maxDistance = float.MinValue;
+        
+        Vector2Int farthestPosition = Vector2Int.zero;  // Find the farthest position from the boss room to place the player room
+        float maxDistance = float.MinValue; 
 
         foreach (Vector2Int potentialPlayerPosition in dungeonData.roomsDictionary.Keys)
         {
-            // Calculate the distance from the boss room
-            float distance = Vector2Int.Distance(bossRoomPosition, potentialPlayerPosition);
+            
+            float distance = Vector2Int.Distance(bossRoomPosition, potentialPlayerPosition); // Calculate the distance from the boss room for each potential player spawn position
 
-            // Check if this distance is greater than the current maximum
-            if (distance > maxDistance)
+            
+            if (distance > maxDistance) // Track the farthest position
             {
                 maxDistance = distance;
                 farthestPosition = potentialPlayerPosition;
             }
         }
 
-        // Set the selected player spawn point to the farthest position found
-        playerRoomPosition = farthestPosition;
+        playerRoomPosition = farthestPosition;  // Set the player room position to the farthest valid position
 
-        // Perform any additional logic here, if needed
+        
 
-        // Spawn the player room using the farthest position
-        List<GameObject> placedPrefabs = playerRoom.ProcessRoom(
+        // Spawn the player room at the farthest position found
+        List<GameObject> placedPrefabs = playerRoom.ProcessRoom( 
             playerRoomPosition,
             dungeonData.roomsDictionary[playerRoomPosition],
             dungeonData.GetRoomFloorWithoutCorridors(playerRoomPosition)
         );
 
-        FocusCameraOnThePlayer(placedPrefabs[placedPrefabs.Count - 1].transform);
+        FocusCameraOnThePlayer(placedPrefabs[placedPrefabs.Count - 1].transform); // Set the camera to focus on the player
 
-        spawnedObjects.AddRange(placedPrefabs);
+        spawnedObjects.AddRange(placedPrefabs); // Add the spawned player room objects to the list of spawned objects
 
         // Remove the player room position from the dictionary to avoid duplication
-        dungeonData.roomsDictionary.Remove(playerRoomPosition);
+        dungeonData.roomsDictionary.Remove(playerRoomPosition); 
     }
 
-
+    /// <summary>
+    /// Focuses the camera on the player's position.
+    /// </summary>
+    /// <param name="playerTransform">Transform of the player to focus the camera on.</param>
     private void FocusCameraOnThePlayer(Transform playerTransform)
     {
         cinemachineCamera.LookAt = playerTransform;
         cinemachineCamera.Follow = playerTransform;
     }
 
+    /// <summary>
+    /// Selects and spawns enemy rooms for all rooms except the boss and item rooms.
+    /// </summary>
+    /// <param name="dungeonData">Data structure containing information about the dungeon layout.</param>
     private void SelectEnemySpawnPoints(DungeonData dungeonData)
     {
-        // Spawn the default room for all rooms except the boss room and item room
+        // Spawn the default room for all rooms except the boss and item rooms
         foreach (KeyValuePair<Vector2Int, HashSet<Vector2Int>> roomData in dungeonData.roomsDictionary)
         {
+            // Skip the boss and item room positions
             if (bossRoomPosition != roomData.Key && itemRoomPosition != roomData.Key)
             {
                 spawnedObjects.AddRange(
@@ -123,35 +149,39 @@ public class RoomContentGenerator : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Spawns the boss room at a fixed position (0, 0) in the dungeon.
+    /// </summary>
+    /// <param name="dungeonData">Data structure containing information about the dungeon layout.</param>
     private void SpawnBossRoom(DungeonData dungeonData)
     {
         // Debug log to see current room positions
         Debug.Log("Available room positions: " + string.Join(", ", dungeonData.roomsDictionary.Keys));
 
-        // Set boss room position directly to (0, 0)
+       
         Vector2Int selectedBossRoomPosition = Vector2Int.zero; // Fixed position at (0, 0)
         SetBossRoomPosition(selectedBossRoomPosition);
 
-        // Ensure that the room exists in the dictionary or create an entry if it doesn't
+        // Ensure the boss room position exists in the dungeon data dictionary
         if (!dungeonData.roomsDictionary.ContainsKey(selectedBossRoomPosition))
         {
-            // Add an entry for (0, 0) with an empty set if it does not exist
+            // If not, create an entry for (0, 0)
             dungeonData.roomsDictionary[selectedBossRoomPosition] = new HashSet<Vector2Int>();
             Debug.LogWarning("Added boss room position (0, 0) to rooms dictionary.");
         }
 
-        // Spawn the boss room
+        // Spawn the boss room at the fixed position (0, 0)
         List<GameObject> bossRoomObjects = bossRoom.ProcessRoom(
             selectedBossRoomPosition,
             dungeonData.roomsDictionary[selectedBossRoomPosition], // Pass room floor data
             dungeonData.GetRoomFloorWithoutCorridors(selectedBossRoomPosition) // Pass room floor without corridors data
         );
 
-        // Check if the boss room objects were successfully spawned
+        // If the boss room objects are successfully spawned, add them to the list
         if (bossRoomObjects.Count > 0)
         {
             spawnedObjects.AddRange(bossRoomObjects);
-            dungeonData.roomsDictionary.Remove(selectedBossRoomPosition); // Remove after spawning
+            dungeonData.roomsDictionary.Remove(selectedBossRoomPosition);  // Remove after spawning to prevent re-spawning
             Debug.Log("Boss room successfully spawned at (0, 0).");
         }
         else
@@ -161,10 +191,14 @@ public class RoomContentGenerator : MonoBehaviour
     }
 
 
-
+    /// <summary>
+    /// Returns a list of adjacent room positions around the given room position.
+    /// </summary>
+    /// <param name="roomPosition">Position of the room to check for adjacent rooms.</param>
+    /// <returns>A list of adjacent room positions.</returns>
     private List<Vector2Int> GetAdjacentPositions(Vector2Int roomPosition)
     {
-        List<Vector2Int> adjacentPositions = new List<Vector2Int>
+        List<Vector2Int> adjacentPositions = new List<Vector2Int> // Return positions above, below, left, and right of the current room
         {
             roomPosition + Vector2Int.up,    // Above
             roomPosition + Vector2Int.down,  // Below
@@ -175,6 +209,11 @@ public class RoomContentGenerator : MonoBehaviour
         return adjacentPositions;
     }
 
+    /// <summary>
+    /// Returns a list of invalid positions for the boss room based on the player's room position.
+    /// </summary>
+    /// <param name="playerRoomPosition">Position of the player room to avoid placing the boss room nearby.</param>
+    /// <returns>A list of invalid positions for the boss room.</returns>
     private List<Vector2Int> GetInvalidBossRoomPositions(Vector2Int playerRoomPosition)
     {
         List<Vector2Int> invalidPositions = new List<Vector2Int>();
@@ -192,9 +231,13 @@ public class RoomContentGenerator : MonoBehaviour
         return invalidPositions;
     }
 
+    /// <summary>
+    /// Spawns the item room at a random position in the dungeon.
+    /// </summary>
+    /// <param name="dungeonData">Data structure containing information about the dungeon layout.</param>
     private void SpawnItemRoom(DungeonData dungeonData)
     {
-        // Select a random room position for the item room
+        // Select a random position for the item room
         int randomRoomIndex = Random.Range(0, dungeonData.roomsDictionary.Count);
         Vector2Int selectedItemRoomPosition = dungeonData.roomsDictionary.Keys.ElementAt(randomRoomIndex);
 

@@ -96,6 +96,7 @@ GameObject:
   - component: {fileID: 173837246817876169}
   - component: {fileID: 1977080848897286931}
   - component: {fileID: 6307002786554710885}
+  - component: {fileID: 2310705574709778292}
   m_Layer: 0
   m_Name: Portal
   m_TagString: Untagged
@@ -217,9 +218,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffbe1e947ad9de1458f6b9a36abfdfb8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  floorNotificationCanvasGroup: {fileID: 0}
-  messageText: {fileID: 0}
-  canvasesToDisable: []
+  portalSpawnSound: event:/PortalSpawn
+  maxSoundDistance: 10
 --- !u!70 &6307002786554710885
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -255,6 +255,22 @@ CapsuleCollider2D:
   m_Offset: {x: -0.0024921745, y: 0.01146397}
   m_Size: {x: 0.21283388, y: 0.4086584}
   m_Direction: 0
+--- !u!114 &2310705574709778292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5634491413255316653}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b675929ee0a682439fe59f7f8f400ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  promptMessage: Press 'E' to interact
+  interactionDistance: 2
+  customFont: {fileID: 12800000, guid: fa6a978401107774787e2be22f0d2128, type: 3}
+  offset: {x: 0, y: -1, z: 0}
 --- !u!1 &7155257030803235072
 GameObject:
   m_ObjectHideFlags: 0

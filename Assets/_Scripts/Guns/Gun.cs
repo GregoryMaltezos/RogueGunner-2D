@@ -94,7 +94,7 @@ public class Gun : MonoBehaviour
     }
 
 
-
+    
     public void RestoreAmmoFromLevelTransition()
     {
         // Restore a quarter of the total ammo on level transition

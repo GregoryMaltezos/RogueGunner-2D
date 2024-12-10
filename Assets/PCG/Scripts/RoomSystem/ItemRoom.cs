@@ -7,8 +7,18 @@ public class ItemRoom : RoomGenerator
     private PrefabPlacer prefabPlacer;
 
     public List<ItemPlacementData> itemData;
-    public GameObject treasurePrefab; // Add this line
+    public GameObject treasurePrefab;
 
+
+
+    /// <summary>
+    /// Processes the room by placing items and treasure in valid positions.
+    /// It uses ItemPlacementHelper to ensure items are placed in appropriate locations.
+    /// </summary>
+    /// <param name="roomCenter">The center of the room used to place the treasure.</param>
+    /// <param name="roomFloor">The full floor of the room, including corridors.</param>
+    /// <param name="roomFloorNoCorridors">The floor of the room excluding corridors, used for item placement.</param>
+    /// <returns>A list of all placed items and objects in the room, including the treasure.</returns>
     public override List<GameObject> ProcessRoom(Vector2Int roomCenter, HashSet<Vector2Int> roomFloor, HashSet<Vector2Int> roomFloorNoCorridors)
     {
         ItemPlacementHelper itemPlacementHelper = new ItemPlacementHelper(roomFloor, roomFloorNoCorridors);
@@ -17,7 +27,7 @@ public class ItemRoom : RoomGenerator
         List<GameObject> placedObjects = prefabPlacer.PlaceAllItems(itemData, itemPlacementHelper);
 
         // Place the treasure in the middle of the room
-        Vector3 treasurePosition = new Vector3(roomCenter.x + 0.5f, roomCenter.y + 0.5f, 0); // Centered position
+        Vector3 treasurePosition = new Vector3(roomCenter.x, roomCenter.y, 0); // Centered position without adding 0.5f
         Vector3 adjustedTreasurePosition = GetAdjustedPosition(treasurePosition, roomFloorNoCorridors);
 
         if (adjustedTreasurePosition != Vector3.zero)
@@ -41,6 +51,13 @@ public class ItemRoom : RoomGenerator
         return placedObjects;
     }
 
+    /// <summary>
+    /// Adjusts the position of the treasure to ensure it's not obstructed by other items or walls.
+    /// If the initial position is obstructed, it tries to find the nearest valid position.
+    /// </summary>
+    /// <param name="originalPosition">The initially calculated position for the treasure.</param>
+    /// <param name="roomFloorNoCorridors">The valid floor area of the room excluding corridors.</param>
+    /// <returns>The adjusted position for the treasure, or Vector3.zero if no valid position is found.</returns>
     private Vector3 GetAdjustedPosition(Vector3 originalPosition, HashSet<Vector2Int> roomFloorNoCorridors)
     {
         // First, check if the original position and surroundings are valid
@@ -60,6 +77,12 @@ public class ItemRoom : RoomGenerator
         return Vector3.zero;
     }
 
+    /// <summary>
+    /// Checks if the position is obstructed by other items or walls.
+    /// Uses a small radius to check if any object is present at the given position.
+    /// </summary>
+    /// <param name="position">The position to check for obstructions.</param>
+    /// <returns>True if the position is obstructed, false if it is clear.</returns>
     private bool IsPositionObstructed(Vector3 position)
     {
         // Check if there's an obstacle at the specified position
@@ -67,6 +90,14 @@ public class ItemRoom : RoomGenerator
         return hit != null;
     }
 
+
+    /// <summary>
+    /// Checks if the position and its surrounding area are obstructed.
+    /// Ensures that the position itself and the surrounding tiles are valid for placement.
+    /// </summary>
+    /// <param name="position">The position to check.</param>
+    /// <param name="roomFloorNoCorridors">The valid room area excluding corridors.</param>
+    /// <returns>True if the position or its surroundings are obstructed, false if it is valid.</returns>
     private bool IsPositionObstructedWithSurroundings(Vector3 position, HashSet<Vector2Int> roomFloorNoCorridors)
     {
         Vector2Int gridPos = new Vector2Int(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y));
@@ -74,7 +105,7 @@ public class ItemRoom : RoomGenerator
         // Check if the center position is valid
         if (!roomFloorNoCorridors.Contains(gridPos) || IsPositionObstructed(position))
         {
-            return true; // If the center is obstructed or outside valid room area
+            return true; // If the center position is blocked or not valid, return true
         }
 
         // Check all 8 surrounding positions (up, down, left, right, diagonals)
@@ -88,23 +119,30 @@ public class ItemRoom : RoomGenerator
             new Vector2Int(-1, 1),  // Top-left
             new Vector2Int(1, 1)    // Top-right
         };
-
+        // Check each surrounding position
         foreach (Vector2Int dir in directions)
         {
             Vector2Int adjacentPos = gridPos + dir;
             Vector3 adjacentWorldPos = new Vector3(adjacentPos.x + 0.5f, adjacentPos.y + 0.5f, 0);
 
-            // If any surrounding position is obstructed or outside the room bounds
+            // If any surrounding position is obstructed or outside the room bounds, return true
             if (!roomFloorNoCorridors.Contains(adjacentPos) || IsPositionObstructed(adjacentWorldPos))
             {
                 return true; // Invalid if any surrounding tile is blocked
             }
         }
 
-        // If the position and all surroundings are valid
+        // If the position and all surrounding tiles are valid
         return false;
     }
 
+    /// <summary>
+    /// Finds the nearest valid position around the original position if the original position is obstructed.
+    /// Expands the search area incrementally until a valid position is found.
+    /// </summary>
+    /// <param name="originalPosition">The position to search around.</param>
+    /// <param name="roomFloorNoCorridors">The valid room floor area excluding corridors.</param>
+    /// <returns>The nearest valid position or Vector2Int.zero if no valid position is found.</returns>
     private Vector2Int FindNearbyValidPosition(Vector3 originalPosition, HashSet<Vector2Int> roomFloorNoCorridors)
     {
         Vector2Int originalGridPos = new Vector2Int(Mathf.RoundToInt(originalPosition.x), Mathf.RoundToInt(originalPosition.y));

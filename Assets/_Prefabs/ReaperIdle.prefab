@@ -216,7 +216,7 @@ MonoBehaviour:
   bossId: 3
   portalPrefab: {fileID: 5634491413255316653, guid: f905073b1c6ffb441ac09af5eb4c40a7, type: 3}
   deathAnimationDuration: 1.4
-  hitSoundCooldown: 1.4
+  hitSoundCooldown: 2.2
   death:
     Guid:
       Data1: -535302186

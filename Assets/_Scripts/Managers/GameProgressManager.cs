@@ -57,6 +57,13 @@ public class GameProgressManager : MonoBehaviour
         {
             unlockedWeapons.Add(weaponIndex);
             Debug.Log($"Weapon {weaponIndex} unlocked.");
+
+            // Notify the chest to refresh the available weapons list
+            Chest chest = FindObjectOfType<Chest>();
+            if (chest != null)
+            {
+                chest.RefreshAvailableWeapons();
+            }
         }
     }
 

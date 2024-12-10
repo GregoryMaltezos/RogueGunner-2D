@@ -51,20 +51,27 @@ MonoBehaviour:
     allowedFloors: 01000000
     minQuantity: 0
     maxQuantity: 0
+    floorSpecificSpawnRanges: []
   - enemyPrefab: {fileID: 8409071436437654145, guid: 5f6cb64a9e22bab43b59b45996e44bb0, type: 3}
     enemySize: {x: 1, y: 1}
     allowedFloors: 
     minQuantity: 0
     maxQuantity: 0
+    floorSpecificSpawnRanges: []
   - enemyPrefab: {fileID: 8413174140314589448, guid: 2eaa386975a4c25468c030799edc5bfe, type: 3}
     enemySize: {x: 1, y: 1}
     allowedFloors: 
     minQuantity: 0
     maxQuantity: 0
+    floorSpecificSpawnRanges: []
   fourthFloorBossData:
     enemyPrefab: {fileID: 8845014383343986396, guid: eff064fc909b8d640845ceb6a945cded, type: 3}
     enemySize: {x: 2, y: 2}
     allowedFloors: 00000000000000000000000000000000
     minQuantity: 1
     maxQuantity: 1
-  currentFloor: 0
+    floorSpecificSpawnRanges: []
+  itemData:
+  - minQuantity: 1
+    maxQuantity: 5
+    itemData: {fileID: 11400000, guid: fc0f5596b41fe8a4abf857e95cd0f8ff, type: 2}

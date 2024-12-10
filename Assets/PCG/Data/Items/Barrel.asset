@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a83f2a5bea8447489822be80764763e, type: 3}
   m_Name: Barrel
   m_EditorClassIdentifier: 
-  sprite: {fileID: -60726250400011180, guid: fc5028170ab84ed4bbf43948f12a52d6, type: 3}
+  sprite: {fileID: -1631982365, guid: 969870bdb72e0424d9e91f9d7382b857, type: 3}
   size: {x: 1, y: 1}
   placementType: 1
   addOffset: 0

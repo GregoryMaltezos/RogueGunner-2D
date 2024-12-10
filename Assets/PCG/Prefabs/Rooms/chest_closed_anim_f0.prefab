@@ -47,6 +47,7 @@ GameObject:
   - component: {fileID: -6049216430867014938}
   - component: {fileID: 7139147360000505547}
   - component: {fileID: 3130255990202820987}
+  - component: {fileID: -8897217256480104856}
   m_Layer: 0
   m_Name: chest_closed_anim_f0
   m_TagString: Untagged
@@ -170,7 +171,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chestAnimator: {fileID: -1408102702805524394}
   weaponPrefabs:
-  - {fileID: 4204341758394100099, guid: 1abdec3ace5a2cd4a974f136b23147d0, type: 3}
+  - {fileID: 4204341758394100099, guid: 675f0a4327287e84da3893ce5c95ec85, type: 3}
   - {fileID: 5141202351538643788, guid: f15a722adceb2c54285065954d88ec30, type: 3}
   - {fileID: 2837518685893780112, guid: a87d756d76d7c3d47a8b71a101492b64, type: 3}
   - {fileID: 1820405049787079124, guid: e05377fad637bd745b642aa42ed65548, type: 3}
@@ -179,6 +180,13 @@ MonoBehaviour:
   interactionDistance: 1.2
   hoverHeight: 0.2
   hoverSpeed: 2
+  open:
+    Guid:
+      Data1: 1684934615
+      Data2: 1258233097
+      Data3: -357145166
+      Data4: -2058402006
+    Path: event:/SFX/Misc/ChestOpen
 --- !u!114 &-6049216430867014938
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -302,6 +310,22 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.16, y: 0.016227849}
   m_EdgeRadius: 0
+--- !u!114 &-8897217256480104856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2511524559775265664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b675929ee0a682439fe59f7f8f400ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  promptMessage: Press 'E' to interact
+  interactionDistance: 2
+  customFont: {fileID: 12800000, guid: fa6a978401107774787e2be22f0d2128, type: 3}
+  offset: {x: 0, y: 1.5, z: 0}
 --- !u!1 &3449290857368086588
 GameObject:
   m_ObjectHideFlags: 0
