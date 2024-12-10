@@ -431,12 +431,4 @@ public class PlayerController : MonoBehaviour
 
         }
     }
-    public void StopFootstepSound()
-    {
-        if (playerFootsteps.isValid())
-        {
-            playerFootsteps.stop(FMOD.Studio.STOP_MODE.IMMEDIATE); // Immediately stop the sound
-            playerFootsteps.release(); // Release the sound instance
-        }
-    }
 }

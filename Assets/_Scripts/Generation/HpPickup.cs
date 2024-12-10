@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem; // For the new Input System
-using FMODUnity; // For FMOD audio
 
 public class HpPickup : MonoBehaviour
 {
@@ -9,14 +8,6 @@ public class HpPickup : MonoBehaviour
 
     // Reference to the InputAction for interacting
     private InputAction interactAction;
-
-    [SerializeField] private EventReference pickupSound; // Reference to the pickup sound event
-    private void Awake()
-    {
-        // Initialize the InputAction and bind to the interact method
-        var playerInput = new NewControls(); // Replace with your actual input setup
-        interactAction = playerInput.PlayerInput.Interact; // Replace with your actual action reference
-    }
 
     private void Start()
     {
@@ -28,17 +19,9 @@ public class HpPickup : MonoBehaviour
 
     private void OnEnable()
     {
-        // Check if interactAction is null and initialize if necessary
-        if (interactAction == null)
-        {
-            var playerInput = new NewControls(); // Replace with your actual input setup
-            interactAction = playerInput.PlayerInput.Interact; // Replace with your actual action reference
-        }
-
-        // Enable the input action
+        // Enable the input action when the object is enabled
         interactAction.Enable();
     }
-
 
     private void OnDisable()
     {
@@ -49,7 +32,7 @@ public class HpPickup : MonoBehaviour
     private void Update()
     {
         // Check if the player presses the interact button and is in range
-        if (isPlayerInRange && interactAction != null && interactAction.triggered)
+        if (isPlayerInRange && interactAction.triggered)
         {
             // Find the player’s health component and heal the player
             PlayerHealth playerHealth = FindObjectOfType<PlayerHealth>();
@@ -62,8 +45,7 @@ public class HpPickup : MonoBehaviour
                 // Update the health bar UI after healing
                 playerHealth.UpdateHealthBar();
 
-                // Play the sound effect when the pickup is collected
-                AudioManager.instance.PlayOneShot(pickupSound, this.transform.position);
+                // Optionally, play a sound effect or animation here
 
                 // Destroy the health pickup object after it has been collected
                 Destroy(gameObject);

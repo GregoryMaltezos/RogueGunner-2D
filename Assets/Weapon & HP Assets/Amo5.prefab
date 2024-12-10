@@ -111,13 +111,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ff4b41c089cc5b46902065add9b6c58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupSound:
-    Guid:
-      Data1: 1786774114
-      Data2: 1245177206
-      Data3: -2003328853
-      Data4: 200135782
-    Path: event:/SFX/Misc/pickup
 --- !u!61 &3445778830539095980
 BoxCollider2D:
   m_ObjectHideFlags: 0

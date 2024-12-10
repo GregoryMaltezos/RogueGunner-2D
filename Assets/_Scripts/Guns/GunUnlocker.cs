@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem; // Include the new Input System namespace
-using FMODUnity;
 
 public class GunUnlocker : MonoBehaviour
 {
@@ -11,7 +10,6 @@ public class GunUnlocker : MonoBehaviour
     private bool canInteract = false; // Flag to track if player can interact
 
     private InputAction interactAction; // Input action for interacting with the gun unlocker
-    [SerializeField] private EventReference pickup;
 
     void Start()
     {
@@ -61,12 +59,8 @@ public class GunUnlocker : MonoBehaviour
 
     void UnlockGun()
     {
-        // Play the pickup sound
-        AudioManager.instance.PlayOneShot(pickup, this.transform.position);
-
-        // Unlock the gun
-        weaponManager.UnlockGun(gunIndexToUnlock);
-
+        weaponManager.UnlockGun(gunIndexToUnlock); // Unlock the gun
+        
         // Check if the gun is already unlocked
         if (!weaponManager.guns[gunIndexToUnlock].locked)
         {

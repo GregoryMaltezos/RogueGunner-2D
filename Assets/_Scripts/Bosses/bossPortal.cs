@@ -3,8 +3,6 @@ using UnityEngine.SceneManagement; // For loading the main menu
 using TMPro;
 using System.Collections;
 using UnityEngine.InputSystem; // For the new input system
-using FMODUnity; // For FMOD integration
-using FMOD.Studio; // For controlling EventInstance
 
 public class bossPortal : MonoBehaviour
 {
@@ -16,11 +14,6 @@ public class bossPortal : MonoBehaviour
     // Cooldown variables
     private bool canInteract = true;
     private float interactionCooldown = 1.5f;
-
-    // FMOD Event Reference
-    [SerializeField]
-    private string portalSpawnSound = "event:/PortalSpawn"; // FMOD event path for the spawn sound
-    private EventInstance portalSoundInstance; // FMOD EventInstance for controlling the sound
 
     // UI Elements
     private Canvas[] canvasesToDisable;
@@ -81,9 +74,6 @@ public class bossPortal : MonoBehaviour
         var playerInput = new NewControls(); // Assuming NewControls is your input action asset
         interactAction = playerInput.PlayerInput.Interact; // Assuming 'Interact' is the action name
         interactAction.Enable();
-
-        // Start playing the portal spawn sound
-        PlayPortalSpawnSound();
     }
 
     private void OnEnable()
@@ -105,9 +95,6 @@ public class bossPortal : MonoBehaviour
         {
             if (interactAction.triggered) // Check if the interact action was triggered
             {
-                // Stop the portal sound
-                StopPortalSound();
-
                 if (dungeonGenerator.currentFloor == 4) // Check if the player is on the 4th floor
                 {
                     StartCoroutine(ShowThanksMessageAndExit());
@@ -161,9 +148,6 @@ public class bossPortal : MonoBehaviour
 
     private IEnumerator FadeToBlackAndProceed()
     {
-        // Stop the footstep sound when transitioning to a new floor
-        PlayerController.instance.StopFootstepSound();
-
         if (fadeManager != null && fadeManager.transitionCanvas != null)
         {
             fadeManager.transitionCanvas.gameObject.SetActive(true);
@@ -189,7 +173,6 @@ public class bossPortal : MonoBehaviour
 
         Destroy(gameObject); // Destroy portal after transition
     }
-
 
     private void GoToNextFloor()
     {
@@ -220,24 +203,5 @@ public class bossPortal : MonoBehaviour
         canInteract = false;
         yield return new WaitForSeconds(interactionCooldown);
         canInteract = true;
-    }
-
-    private void PlayPortalSpawnSound()
-    {
-        if (!string.IsNullOrEmpty(portalSpawnSound))
-        {
-            portalSoundInstance = RuntimeManager.CreateInstance(portalSpawnSound);
-            portalSoundInstance.set3DAttributes(RuntimeUtils.To3DAttributes(transform.position));
-            portalSoundInstance.start();
-        }
-    }
-
-    private void StopPortalSound()
-    {
-        if (portalSoundInstance.isValid())
-        {
-            portalSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT); // Graceful stop
-            portalSoundInstance.release(); // Release the event instance
-        }
     }
 }
