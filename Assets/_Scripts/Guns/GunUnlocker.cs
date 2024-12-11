@@ -13,6 +13,9 @@ public class GunUnlocker : MonoBehaviour
     private InputAction interactAction; // Input action for interacting with the gun unlocker
     [SerializeField] private EventReference pickup;
 
+    /// <summary>
+    /// Finds the WeaponManager and sets up the input action.
+    /// </summary>
     void Start()
     {
         weaponManager = FindObjectOfType<WeaponManager>(); // Find WeaponManager in the scene
@@ -22,25 +25,35 @@ public class GunUnlocker : MonoBehaviour
         }
 
         // Get the PlayerInput component and the interact action from it
-        var playerInput = new NewControls(); // Assuming you have a PlayerInput action asset
+        var playerInput = new NewControls(); //action asset
         interactAction = playerInput.PlayerInput.Interact; // Access the action by its name
         interactAction.Enable(); // Enable the action
     }
 
+    /// <summary>
+    /// Disables the input action.
+    /// </summary>
     void OnDisable()
     {
         interactAction.Disable(); // Disable the action when the object is disabled
     }
 
+    /// <summary>
+    /// Checks if the player can interact and triggers the unlock action.
+    /// </summary>
     void Update()
     {
         // Check if the player is in range and presses the interact button
         if (canInteract && interactAction.triggered)
         {
-            UnlockGun();
+            UnlockGun(); // Unlock the gun if the player interacts
         }
     }
 
+    /// <summary>
+    /// Sets canInteract flag to true when the player enters.
+    /// </summary>
+    /// <param name="other">Collider that entered the trigger area.</param>
     void OnTriggerEnter2D(Collider2D other)
     {
         // Check if player enters the trigger collider
@@ -50,6 +63,10 @@ public class GunUnlocker : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Resets canInteract flag when the player exits.
+    /// </summary>
+    /// <param name="other">Collider that exited the trigger area.</param>
     void OnTriggerExit2D(Collider2D other)
     {
         // Reset interaction flag when player exits trigger collider
@@ -59,6 +76,9 @@ public class GunUnlocker : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Unlocks the gun and restores ammo if the gun is not already unlocked. Plays the pickup sound.
+    /// </summary>
     void UnlockGun()
     {
         // Play the pickup sound
@@ -70,6 +90,7 @@ public class GunUnlocker : MonoBehaviour
         // Check if the gun is already unlocked
         if (!weaponManager.guns[gunIndexToUnlock].locked)
         {
+            // If unlocked, restore ammo
             Gun gunComponent = weaponManager.guns[gunIndexToUnlock].gunObject.GetComponent<Gun>();
             if (gunComponent != null)
             {
@@ -82,6 +103,6 @@ public class GunUnlocker : MonoBehaviour
             Debug.Log("Gun unlocked!");
         }
 
-        Destroy(gameObject); // Destroy the pickup item after unlocking the gun (optional)
+        Destroy(gameObject); // Destroy the pickup item after unlocking the gun
     }
 }

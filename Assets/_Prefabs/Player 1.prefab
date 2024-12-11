@@ -44,6 +44,7 @@ Transform:
   - {fileID: 8298142016489864287}
   - {fileID: 4345860008274806119}
   - {fileID: 1985542200416273952}
+  - {fileID: 330339386955783126}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &5902323129157462004
@@ -307,6 +308,8 @@ MonoBehaviour:
   guns:
   - gunObject: {fileID: 730930833623984202}
     locked: 0
+  - gunObject: {fileID: 652204891381333705}
+    locked: 0
   - gunObject: {fileID: 4943422930510883851}
     locked: 1
   - gunObject: {fileID: 3828971171699104133}
@@ -378,6 +381,147 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1985542200416273952}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &652204891381333705
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 330339386955783126}
+  - component: {fileID: 8609241812774054848}
+  - component: {fileID: 7181845539685964908}
+  - component: {fileID: 7523191524616979843}
+  m_Layer: 0
+  m_Name: SMG-1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &330339386955783126
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 652204891381333705}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.127, y: -0.039, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.3}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4454207835478559453}
+  m_Father: {fileID: 5412161828718417071}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &8609241812774054848
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 652204891381333705}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 21300000, guid: 5eb992c32d10f2840a22563791fd29d1, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 0.32, y: 0.32}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!114 &7181845539685964908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 652204891381333705}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3243de1fe3232f240a90aec2a884d0af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  projectilePrefab: {fileID: 2306854233797050844, guid: 69a7a7f52feef0a459504f87ba1d708b, type: 3}
+  firePoint: {fileID: 4454207835478559453}
+  projectileSpeed: 20
+  isShotgun: 0
+  shotgunPelletCount: 5
+  shotgunSpreadAngle: 20
+  isAutomatic: 0
+  fireRate: 0.1
+  maxAmmo: 90
+  ammoPerClip: 30
+  reloadTime: 2
+  infiniteAmmo: 0
+  currentClipAmmo: 0
+  bulletsRemaining: 0
+  clipsRemaining: 0
+  isFirstSpawn: 1
+  gunFired:
+    Guid:
+      Data1: 221637278
+      Data2: 1083491978
+      Data3: 747941794
+      Data4: -88853255
+    Path: event:/SFX/Weapons/Fire SMG
+  gunReload:
+    Guid:
+      Data1: 221637278
+      Data2: 1083491978
+      Data3: 747941794
+      Data4: -88853255
+    Path: event:/SFX/Weapons/Fire SMG
+--- !u!210 &7523191524616979843
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 652204891381333705}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: -9
+  m_SortAtRoot: 0
 --- !u!1 &954388834153284566
 GameObject:
   m_ObjectHideFlags: 0
@@ -523,6 +667,7 @@ MonoBehaviour:
   currentClipAmmo: 0
   bulletsRemaining: 0
   clipsRemaining: 0
+  isFirstSpawn: 1
   gunFired:
     Guid:
       Data1: -101738615
@@ -549,6 +694,37 @@ SortingGroup:
   m_SortingLayer: 0
   m_SortingOrder: -9
   m_SortAtRoot: 0
+--- !u!1 &2026193439777476515
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4454207835478559453}
+  m_Layer: 0
+  m_Name: FP (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4454207835478559453
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026193439777476515}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.159, y: 0.045, z: 33.066666}
+  m_LocalScale: {x: 2.7205682, y: 2.5322976, z: 8.133336}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 330339386955783126}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2119449690336610587
 GameObject:
   m_ObjectHideFlags: 0
@@ -675,6 +851,7 @@ MonoBehaviour:
   currentClipAmmo: 0
   bulletsRemaining: 0
   clipsRemaining: 0
+  isFirstSpawn: 1
   gunFired:
     Guid:
       Data1: 221637278
@@ -1037,6 +1214,7 @@ MonoBehaviour:
   currentClipAmmo: 0
   bulletsRemaining: 0
   clipsRemaining: 0
+  isFirstSpawn: 1
   gunFired:
     Guid:
       Data1: -993864558
@@ -1208,6 +1386,7 @@ MonoBehaviour:
   currentClipAmmo: 0
   bulletsRemaining: 0
   clipsRemaining: 0
+  isFirstSpawn: 1
   gunFired:
     Guid:
       Data1: 648608011
@@ -1348,6 +1527,7 @@ MonoBehaviour:
   currentClipAmmo: 0
   bulletsRemaining: 0
   clipsRemaining: 0
+  isFirstSpawn: 1
   gunFired:
     Guid:
       Data1: 1862784131

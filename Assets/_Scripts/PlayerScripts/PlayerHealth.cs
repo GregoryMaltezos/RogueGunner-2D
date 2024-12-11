@@ -25,6 +25,11 @@ public class PlayerHealth : MonoBehaviour
     private float damageCooldown = 0.4f;  // Cooldown duration (seconds)
     private float lastDamageTime = -Mathf.Infinity;  // Time when the player last took damage
 
+
+    /// <summary>
+    /// Initializes the player health, health bar, animator, and grunt sound instance.
+    /// This sets up everything necessary for the player health system to function at the start of the game.
+    /// </summary>
     private void Start()
     {
         currentHealth = maxHealth;
@@ -43,13 +48,20 @@ public class PlayerHealth : MonoBehaviour
         // Create an instance for the grunt noise
         gruntInstance = RuntimeManager.CreateInstance(gruntNoise);
     }
-
+    /// <summary>
+    /// Ensures that the grunt instance is released when the player object is destroyed.
+    /// This prevents memory leaks or audio issues.
+    /// </summary>
     private void OnDestroy()
     {
         // Ensure the grunt instance is released when the object is destroyed
         gruntInstance.release();
     }
 
+    /// <summary>
+    /// Handles player collision with damage sources (e.g., projectiles, enemies).
+    /// It applies damage to the player and checks if the player is invincible.
+    /// </summary>
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (Time.time - lastDamageTime < damageCooldown)
@@ -76,9 +88,13 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Applies damage to the player and checks if the player should die.
+    /// If the player's health reaches zero, the Die method is called. It also triggers health bar and animation updates.
+    /// </summary>
     public void TakeDamage(float amount)
     {
-        if (isDead) return;
+        if (isDead) return; // Do nothing if the player is already dead
 
         currentHealth -= amount;
         lastDamageTime = Time.time;
@@ -86,21 +102,24 @@ public class PlayerHealth : MonoBehaviour
         if (currentHealth <= 0)
         {
             currentHealth = 0;
-            Die();
+            Die(); // Call the Die method if health reaches zero
         }
         else
         {
-            // Trigger hurt animation
+            // Trigger hurt animation and play grunt sound
             PlayHurtAnimation();
             PlayGruntNoise();
         }
 
-        if (healthBarUI != null)
+        if (healthBarUI != null) // Update the health bar UI smoothly
         {
             StartCoroutine(healthBarUI.UpdateHealthBarSmoothly());  // Trigger the health bar update
         }
     }
 
+    /// <summary>
+    /// Plays the grunt noise using FMOD if the grunt instance is valid.
+    /// </summary>
     private void PlayGruntNoise()
     {
         if (gruntInstance.isValid())
@@ -108,7 +127,9 @@ public class PlayerHealth : MonoBehaviour
             gruntInstance.start(); // Play the grunt noise
         }
     }
-
+    /// <summary>
+    /// Triggers the "Hurt" animation for the player and resets the hurt trigger after a short delay.
+    /// </summary>
     private void PlayHurtAnimation()
     {
         if (animator != null)
@@ -117,7 +138,9 @@ public class PlayerHealth : MonoBehaviour
             StartCoroutine(ResetHurtTrigger(0.2f)); // Start coroutine to reset the trigger after 0.2 seconds
         }
     }
-
+    /// <summary>
+    /// Resets the "Hurt" trigger to allow the player to return to idle animation after the hurt animation is finished.
+    /// </summary>
     private IEnumerator ResetHurtTrigger(float delay)
     {
         yield return new WaitForSeconds(delay); // Wait for the specified delay
@@ -128,6 +151,9 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Executes the logic when the player dies. It triggers the death flag and informs the PlayerController to show the death menu.
+    /// </summary>
     private void Die()
     {
         Debug.Log("Player has died.");
@@ -137,14 +163,18 @@ public class PlayerHealth : MonoBehaviour
         PlayerController.instance.Die(); // Call the Die method in PlayerController to show the death menu
     }
 
+    /// <summary>
+    /// Heals the player by a specified amount, ensuring the health does not exceed the maximum health.
+    /// Updates the health bar smoothly.
+    /// </summary>
     public void Heal(float amount)
     {
-        if (isDead) return;
+        if (isDead) return; // Do nothing if the player is dead
 
         currentHealth += amount;
         if (currentHealth > maxHealth)
         {
-            currentHealth = maxHealth;
+            currentHealth = maxHealth; // Clamp health to maxHealth
         }
 
         // Call the coroutine to update the health bar smoothly
@@ -154,7 +184,9 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    // Make this method public
+    /// <summary>
+    /// Manually triggers an update for the health bar UI to reflect the current health.
+    /// </summary>
     public void UpdateHealthBar()
     {
         if (healthBarUI != null)
@@ -164,12 +196,18 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Saves the player's current health to PlayerPrefs, allowing it to be restored later.
+    /// </summary>
     public void SavePlayerHealth()
     {
         PlayerPrefs.SetFloat(PlayerHealthKey, currentHealth); // Save the current health
         PlayerPrefs.Save(); // Save changes
     }
 
+    /// <summary>
+    /// Loads the player's health from PlayerPrefs. If no saved health is found, it resets to the maximum health.
+    /// </summary>
     public void LoadPlayerHealth()
     {
         if (PlayerPrefs.HasKey(PlayerHealthKey))

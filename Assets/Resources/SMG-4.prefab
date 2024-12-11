@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dccf4bc6c7caca48a83fc3941a8f4e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gunIndexToUnlock: 3
+  gunIndexToUnlock: 4
   interactActionName: Interact
   pickup:
     Guid:
@@ -179,6 +179,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   promptMessage: Press 'E' to interact
-  interactionDistance: 2
+  interactionDistance: 1
   customFont: {fileID: 12800000, guid: fa6a978401107774787e2be22f0d2128, type: 3}
   offset: {x: 0, y: 1, z: 0}

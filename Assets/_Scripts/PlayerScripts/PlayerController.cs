@@ -51,7 +51,7 @@ public class PlayerController : MonoBehaviour
     private Camera mainCamera;
     public Transform weaponParent;
     public PlayerHealth playerHealth;
-
+    private Vector3 lastPosition;
     private NewControls inputActions; // New input actions class
     private InputAction moveAction;
     private InputAction dashAction;
@@ -62,7 +62,13 @@ public class PlayerController : MonoBehaviour
     [Header("Facing Direction")]
     private bool facingRight = true;
     [SerializeField] private EventReference death;
+    public static event Action OnEnemyKill;
 
+
+    /// <summary>
+    /// Singleton pattern to ensure only one instance of PlayerController exists.
+    /// Initializes input actions and enables them.
+    /// </summary>
     void Awake()
     {
         if (instance == null)
@@ -81,25 +87,42 @@ public class PlayerController : MonoBehaviour
         attackAction = inputActions.PlayerInput.Sword;
         fireWeaponAction = inputActions.PlayerInput.Attack;
         mousePositionAction = inputActions.PlayerInput.PointerPosition;
-        inputActions.Enable(); // This should be called to activate input actions
+        inputActions.Enable(); // Activate input actions
 
     }
 
 
-
+    
+    /// <summary>
+    /// Sets up necessary references (Rigidbody, Animator, Camera, etc.) at the start.
+    /// </summary>
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponentInChildren<Animator>();
         mainCamera = Camera.main;
-
+        lastPosition = transform.position;
         playerFootsteps = AudioManager.instance.CreateInstance(FMODEvents.instance.playerFootsteps);
     }
 
+    /// <summary>
+    /// Main update loop, handles movement, actions, and events based on player input.
+    /// </summary>
+
     void Update()
     {
-        if (isDead) return;
+        if (isDead) return; // Skip if the player is dead
+        // Detect movement distance for challenge
+        float distanceTravelled = Vector3.Distance(lastPosition, transform.position);
 
+        // If the player has moved a significant distance, trigger the event
+        if (distanceTravelled > 0.1f) // Example threshold for triggering event
+        {
+            OnPlayerWalkDistance?.Invoke(distanceTravelled);
+        }
+
+        // Update the last position for the next frame
+        lastPosition = transform.position;
         // Get movement input from new system
         Vector2 inputMovement = moveAction.ReadValue<Vector2>();
         movement.x = inputMovement.x;
@@ -108,7 +131,7 @@ public class PlayerController : MonoBehaviour
         // Dash input
         if (dashAction.triggered && canDash)
         {
-            StartCoroutine(Dash());
+            StartCoroutine(Dash()); // Dash if possible
         }
 
         // Attack input (V key)
@@ -141,9 +164,13 @@ public class PlayerController : MonoBehaviour
             bool isMoving = movement.sqrMagnitude > 0;
             animator.SetBool("IsMoving", isMoving);
         }
+
     }
 
- void FlipPlayerBasedOnMouse(Vector3 mousePos)
+    /// <summary>
+    /// Flips the player's facing direction based on mouse position.
+    /// </summary>
+    void FlipPlayerBasedOnMouse(Vector3 mousePos)
 {
     // Convert mouse position from screen space to world space
     Vector3 worldMousePos = mainCamera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, mainCamera.nearClipPlane));
@@ -151,17 +178,19 @@ public class PlayerController : MonoBehaviour
     // Compare the mouse's world position with the player's position
     if (worldMousePos.x < transform.position.x && facingRight)
     {
-        Flip();
-    }
+        Flip(); // Flip left
+        }
     else if (worldMousePos.x > transform.position.x && !facingRight)
     {
-        Flip();
-    }
+        Flip(); // Flip right
+        }
 }
 
 
 
-
+    /// <summary>
+    /// Flips the player's sprite (mirror horizontally) to change facing direction.
+    /// </summary>
     void Flip()
     {
         // Toggle the facing direction
@@ -169,10 +198,13 @@ public class PlayerController : MonoBehaviour
 
         // Flip the player sprite by changing its scale
         Vector3 playerScale = transform.localScale;
-        playerScale.x *= -1; // Flip the player's scale
+        playerScale.x *= -1; // Mirror the player sprite on the X axis
         transform.localScale = playerScale;
     }
 
+    /// <summary>
+    /// Corrects the weapon's rotation based on mouse position and player facing direction.
+    /// </summary>
     void CorrectWeaponOrientation(Vector3 mousePos)
     {
         if (weaponParent != null)
@@ -199,13 +231,16 @@ public class PlayerController : MonoBehaviour
 
 
 
-
+    /// <summary>
+    /// Initiates the attack sequence, including playing animations and sound effects.
+    /// </summary>
     IEnumerator Attack()
     {
         canAttack = false;    // Prevent further attacks until cooldown ends
         isAttacking = true;   // Prevent actions during the attack animation
         canFireWeapon = false;  // Prevent weapon firing during attack
 
+        // Play attack animation 
         if (animator != null)
         {
             animator.SetTrigger("Attack");
@@ -221,8 +256,8 @@ public class PlayerController : MonoBehaviour
         // Play the second audio clip
         AudioManager.instance.PlayOneShot(SwordUp, this.transform.position);
 
-        // Wait for the attack animation duration (adjust this duration as needed)
-        yield return new WaitForSeconds(1.4f); // Increase duration for the attack animation
+        // Wait for the attack animation duration 
+        yield return new WaitForSeconds(1.4f); 
 
         isAttacking = false;  // Allow other actions after the attack animation finishes
         canFireWeapon = true;  // Allow weapon fire after attack
@@ -236,7 +271,9 @@ public class PlayerController : MonoBehaviour
     }
 
 
-
+    /// <summary>
+    /// Adds a delay after each attack before another can be triggered.
+    /// </summary>
     IEnumerator AttackDelay()
     {
         isAttackDelayActive = true; // Set the flag to indicate the delay is active
@@ -244,12 +281,15 @@ public class PlayerController : MonoBehaviour
         isAttackDelayActive = false; // Reset the flag after the delay
     }
 
+    /// <summary>
+    /// Fires the weapon if the player has ammo.
+    /// </summary>
     void FireWeapon()
     {
         if (currentAmmo > 0)
         {
             Debug.Log("Weapon fired!");
-            currentAmmo--;
+            currentAmmo--; // Decrease ammo count
         }
         else
         {
@@ -257,6 +297,10 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+
+    /// <summary>
+    /// Handles the dash action, including invincibility and collision ignoring.
+    /// </summary>
     IEnumerator Dash()
     {
         isDashing = true;
@@ -264,24 +308,28 @@ public class PlayerController : MonoBehaviour
         isInvincible = true;
         animator.SetTrigger("Dash");
         AudioManager.instance.PlayOneShot(Slide, this.transform.position);
+        // Ignore collisions with certain objects while dashing
         Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Arrow"), true);
 
-        rb.velocity = movement * dashSpeed;
-        yield return new WaitForSeconds(dashDuration);
+        rb.velocity = movement * dashSpeed; // Dash movement
+        yield return new WaitForSeconds(dashDuration); // Wait for dash duration
 
         isDashing = false;
-        rb.velocity = Vector2.zero;
-        isInvincible = false;
+        rb.velocity = Vector2.zero; // Stop movement after dash
+        isInvincible = false; // Disable invincibility
 
-        Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Arrow"), false);
+        Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Arrow"), false); // Re-enable collision
 
-        StartCoroutine(DashCooldown());
+        StartCoroutine(DashCooldown()); // Start cooldown for dash
     }
 
+    /// <summary>
+    /// Handles the cooldown period after a dash.
+    /// </summary>
     IEnumerator DashCooldown()
     {
         yield return new WaitForSeconds(dashCooldown);
-        canDash = true;
+        canDash = true; // Re-enable dashing after cooldown
     }
 
     void FixedUpdate()
@@ -306,6 +354,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Handles the player's death, triggering death animation and events.
+    /// </summary>
     public void Die()
     {
         if (isDead) return; // Prevent multiple calls to Die
@@ -319,7 +370,7 @@ public class PlayerController : MonoBehaviour
 
         // Disable player input
         movement = Vector2.zero; // Stop the player's movement
-        isInvincible = true; // Optionally make the player invincible during death animation
+        isInvincible = true; // make the player invincible during death animation
 
         if (animator != null)
         {
@@ -334,7 +385,9 @@ public class PlayerController : MonoBehaviour
 
 
 
-    // Method to disable all player colliders
+    /// <summary>
+    /// Disables the player's collider to prevent interactions or collisions.
+    /// </summary>
     private void DisableColliders()
     {
         if (playerCollider != null)
@@ -343,7 +396,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // Method to disable all weapon objects under WeaponsParent
+    /// <summary>
+    /// Disables all weapons under the parent object `weaponParent`. This can be used when the player is not allowed to use weapons (e.g., after death or during certain states).
+    /// </summary>
     private void DisableWeapons()
     {
         if (weaponParent != null)
@@ -354,6 +409,10 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+
+    /// <summary>
+    /// Enables the player's collider, allowing interactions and collisions.
+    /// </summary>
     private void EnableColliders()
     {
         if (playerCollider != null)
@@ -362,6 +421,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Enables all weapons under the parent object `weaponParent`. This can be used when the player is allowed to use weapons (e.g., after respawn or during normal gameplay).
+    /// </summary>
     private void EnableWeapons()
     {
         if (weaponParent != null)
@@ -376,7 +438,10 @@ public class PlayerController : MonoBehaviour
 
 
 
-
+    /// <summary>
+    /// Resets various player states such as ammo, attack/dash flags, death status, and animation states.
+    /// This is usually called when the player respawns or after certain events, ensuring the player starts fresh.
+    /// </summary>
     void ResetPlayerState()
     {
         currentAmmo = 30; // Reset to initial ammo count
@@ -402,32 +467,39 @@ public class PlayerController : MonoBehaviour
 
     }
 
-
+    /// <summary>
+    /// Checks if the player is currently facing to the right.
+    /// </summary>
     public bool IsFacingRight()
     {
         return facingRight;
     }
-
+    /// <summary>
+    /// Checks if the player is currently dashing.
+    /// </summary>
     public bool IsDashing()
     {
         return isDashing;
     }
-    
 
+    /// <summary>
+    /// Updates the player's footstep sound based on whether the player is moving. If the player is moving and not dashing, the footsteps sound is played.
+    /// Otherwise, the sound is stopped or faded out.
+    /// </summary>
     private void UpdateSound()
     {
-        if ((rb.velocity.x != 0 || rb.velocity.y != 0) && !isDashing)
+        if ((rb.velocity.x != 0 || rb.velocity.y != 0) && !isDashing) // Check if the player is moving and not dashing
         {
             PLAYBACK_STATE playbackState;
-            playerFootsteps.getPlaybackState(out playbackState);
-            if (playbackState.Equals(PLAYBACK_STATE.STOPPED))
+            playerFootsteps.getPlaybackState(out playbackState); // Get current playback state of footsteps sound
+            if (playbackState.Equals(PLAYBACK_STATE.STOPPED)) // If the footsteps sound is not playing
             {
-                playerFootsteps.start();
+                playerFootsteps.start(); // Start the footsteps sound
             }
         }
         else
         {
-            playerFootsteps.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            playerFootsteps.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT); // Stop the footsteps sound with fade out if the player is not moving
 
         }
     }

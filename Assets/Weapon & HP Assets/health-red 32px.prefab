@@ -112,7 +112,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7bd10ce6bf10ab4ea113a55ab9b23f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  healthRestorePercentage: 0.15
+  healthRestorePercentage: 0.2
+  pickupSound:
+    Guid:
+      Data1: -1715391344
+      Data2: 1244102992
+      Data3: -1986190658
+      Data4: -329266294
+    Path: event:/SFX/Misc/HpPickup
 --- !u!61 &-1279219671122453696
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -171,6 +178,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   promptMessage: Press 'E' to interact
-  interactionDistance: 2
+  interactionDistance: 1
   customFont: {fileID: 12800000, guid: fa6a978401107774787e2be22f0d2128, type: 3}
   offset: {x: 0, y: 1, z: 0}

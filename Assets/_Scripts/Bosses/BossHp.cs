@@ -94,7 +94,7 @@ public class BossHp : MonoBehaviour
         AudioManager.instance.SetMusicArea(MusicType.Peacefull);
         if (bossId == "1")
         {
-            ChallengeManager.instance.CompleteChallenge("DefeatBoss1");
+            ChallengeManager.instance.CompleteChallenge("DefeatGolem");
         }
 
         Destroy(gameObject);

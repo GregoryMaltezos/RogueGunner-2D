@@ -35,6 +35,10 @@ public class bossPortal : MonoBehaviour
     // Reference to the InputAction for interacting with the portal
     private InputAction interactAction;
 
+
+    /// <summary>
+    /// Initializes references, sets up InputAction, and validates required objects in the scene.
+    /// </summary>
     private void Start()
     {
         // Automatically find the player by tag
@@ -42,19 +46,19 @@ public class bossPortal : MonoBehaviour
         {
             Debug.LogError("Player not found. Make sure the Player has the 'Player' tag.");
         }
-
+        // Find the Dungeon Generator in the scene
         dungeonGenerator = FindObjectOfType<CorridorFirstDungeonGenerator>();
         if (dungeonGenerator == null)
         {
             Debug.LogError("Dungeon Generator not found in the scene.");
         }
-
+        // Find the FadeManager in the scene
         fadeManager = FindObjectOfType<FadeManager>();
         if (fadeManager == null)
         {
             Debug.LogError("FadeManager not found in the scene.");
         }
-
+        // Ensure this object has a Collider2D component
         portalCollider = GetComponent<Collider2D>();
         if (portalCollider == null)
         {
@@ -67,7 +71,7 @@ public class bossPortal : MonoBehaviour
         thanksForPlayingText = thanksCanvas?.transform.Find("ThanksForPlayingText")?.GetComponent<TextMeshProUGUI>(); // Find ThanksForPlayingText
         blackBackground = thanksCanvas?.transform.Find("BlackBackground")?.gameObject; // Find BlackBackground panel
 
-        // If thanksCanvas or thanksForPlayingText are not found, log an error
+        // Validate UI elements
         if (thanksCanvas == null)
         {
             Debug.LogError("ThanksCanvas not found in the scene.");
@@ -87,22 +91,41 @@ public class bossPortal : MonoBehaviour
         interactAction.Enable();
     }
 
+    /// <summary>
+    /// Enables the interaction InputAction when the object is enabled.
+    /// </summary>
     private void OnEnable()
     {
+        // Ensure interactAction is initialized before enabling it
         if (interactAction == null)
         {
-            Debug.LogError("Interact Action is not initialized. Please check NewControls setup.");
-            return;
+            InitializeInputAction(); // Custom method to handle initialization
         }
+
         interactAction.Enable();
     }
 
+    /// <summary>
+    /// Initializes the interactAction from the input system.
+    /// </summary>
+    private void InitializeInputAction()
+    {
+        var playerInput = new NewControls(); // Assuming NewControls is your input action asset
+        interactAction = playerInput.PlayerInput.Interact; // Assuming 'Interact' is the action name
+    }
+
+    /// <summary>
+    /// Disables the interaction InputAction when the object is disabled.
+    /// </summary>
     private void OnDisable()
     {
         // Disable the input action when the object is disabled
         interactAction.Disable();
     }
 
+    /// <summary>
+    /// Handles player interaction with the portal and updates the portal sound position.
+    /// </summary>
     private void Update()
     {
         // Check if player is near and can interact
@@ -132,6 +155,9 @@ public class bossPortal : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Updates the position and volume of the portal sound based on player distance.
+    /// </summary>
     private void UpdatePortalSoundPosition()
     {
         if (GameObject.FindWithTag("Player") != null)
@@ -148,6 +174,9 @@ public class bossPortal : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Shows a thank-you message and transitions to the main menu.
+    /// </summary>
     private IEnumerator ShowThanksMessageAndExit()
     {
         // Disable all canvases except ThanksCanvas
@@ -183,6 +212,9 @@ public class bossPortal : MonoBehaviour
         SceneManager.LoadScene("MainMenuScene");
     }
 
+    /// <summary>
+    /// Handles the portal transition with a fade effect.
+    /// </summary>
     private IEnumerator FadeToBlackAndProceed()
     {
         if (fadeManager != null && fadeManager.transitionCanvas != null)
@@ -211,6 +243,9 @@ public class bossPortal : MonoBehaviour
         Destroy(gameObject); // Destroy portal after transition
     }
 
+    /// <summary>
+    /// Handles the logic for transitioning to the next floor.
+    /// </summary>
     private void GoToNextFloor()
     {
         if (dungeonGenerator != null)
@@ -219,6 +254,9 @@ public class bossPortal : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Detects when the player enters the portal's trigger area.
+    /// </summary>
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
@@ -227,6 +265,9 @@ public class bossPortal : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Detects when the player exits the portal's trigger area.
+    /// </summary>
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
@@ -235,6 +276,9 @@ public class bossPortal : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Implements a cooldown period for portal interaction.
+    /// </summary>
     private IEnumerator InteractionCooldown()
     {
         canInteract = false;

@@ -13,10 +13,18 @@ public class ObstacleAvoidanceBehaviour : SteeringBehaviour
     //gizmo parameters
     float[] dangersResultTemp = null;
 
+    /// <summary>
+    /// Calculates steering behaviors based on obstacles' proximity and direction.
+    /// </summary>
+    /// <param name="danger">Array of danger values indicating the level of danger in each direction.</param>
+    /// <param name="interest">Array of interest values (unused in this method but passed from the base class).</param>
+    /// <param name="aiData">AI data that contains information about obstacles and other AI-related data.</param>
+    /// <returns>Updated danger and interest arrays.</returns>
     public override (float[] danger, float[] interest) GetSteering(float[] danger, float[] interest, AIData aiData)
     {
         foreach (Collider2D obstacleCollider in aiData.obstacles)
         {
+            // Calculate direction to the closest point on the obstacle
             Vector2 directionToObstacle
                 = obstacleCollider.ClosestPoint(transform.position) - (Vector2)transform.position;
             float distanceToObstacle = directionToObstacle.magnitude;
@@ -25,28 +33,31 @@ public class ObstacleAvoidanceBehaviour : SteeringBehaviour
             float weight
                 = distanceToObstacle <= agentColliderSize
                 ? 1
-                : (radius - distanceToObstacle) / radius;
+                : (radius - distanceToObstacle) / radius; // Weight increases as the obstacle gets closer
 
-            Vector2 directionToObstacleNormalized = directionToObstacle.normalized;
+            Vector2 directionToObstacleNormalized = directionToObstacle.normalized;// Normalize the direction vector
 
-            //Add obstacle parameters to the danger array
+            // Loop through the eight directions to calculate the danger in each direction
             for (int i = 0; i < Directions.eightDirections.Count; i++)
             {
                 float result = Vector2.Dot(directionToObstacleNormalized, Directions.eightDirections[i]);
-
+                // Multiply the result by the weight to get the final danger value
                 float valueToPutIn = result * weight;
 
                 //override value only if it is higher than the current one stored in the danger array
                 if (valueToPutIn > danger[i])
                 {
-                    danger[i] = valueToPutIn;
+                    danger[i] = valueToPutIn; // Update the danger value for that direction
                 }
             }
-        }
-        dangersResultTemp = danger;
-        return (danger, interest);
+        } 
+        dangersResultTemp = danger; // Store the updated danger values for visual debugging
+        return (danger, interest);  // Return the updated danger and interest arrays
     }
 
+    /// <summary>
+    /// Draws gizmos in the editor to visualize the obstacle avoidance radius and danger values.
+    /// </summary>
     private void OnDrawGizmos()
     {
         if (showGizmo == false)
@@ -74,6 +85,9 @@ public class ObstacleAvoidanceBehaviour : SteeringBehaviour
     }
 }
 
+/// <summary>
+/// List of eight possible directions (cardinal and diagonal directions)
+/// </summary>
 public static class Directions
 {
     public static List<Vector2> eightDirections = new List<Vector2>{

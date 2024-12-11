@@ -41,6 +41,9 @@ public class ChallengeManager : MonoBehaviour
     private string saveFilePath;
     private int grenadeKills = 0;
 
+    /// <summary>
+    /// Initializes the singleton instance of ChallengeManager and sets the file path for saving challenges.
+    /// </summary>
     void Awake()
     {
         if (instance == null)
@@ -54,12 +57,17 @@ public class ChallengeManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
+    /// <summary>
+    /// Called on start to initialize challenges.
+    /// </summary>
     void Start()
     {
         InitializeChallenges();
     }
 
+    /// <summary>
+    /// Initializes challenges by loading from a file or creating default challenges.
+    /// </summary>
     void InitializeChallenges()
     {
         if (!File.Exists(saveFilePath))
@@ -82,18 +90,24 @@ public class ChallengeManager : MonoBehaviour
         if (challenges.Count == 0) // If challenges haven't been initialized yet
         {
             // Initialize challenges
-            challenges.Add(new Challenge("DieOnce","Die for the first time", 0f, 0, 0f, 0, false)); // No distance or kills requirement
-            challenges.Add(new Challenge("WalkDistance","Walk for 1000 meters", 1000f, 0, 0f, 1, false)); // Requires walking 1000 units
-            challenges.Add(new Challenge("DefeatEnemiesQuickly", "Defeat 3 enemies within 3 seconds", 0f, 3, 3f, 2, false)); // Defeat 3 enemies within 3 seconds
-            challenges.Add(new Challenge("GrenadeKills", "Get 15 grenade kills", 0f, 15, 0f, 3, false)); // Get 15 grenade kills
-            challenges.Add(new Challenge("DefeatGolem","Defeat the Stone Golem Boss", 0f, 1, 0f, 4, false)); // New challenge to defeat boss with ID 1
+            challenges.Add(new Challenge("DieOnce","Die for the first time", 0f, 0, 0f, 1, false)); // No distance or kills requirement
+            challenges.Add(new Challenge("WalkDistance","Walk for 1000 meters", 100f, 0, 0f, 2, false)); // Requires walking 1000 units
+            challenges.Add(new Challenge("DefeatEnemiesQuickly", "Defeat 3 enemies within 3 seconds", 0f, 3, 3f, 3, false)); // Defeat 3 enemies within 3 seconds
+            challenges.Add(new Challenge("GrenadeKills", "Get 15 grenade kills", 0f, 15, 0f, 4, false)); // Get 15 grenade kills
+            challenges.Add(new Challenge("DefeatGolem","Defeat the Stone Golem Boss", 0f, 1, 0f, 5, false)); // New challenge to defeat boss with ID 1
 
             // Save initialized challenges
             SaveChallenges();
         }
     }
 
-
+    /// <summary>
+    /// Marks a specific challenge as completed if its conditions are met.
+    /// </summary>
+    /// <param name="challengeId">ID of the challenge to complete.</param>
+    /// <param name="distance">Distance covered (if applicable).</param>
+    /// <param name="kills">Number of kills (if applicable).</param>
+    /// <param name="time">Time taken (if applicable).</param>
     public void CompleteChallenge(string challengeId, float distance = 0f, int kills = 0, float time = 0f)
     {
         Challenge challengeToComplete = challenges.Find(challenge => challenge.challengeId == challengeId);
@@ -115,7 +129,7 @@ public class ChallengeManager : MonoBehaviour
             {
                 CompleteGrenadeKillsChallenge(challengeToComplete);
             }
-            else if (challengeId == "DefeatGolem") // Handle the new challenge
+            else if (challengeId == "DefeatGolem") 
             {
                 CompleteDefeatBoss1Challenge(challengeToComplete);
             }
@@ -125,7 +139,9 @@ public class ChallengeManager : MonoBehaviour
            // Debug.LogWarning("Challenge not found or already completed: " + challengeId);
         }
     }
-
+    /// <summary>
+    /// Completes the "Defeat Golem" boss challenge and unlocks a weapon.
+    /// </summary>
     void CompleteDefeatBoss1Challenge(Challenge challenge)
     {
         challenge.completed = true;
@@ -139,7 +155,9 @@ public class ChallengeManager : MonoBehaviour
             chest.RefreshAvailableWeapons(); // Ensure the chest refreshes its available weapons
         }
     }
-
+    /// <summary>
+    /// Completes the "Die Once" challenge and unlocks a weapon.
+    /// </summary>
     void CompleteDieOnceChallenge(Challenge challenge)
     {
         challenge.completed = true;
@@ -153,7 +171,9 @@ public class ChallengeManager : MonoBehaviour
             chest.RefreshAvailableWeapons(); // Ensure the chest refreshes its available weapons
         }
     }
-
+    /// <summary>
+    /// Completes the "Walk Distance" challenge and unlocks a weapon.
+    /// </summary>
     void CompleteWalkDistanceChallenge(Challenge challenge)
     {
         challenge.completed = true;
@@ -167,7 +187,9 @@ public class ChallengeManager : MonoBehaviour
             chest.RefreshAvailableWeapons(); // Ensure the chest refreshes its available weapons
         }
     }
-
+    /// <summary>
+    /// Completes the "Defeat Enemies Quickly" challenge and unlocks a weapon.
+    /// </summary>
     void CompleteDefeatEnemiesQuicklyChallenge(Challenge challenge)
     {
         challenge.completed = true;
@@ -182,6 +204,10 @@ public class ChallengeManager : MonoBehaviour
         }
     }
 
+
+    /// <summary>
+    /// Completes the "Grenade Kills" challenge and unlocks a weapon.
+    /// </summary>
     void CompleteGrenadeKillsChallenge(Challenge challenge)
     {
         challenge.completed = true;
@@ -195,7 +221,9 @@ public class ChallengeManager : MonoBehaviour
             chest.RefreshAvailableWeapons(); // Ensure the chest refreshes its available weapons
         }
     }
-
+    /// <summary>
+    /// Saves the current state of challenges to a file.
+    /// </summary>
     void SaveChallenges()
     {
         ChallengeList challengeList = new ChallengeList();
@@ -205,7 +233,9 @@ public class ChallengeManager : MonoBehaviour
         File.WriteAllText(saveFilePath, json);
     }
 
-
+    /// <summary>
+    /// Loads the challenges from a file into memory.
+    /// </summary>
     public void LoadChallenges()
     {
         if (File.Exists(saveFilePath))
@@ -221,13 +251,17 @@ public class ChallengeManager : MonoBehaviour
         }
     }
 
-
+    /// <summary>
+    /// Increments the grenade kill count and checks if the related challenge is completed.
+    /// </summary>
     public void IncrementGrenadeKills()
     {
         grenadeKills++;
         CheckGrenadeKillsChallenge();
     }
-
+    /// <summary>
+    /// Checks if the "Grenade Kills" challenge is completed based on the current grenade kill count.
+    /// </summary>
     void CheckGrenadeKillsChallenge()
     {
         Challenge grenadeKillsChallenge = challenges.Find(challenge => challenge.challengeId == "GrenadeKills");

@@ -6,35 +6,44 @@ public class MainMenu : MonoBehaviour
     public GameObject mainMenuCanvas; // Reference to the main menu canvas
     public MapRuntimeGenerator mapRuntimeGenerator; // Reference to MapRuntimeGenerator
 
-    // Start is called before the first frame update
+
+    /// <summary>
+    /// Disables specified canvases at the start of the game.
+    /// </summary>
     void Start()
     {
-        // Disable the canvases at the start of the game
+        // Disable all specified canvases at the beginning
         DisableCanvases();
     }
 
-    // Call this method to start the game
+    /// <summary>
+    /// Starts the game by enabling specified canvases, hiding the main menu canvas,
+    /// and initializing dungeon generation.
+    /// </summary>
     public void StartGame()
     {
-        // Enable other canvases after clicking the start button
+        // Enable the canvases needed for the game
         foreach (GameObject canvas in canvasesToEnable)
         {
-            canvas.SetActive(true); // Enable each specified canvas
+            canvas.SetActive(true); // Make each specified canvas visible
         }
 
-        // Optionally disable the main menu canvas if needed
+        // Hide the main menu canvas if it exists
         if (mainMenuCanvas != null)
         {
             mainMenuCanvas.SetActive(false);
         }
 
-        // Directly initialize dungeon generation
+        // Begin dungeon generation
         InitializeDungeon();
     }
 
+    /// <summary>
+    /// Initializes dungeon generation using the MapRuntimeGenerator.
+    /// </summary>
     private void InitializeDungeon()
     {
-        // Check if the mapRuntimeGenerator is set and call the StartDungeonGeneration method
+        // Check if MapRuntimeGenerator is assigned
         if (mapRuntimeGenerator != null)
         {
            // mapRuntimeGenerator.StartDungeonGeneration(); // Start dungeon generation
@@ -45,23 +54,29 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    // Method to disable canvases at the start
+    /// <summary>
+    /// Disables all specified canvases at the start of the game.
+    /// </summary>
     private void DisableCanvases()
     {
-        foreach (GameObject canvas in canvasesToEnable)
+        foreach (GameObject canvas in canvasesToEnable) // Loop through each canvas in the array and disable it
         {
             canvas.SetActive(false); // Ensure each specified canvas is disabled at the start
         }
     }
 
-    // Call this method to open settings
+    /// <summary>
+    /// Opens the settings menu. Implementation depends on your UI setup.
+    /// </summary>
     public void OpenSettings()
     {
         // Hide the main menu and show the settings panel
         // Assuming you have a settings panel to show
     }
 
-    // Call this method to quit the game
+    /// <summary>
+    /// Quits the game. Exits the application and logs the action.
+    /// </summary>
     public void QuitGame()
     {
         // Exit the application

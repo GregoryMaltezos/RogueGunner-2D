@@ -19,6 +19,9 @@ public class Ballista : EnemyAI
     // A reference to the EnemyManager and whether the ballista is actively chasing the player
     private bool isChasing = false;
 
+    /// <summary>
+    /// Initializes the Ballista by finding the player and registering with the EnemyManager.
+    /// </summary>
     private void Start()
     {
         // Automatically find the player in the scene by tag
@@ -28,13 +31,19 @@ public class Ballista : EnemyAI
         EnemyManager.instance?.RegisterEnemy(this);
     }
 
+    /// <summary>
+    /// Updates the Ballista behavior every frame, including detecting and shooting the player.
+    /// </summary>
     private void Update()
     {
         DetectAndShoot();
     }
-
+    /// <summary>
+    /// Detects the player and handles shooting if within detection range.
+    /// </summary>
     private void DetectAndShoot()
     {
+        // Calculate distance to the player
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
         if (distanceToPlayer <= detectionRange)
@@ -45,17 +54,17 @@ public class Ballista : EnemyAI
                 EnemyManager.instance?.NotifyEnemyChasing(this);
                 isChasing = true;
             }
-
+            // Rotate towards the player
             Vector2 direction = (player.position - transform.position).normalized;
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, angle));
 
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-
+            // Handle shooting
             shootTimer += Time.deltaTime;
             if (shootTimer >= shootInterval)
             {
-                AudioManager.instance.PlayOneShot(bowPull, this.transform.position);
+                AudioManager.instance.PlayOneShot(bowPull, this.transform.position); // Play bow pull sound
                 Shoot();
                 shootTimer = 0f;
             }
@@ -70,10 +79,13 @@ public class Ballista : EnemyAI
             }
         }
     }
-
+    /// <summary>
+    /// Shoots a projectile towards the player and triggers the shoot animation.
+    /// </summary>
     private void Shoot()
     {
-        AudioManager.instance.PlayOneShot(bowRelease, this.transform.position);
+        AudioManager.instance.PlayOneShot(bowRelease, this.transform.position); // Play bow release sound
+           // Instantiate and set up the projectile
         GameObject projectile = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
         Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
         if (rb != null)
@@ -81,7 +93,7 @@ public class Ballista : EnemyAI
             Vector2 direction = (player.position - firePoint.position).normalized;
             rb.velocity = direction * 10f;
         }
-
+        // Trigger the shoot animation
         Animator animator = GetComponent<Animator>();
         if (animator != null)
         {
@@ -93,14 +105,18 @@ public class Ballista : EnemyAI
         }
     }
 
-    // OnDrawGizmos for visualizing the detection range in the editor
+    /// <summary>
+    /// Visualizes the Ballista's detection range in the editor for debugging purposes.
+    /// </summary>
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
     }
 
-    // Clean up and deregister from the EnemyManager if necessary
+    /// <summary>
+    /// Cleans up by deregistering the Ballista from the EnemyManager when destroyed.
+    /// </summary>
     private void OnDestroy()
     {
         EnemyManager.instance?.DeregisterEnemy(this);

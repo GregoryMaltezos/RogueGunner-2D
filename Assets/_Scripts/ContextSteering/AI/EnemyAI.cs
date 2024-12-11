@@ -8,13 +8,13 @@ using FMOD.Studio;
 public class EnemyAI : MonoBehaviour
 {
     [SerializeField]
-    private List<SteeringBehaviour> steeringBehaviours;
+    private List<SteeringBehaviour> steeringBehaviours; // List of steering behaviours used by the AI
 
     [SerializeField]
-    private List<Detector> detectors;
+    private List<Detector> detectors; // List of detectors to detect targets
 
     [SerializeField]
-    private AIData aiData;
+    private AIData aiData;  // AI data that contains target and detection information
 
     [SerializeField]
     private float detectionDelay = 0.05f, aiUpdateDelay = 0.06f, attackDelay = 1f;
@@ -46,9 +46,12 @@ public class EnemyAI : MonoBehaviour
 
     private Health healthScript; // Reference to the health script
 
+    /// <summary>
+    /// Initializes detection, movement sound, health events, and enemy registration.
+    /// </summary>
     private void Start()
     {
-        // Detecting Player and Obstacles around
+        // Perform detection at regular intervals
         InvokeRepeating("PerformDetection", 0, detectionDelay);
         movementSoundInstance = RuntimeManager.CreateInstance(movementSoundEvent);
 
@@ -63,7 +66,9 @@ public class EnemyAI : MonoBehaviour
         EnemyManager.instance?.RegisterEnemy(this);
     }
 
-
+    /// <summary>
+    /// Periodically performs detection using all detectors.
+    /// </summary>
     private void PerformDetection()
     {
         foreach (Detector detector in detectors)
@@ -72,6 +77,9 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Handles target detection, movement, sound, and attack logic.
+    /// </summary>
     private void Update()
     {
         if (healthScript != null && healthScript.isDead)
@@ -82,7 +90,7 @@ public class EnemyAI : MonoBehaviour
 
         if (aiData.currentTarget != null)
         {
-            float distanceToPlayer = Vector2.Distance(aiData.currentTarget.position, transform.position);
+            float distanceToPlayer = Vector2.Distance(aiData.currentTarget.position, transform.position); // Calculate the distance to the target
 
             if (distanceToPlayer > chaseRadius) // Player is out of chase radius
             {
@@ -90,6 +98,7 @@ public class EnemyAI : MonoBehaviour
             }
             else
             {
+                // Start chasing if not already following
                 if (!following)
                 {
                     following = true;
@@ -97,7 +106,7 @@ public class EnemyAI : MonoBehaviour
                     PlayMovementSound();
                     ChangeMusic();
                 }
-
+                // Update the pointer input for targeting the player
                 BoxCollider2D playerCollider = aiData.currentTarget.GetComponent<BoxCollider2D>();
                 if (playerCollider != null)
                 {
@@ -125,7 +134,7 @@ public class EnemyAI : MonoBehaviour
         }
 
         OnMovementInput?.Invoke(movementInput);
-
+        // Handle movement and sound playing based on movement state
         AgentMover agentMover = GetComponent<AgentMover>();
         if (agentMover != null)
         {
@@ -140,6 +149,9 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Stops chasing the player and resets movement state.
+    /// </summary>
     private void StopChasing()
     {
         if (following)
@@ -150,7 +162,9 @@ public class EnemyAI : MonoBehaviour
             ChangeMusic(); // Notify the manager
         }
     }
-
+    /// <summary>
+    /// Starts playing the movement sound if it's not already playing.
+    /// </summary>
     private void PlayMovementSound()
     {
         if (!IsSoundPlaying())
@@ -158,7 +172,9 @@ public class EnemyAI : MonoBehaviour
             movementSoundInstance.start();
         }
     }
-
+    /// <summary>
+    /// Stops the movement sound if it's currently playing.
+    /// </summary>
     private void StopMovementSound()
     {
         if (IsSoundPlaying())
@@ -166,7 +182,10 @@ public class EnemyAI : MonoBehaviour
             movementSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
         }
     }
-
+    /// <summary>
+    /// Checks whether the movement sound is currently playing.
+    /// </summary>
+    /// <returns>True if the sound is playing, false otherwise.</returns>
     private bool IsSoundPlaying()
     {
         FMOD.Studio.PLAYBACK_STATE playbackState;
@@ -187,39 +206,45 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-
+    /// <summary>
+    /// Handles the chase and attack behavior of the enemy.
+    /// If the target is within attack distance, attacks; otherwise, moves towards the target.
+    /// </summary>
     private IEnumerator ChaseAndAttack()
     {
         if (aiData.currentTarget == null)
-        {
-            movementInput = Vector2.zero;
+        { 
+            movementInput = Vector2.zero; // Stop movement if no target
             following = false;
             if (IsSoundPlaying())
             {
-                movementSoundInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+                movementSoundInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE); // Stop sound immediately
             }
             yield break;
         }
         else
         {
             float distance = Vector2.Distance(aiData.currentTarget.position, transform.position);
-
-            if (distance < attackDistance)
+             
+            if (distance < attackDistance) // If the player is within attack distance
             {
-                movementInput = Vector2.zero;
-                OnAttackPressed?.Invoke();
-                yield return new WaitForSeconds(attackDelay);
-                StartCoroutine(ChaseAndAttack());
+                movementInput = Vector2.zero; // Stop movement 
+                OnAttackPressed?.Invoke(); // Trigger the attack event
+                yield return new WaitForSeconds(attackDelay); // Wait for attack delay before rechecking
+                StartCoroutine(ChaseAndAttack());  // Continue chasing and attacking
             }
             else
             {
-                movementInput = movementDirectionSolver.GetDirectionToMove(steeringBehaviours, aiData);
-                yield return new WaitForSeconds(aiUpdateDelay);
-                StartCoroutine(ChaseAndAttack());
+                movementInput = movementDirectionSolver.GetDirectionToMove(steeringBehaviours, aiData); // Move towards the target
+                yield return new WaitForSeconds(aiUpdateDelay); // Wait for the AI update delay before rechecking
+                StartCoroutine(ChaseAndAttack()); // Continue chasing and attacking
             }
         }
     }
 
+    /// <summary>
+    /// Changes the background music based on whether the enemy is chasing the player.
+    /// </summary>
     private void ChangeMusic()
     {
         if (following)
@@ -236,7 +261,9 @@ public class EnemyAI : MonoBehaviour
 
 
 
-    // Triggered when the enemy dies
+    /// <summary>
+    /// Triggered when the enemy dies. Stops movement sound and notifies the enemy manager.
+    /// </summary>
     private void OnEnemyDeath(GameObject sender)
     {
         StopMovementSound(); // Stop any movement sound

@@ -54,6 +54,10 @@ public class Health : MonoBehaviour
     private float deathAnimationDuration = 1.0f; // Duration of the death animation before destruction
 
     // -------------------- Unity Lifecycle Methods --------------------
+
+    /// <summary>
+    /// Initializes the references to AgentAnimations and AgentMover components.
+    /// </summary>
     private void Start()
     {
         // Get reference to the AgentAnimations and AgentMover scripts
@@ -62,6 +66,11 @@ public class Health : MonoBehaviour
     }
 
     // -------------------- Initialization --------------------
+    /// <summary>
+    /// Initializes the health system with a specified health value.
+    /// Sets the current and max health to the provided value and ensures the entity is not dead.
+    /// </summary>
+    /// <param name="healthValue">The initial health value of the entity</param>
     public void InitializeHealth(int healthValue)
     {
         currentHealth = healthValue;
@@ -70,12 +79,18 @@ public class Health : MonoBehaviour
     }
 
     // -------------------- Damage Handling --------------------
+    /// <summary>
+    /// Handles the entity getting hit with damage. Decreases health and checks for death.
+    /// Triggers events and animations based on the entity's current state.
+    /// </summary>
+    /// <param name="amount">Amount of damage to apply</param>
+    /// <param name="sender">The source of the damage (e.g., bullet, grenade)</param>
     public void GetHit(int amount, GameObject sender)
     {
         if (isDead)
             return;
 
-        // Check if the sender is on the same layer
+        // Check if the sender is on the same layer (ignore friendly fire)
         if (sender.layer == gameObject.layer)
             return;
 
@@ -84,7 +99,7 @@ public class Health : MonoBehaviour
         {
             Debug.Log($"{gameObject.name} hit by grenade! Damage: {amount}");
         }
-
+        // Apply damage
         currentHealth -= amount;
 
         if (currentHealth <= 0)
@@ -103,6 +118,9 @@ public class Health : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Plays the hit sound if the cooldown period has elapsed since the last hit sound.
+    /// </summary>
     private void PlayHitSound()
     {
         // Only play the hit sound if enough time has passed since the last one
@@ -113,6 +131,9 @@ public class Health : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Handles the entity's death. Stops movement, triggers the death animation, and schedules destruction.
+    /// </summary>
     private void HandleDeath()
     {
         if (agentAnimations != null)
@@ -120,9 +141,9 @@ public class Health : MonoBehaviour
             // Stop movement
             if (agentMover != null)
             {
-                agentMover.SetMovement(false); // Stop movement
+                agentMover.SetMovement(false);
             }
-
+            // Play death sound
             AudioManager.instance.PlayOneShot(death, this.transform.position);
             // Trigger the "Die" animation and start the coroutine to destroy after a delay
             agentAnimations.TriggerDeathAnimation();
@@ -138,8 +159,15 @@ public class Health : MonoBehaviour
             AudioManager.instance.PlayOneShot(death, this.transform.position);
             Destroy(gameObject);
         }
+
+        // Notify GameManager that an enemy was killed
+        NotifyDeathToGameManager();
     }
 
+    /// <summary>
+    /// Handles the entity getting hit. Plays the "Hit" animation and triggers other related behaviors.
+    /// </summary>
+    /// <param name="sender">The source of the hit</param>
     private void HandleHit(GameObject sender)
     {
         if (agentAnimations != null)
@@ -153,15 +181,23 @@ public class Health : MonoBehaviour
     }
 
     // -------------------- Coroutine Methods --------------------
+    /// <summary>
+    /// Resumes movement after a specified delay, used for hit animations or delays.
+    /// </summary>
+    /// <param name="delay">Delay in seconds before movement is resumed</param>
     private IEnumerator ResumeMovementAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
         if (agentMover != null && !isDead)
         {
-            agentMover.SetMovement(true);
+            agentMover.SetMovement(true); // Resume movement after delay
         }
     }
 
+    /// <summary>
+    /// Destroys the entity after a delay, also attempts to drop health or ammo.
+    /// </summary>
+    /// <param name="delay">Delay in seconds before destruction</param>
     private IEnumerator DestroyAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -170,10 +206,13 @@ public class Health : MonoBehaviour
             TryDropHealth();
         }
 
-        Destroy(gameObject);
+        Destroy(gameObject); // Destroy the game object after the delay
     }
 
     // -------------------- Drop Methods --------------------
+    /// <summary>
+    /// Attempts to drop health by instantiating a health prefab if the drop chance is met.
+    /// </summary>
     private void TryDropHealth()
     {
         if (healthPrefab != null && Random.value <= healthDropChance)
@@ -181,7 +220,10 @@ public class Health : MonoBehaviour
             Instantiate(healthPrefab, transform.position, Quaternion.identity);
         }
     }
-
+    /// <summary>
+    /// Attempts to drop ammo by instantiating an ammo prefab if the drop chance is met.
+    /// </summary>
+    /// <returns>True if ammo was dropped, otherwise false</returns>
     private bool TryDropAmmo()
     {
         if (ammoPrefab != null && Random.value <= ammoDropChance)
@@ -193,6 +235,10 @@ public class Health : MonoBehaviour
     }
 
     // -------------------- Collision Handling --------------------
+    /// <summary>
+    /// Handles collisions with other objects. Checks for specific tags like "FrBullet" or "Sword".
+    /// </summary>
+    /// <param name="collision">The collider of the object the entity collided with</param>
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("FrBullet"))
@@ -200,14 +246,25 @@ public class Health : MonoBehaviour
             Bullet bullet = collision.gameObject.GetComponent<Bullet>();
             if (bullet != null)
             {
-                GetHit(bullet.damage, collision.gameObject);
-                Destroy(collision.gameObject);
+                GetHit(bullet.damage, collision.gameObject); // Apply damage from bullet
+                Destroy(collision.gameObject); // Destroy the bullet after it hits
             }
         }
 
         if (collision.gameObject.CompareTag("Sword"))
         {
-            GetHit(22, collision.gameObject);
+            GetHit(22, collision.gameObject); // Apply 22 damage if hit by sword
         }
     }
+
+    /// <summary>
+    /// Notifies the GameManager that an enemy has been killed.
+    /// </summary>
+    private void NotifyDeathToGameManager()
+    {
+        // Inform the GameManager that an enemy has died
+        GameManager.Instance.OnEnemyKilled(); // Call a method in the GameManager
+    }
+
+
 }

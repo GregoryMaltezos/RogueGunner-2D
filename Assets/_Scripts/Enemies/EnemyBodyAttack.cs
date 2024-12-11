@@ -28,6 +28,9 @@ public class EnemyBodyAttack : MonoBehaviour
 
     private PlayerHealth playerHealth; // Cached reference to the player's health
 
+    /// <summary>
+    /// Initializes references and ensures required components are available.
+    /// </summary>
     private void Start()
     {
         damageSource = GetComponent<DamageSource>();
@@ -44,11 +47,17 @@ public class EnemyBodyAttack : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Resets the IsAttacking flag to allow the enemy to attack again.
+    /// </summary>
     public void ResetIsAttacking()
     {
         IsAttacking = false;
     }
 
+    /// <summary>
+    /// Handles enemy behavior, including detecting and attacking the player.
+    /// </summary>
     private void Update()
     {
         // Check if the player exists and is alive
@@ -93,27 +102,37 @@ public class EnemyBodyAttack : MonoBehaviour
         transform.localScale = scale;
     }
 
+    /// <summary>
+    /// Initiates the attack sequence and triggers related effects.
+    /// </summary>
     public void Attack()
     {
-        // Check if the player is alive before attacking
+        // Ensure the player is alive and attack isn't currently blocked
         if (playerHealth == null || playerHealth.isDead || attackBlocked)
             return;
-
+        // Trigger attack animation and play sound effect
         animator.SetTrigger("Attack");
         AudioManager.instance.PlayOneShot(mimicAttack, this.transform.position);
         IsAttacking = true;
         attackBlocked = true;
+        // Handle attack completion with a delay
         StartCoroutine(HandleAttack());
     }
 
+    /// <summary>
+    /// Handles the attack process, including delay and detecting player collision.
+    /// </summary>
     private IEnumerator HandleAttack()
     {
         yield return new WaitForSeconds(attackDelay);
-        DetectColliders();
+        DetectColliders(); // Detect and apply damage to the player
         attackBlocked = false;
         IsAttacking = false;
     }
 
+    /// <summary>
+    /// Visualizes the attack radius in the editor for debugging.
+    /// </summary>
     private void OnDrawGizmosSelected()
     {
         if (attackOrigin == null) return;
@@ -121,15 +140,18 @@ public class EnemyBodyAttack : MonoBehaviour
         Gizmos.DrawWireSphere(attackOrigin.position, attackRadius);
     }
 
+    /// <summary>
+    /// Detects player colliders within the attack radius and applies damage if applicable.
+    /// </summary>
     private void DetectColliders()
     {
         if (attackOrigin == null || playerHealth == null || playerHealth.isDead) return;
 
         Debug.Log($"Detecting colliders at position: {attackOrigin.position} with radius: {attackRadius}");
-
+        // Find all colliders within the attack radius that belong to the player layer
         Collider2D[] hitColliders = Physics2D.OverlapCircleAll(attackOrigin.position, attackRadius, playerLayer);
         Debug.Log("Number of colliders detected: " + hitColliders.Length);
-
+        // Process each detected collider
         foreach (Collider2D collider in hitColliders)
         {
             Debug.Log("Hit collider: " + collider.name);
@@ -138,7 +160,7 @@ public class EnemyBodyAttack : MonoBehaviour
             {
                 if (damageSource != null)
                 {
-                    float damage = damageSource.GetDamage();
+                    float damage = damageSource.GetDamage(); // Apply damage to the player
                     Debug.Log("PlayerHealth component found. Dealing damage: " + damage);
                     playerHealth.TakeDamage(damage);
                 }

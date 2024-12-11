@@ -41,6 +41,10 @@ public class DemonController : MonoBehaviour
     private bool isAttacking = false;        // Is the enemy currently attacking
     private bool attackOnCooldown = false;   // Is the attack on cooldown
 
+
+    /// <summary>
+    /// Initializes components and references required by the DemonController.
+    /// </summary>
     void Awake()
     {
         rb2d = GetComponent<Rigidbody2D>();    // Get the Rigidbody2D component
@@ -49,13 +53,18 @@ public class DemonController : MonoBehaviour
         spriteTransform = transform.GetChild(0); // Assuming the sprite is the first child
     }
 
+    /// <summary>
+    /// Performs initial setup, including finding the player and setting a random direction.
+    /// </summary>
     void Start()
     {
         FindPlayer();                          // Attempt to find the player at startup
         SetRandomDirection();                  // Set the initial random direction
-    
     }
 
+    /// <summary>
+    /// Handles physics-based behavior for the demon, including movement and attacking.
+    /// </summary>
     void FixedUpdate()
     {
         // Check if the demon is dead
@@ -68,16 +77,16 @@ public class DemonController : MonoBehaviour
 
         if (player == null)
         {
-            FindPlayer();                      // If the player is null, keep trying to find them
+            FindPlayer();  // If the player is null, keep trying to find them
             return;
         }
 
         float distanceToPlayer = Vector2.Distance(rb2d.position, player.position);
 
-        // If the player is within chase radius
+        // If the player is within the demon's chase radius
         if (distanceToPlayer <= chaseRadius)
         {
-            if (distanceToPlayer <= stopDistance && !isAttacking && !attackOnCooldown)
+            if (distanceToPlayer <= stopDistance && !isAttacking && !attackOnCooldown)  // Initiate attack if within stopDistance and not on cooldown
             {
                 StartCoroutine(AttackPlayer());    // Start attack coroutine if within attack range
             }
@@ -110,7 +119,9 @@ public class DemonController : MonoBehaviour
             rb2d.velocity = Vector2.zero;
         }
     }
-
+    /// <summary>
+    /// Attempts to locate the player in the scene using their tag.
+    /// </summary>
     void FindPlayer()
     {
         // Find the player GameObject by tag (ensure your player has the tag "Player")
@@ -124,7 +135,9 @@ public class DemonController : MonoBehaviour
             Debug.LogWarning("Player not found! Make sure the player GameObject is tagged 'Player'.");
         }
     }
-
+    /// <summary>
+    /// Moves the demon in a semi-random direction towards the player.
+    /// </summary>
     void SemiRandomMovement()
     {
         Vector2 directionToPlayer = ((Vector2)player.position - rb2d.position).normalized; // Calculate direction to the player
@@ -135,6 +148,10 @@ public class DemonController : MonoBehaviour
         currentSpeed = Mathf.Clamp(currentSpeed, 0, maxSpeed);
     }
 
+
+    /// <summary>
+    /// Moves the demon in a random direction within a defined time interval.
+    /// </summary>
     void RandomMovement()
     {
         movementTimer -= Time.fixedDeltaTime; // Decrease the timer
@@ -150,6 +167,9 @@ public class DemonController : MonoBehaviour
         currentSpeed = Mathf.Clamp(currentSpeed, 0, maxSpeed);
     }
 
+    /// <summary>
+    /// Sets a new random direction for movement.
+    /// </summary>
     void SetRandomDirection()
     {
         // Generate a random direction
@@ -160,7 +180,9 @@ public class DemonController : MonoBehaviour
 
 
 
-
+    /// <summary>
+    /// Visualizes the demon's chase radius in the editor.
+    /// </summary>
     private void OnDrawGizmos()
     {
         // Optional: Visualize the stopDistance for debugging
@@ -171,7 +193,9 @@ public class DemonController : MonoBehaviour
         }
     }
 
-    // Coroutine to handle attack behavior
+    /// <summary>
+    /// Coroutine to handle the demon's attack behavior.
+    /// </summary>
     IEnumerator AttackPlayer()
     {
         isAttacking = true;                      // Set the attacking state
@@ -189,7 +213,9 @@ public class DemonController : MonoBehaviour
         StartCoroutine(AttackCooldown());
     }
 
-    // Coroutine for attack cooldown
+    /// <summary>
+    /// Coroutine to handle the cooldown period after an attack.
+    /// </summary>
     IEnumerator AttackCooldown()
     {
         yield return new WaitForSeconds(attackCooldown);

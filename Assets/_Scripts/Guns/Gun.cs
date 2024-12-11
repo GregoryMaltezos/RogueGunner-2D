@@ -36,6 +36,10 @@ public class Gun : MonoBehaviour
     public bool isFirstSpawn = true;
     [SerializeField] private EventReference gunFired;
     [SerializeField] private EventReference gunReload;
+
+    /// <summary>
+    /// Initializes the Gun class, sets up input actions, and initializes ammo state.
+    /// </summary>
     void Awake()
     {
         if (instance == null)
@@ -47,7 +51,9 @@ public class Gun : MonoBehaviour
         fireAction = inputActions.PlayerInput.Fire;
     }
 
-
+    /// <summary>
+    /// Initializes ammo and sets up weapon state.
+    /// </summary>
     void Start()
     {
         if (WeaponManager.instance == null)
@@ -94,7 +100,9 @@ public class Gun : MonoBehaviour
     }
 
 
-    
+    /// <summary>
+    /// Restores ammo after level transition, refilling  ammo.
+    /// </summary>
     public void RestoreAmmoFromLevelTransition()
     {
         // Restore a quarter of the total ammo on level transition
@@ -132,7 +140,9 @@ public class Gun : MonoBehaviour
         UpdateAmmoState();
     }
 
-
+    /// <summary>
+    /// Unsubscribes from input actions when the object is destroyed.
+    /// </summary>
     void OnDestroy()
     {
         reloadAction.performed -= OnReloadPerformed;
@@ -141,7 +151,9 @@ public class Gun : MonoBehaviour
         inputActions.Disable();
     }
 
-
+    /// <summary>
+    /// Called when fire input is detected to begin the firing process.
+    /// </summary>
     private void OnFirePerformed(InputAction.CallbackContext context)
     {
         isFiring = true;
@@ -152,13 +164,17 @@ public class Gun : MonoBehaviour
             AttemptToFire();
         }
     }
-
+    /// <summary>
+    /// Called when fire input is released to stop firing.
+    /// </summary>
     private void OnFireCanceled(InputAction.CallbackContext context)
     {
         isFiring = false; // Stop firing when input is released
     }
 
-
+    /// <summary>
+    /// Handles automatic fire and reloading input.
+    /// </summary>
     void Update()
     {
         // Skip firing logic if paused or reloading
@@ -181,6 +197,9 @@ public class Gun : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Initiates the reload process when the reload input is detected.
+    /// </summary>
     private void OnReloadPerformed(InputAction.CallbackContext context)
     {
         // Early exit if the gun is inactive
@@ -198,6 +217,9 @@ public class Gun : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Attempts to fire the gun, checking if conditions are met (e.g., ammo availability).
+    /// </summary>
     void AttemptToFire()
     {
         // Check if the gun is currently reloading
@@ -228,33 +250,37 @@ public class Gun : MonoBehaviour
     }
 
 
-
+    /// <summary>
+    /// Fires the gun, instantiating a projectile and applying force to it.
+    /// </summary>
     void Fire()
     {
-        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        Vector3 shootDirection = mousePosition - firePoint.position;
-        shootDirection.z = 0;
+       
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue()); // Calculate direction from fire point to mouse position
+        Vector3 shootDirection = mousePosition - firePoint.position;   // Calculate direction from fire point to mouse position
+        shootDirection.z = 0;  // Set the z-coordinate to zero to keep it in 2D space
         shootDirection = shootDirection.normalized;
 
-        // Fire the projectile(s)
-        if (!isShotgun)
+        
+        if (!isShotgun) // If not a shotgun, fire a single projectile
         {
             FireProjectile(shootDirection);
         }
         else
         {
-            for (int i = 0; i < shotgunPelletCount; i++)
+            for (int i = 0; i < shotgunPelletCount; i++) // If it's a shotgun, fire multiple pellets with spread
             {
-                float spreadAngle = Random.Range(-shotgunSpreadAngle / 2f, shotgunSpreadAngle / 2f);
-                Vector3 spreadDirection = Quaternion.Euler(0, 0, spreadAngle) * shootDirection;
+                // Calculate spread angle and apply it to the shooting direction
+                float spreadAngle = Random.Range(-shotgunSpreadAngle / 2f, shotgunSpreadAngle / 2f); // Apply rotation to spread
+                Vector3 spreadDirection = Quaternion.Euler(0, 0, spreadAngle) * shootDirection; // Fire the pellet with the spread direction
                 FireProjectile(spreadDirection);
             }
         }
 
-        // Handle ammo decrementing logic
+        // Handle ammo decrementing logic for both infinite and finite ammo
         if (!infiniteAmmo)
         {
-            if (currentClipAmmo > 0)
+            if (currentClipAmmo > 0) // Decrement ammo only if there is ammo left
             {
                 currentClipAmmo--; // Decrement once per shot
                 Debug.Log($"Fired! Current Clip Ammo: {currentClipAmmo}");
@@ -263,7 +289,7 @@ public class Gun : MonoBehaviour
                 WeaponManager.instance.SetGunClipAmmo(WeaponManager.instance.GetCurrentGunIndex(), currentClipAmmo);
             }
 
-            // Check if we need to reload
+            // If the clip is empty and there are clips remaining, start reloading
             if (currentClipAmmo <= 0 && clipsRemaining > 0)
             {
                 StartCoroutine(Reload());
@@ -271,6 +297,7 @@ public class Gun : MonoBehaviour
         }
         else
         {
+            // Handle infinite ammo logic
             if (currentClipAmmo > 0)
             {
                 currentClipAmmo--; // Decrement for display purposes
@@ -292,18 +319,24 @@ public class Gun : MonoBehaviour
         UpdateAmmoState(); // Ensure UI is updated after firing
     }
 
+
+    /// <summary>
+    /// Instantiates a projectile and applies direction and velocity to it.
+    /// </summary>
+    /// <param name="shootDirection">The direction the projectile should travel in</param>
     void FireProjectile(Vector3 shootDirection)
     {
+        // Instantiate the projectile at the fire point position
         GameObject projectileInstance = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
-        Rigidbody2D rb = projectileInstance.GetComponent<Rigidbody2D>();
-        AudioManager.instance.PlayOneShot(gunFired, this.transform.position);
+        Rigidbody2D rb = projectileInstance.GetComponent<Rigidbody2D>();  // Get the Rigidbody2D component to apply physics
+        AudioManager.instance.PlayOneShot(gunFired, this.transform.position); // Play the gunfire sound
         if (rb != null)
         {
-            rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-            Vector2 velocity = shootDirection * projectileSpeed;
+            rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous; // Ensure continuous collision detection for better accuracy
+            Vector2 velocity = shootDirection * projectileSpeed; // Apply velocity to the projectile based on the shoot direction
             rb.velocity = velocity;
 
-            // Flip projectile based on the player's facing direction
+            // If the player is facing left, flip the projectile to match the direction
             if (!facingRight)
             {
                 Vector3 projectileScale = projectileInstance.transform.localScale;
@@ -317,7 +350,12 @@ public class Gun : MonoBehaviour
         }
     }
 
-    private FMOD.Studio.EventInstance reloadSoundInstance;
+    private FMOD.Studio.EventInstance reloadSoundInstance; // Declare an FMOD event instance for reload sound
+
+
+    /// <summary>
+    /// Handles the reload process by refilling ammo and updating the UI.
+    /// </summary>
     private IEnumerator Reload()
     {
         // Check if the weapon is active before starting the reload
@@ -393,6 +431,9 @@ public class Gun : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// Stops the reload sound if the reload is interrupted or canceled.
+    /// </summary>
     public void StopReloadSound()
     {
         if (reloadSoundInstance.isValid())
@@ -400,8 +441,13 @@ public class Gun : MonoBehaviour
             reloadSoundInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE); // Stop the reload sound immediately
         }
     }
+
+    /// <summary>
+    /// Restores ammo to the current weapon, either with infinite ammo or normal ammo logic.
+    /// </summary>
     public void RestoreAmmo()
     {
+        // If infinite ammo is not enabled, restore to full clip and adjust reserve ammo
         if (!infiniteAmmo)
         {
             // Fill the current clip to its maximum
@@ -436,6 +482,9 @@ public class Gun : MonoBehaviour
         UpdateAmmoState(); // Ensure UI is updated when ammo is restored
     }
 
+    /// <summary>
+    /// Restores ammo from a pickup, a smaller amount.
+    /// </summary>
     public void RestoreAmmoFromPickup()
     {
         // Calculate the amount of ammo to restore (1/4 of the max ammo)
@@ -485,7 +534,9 @@ public class Gun : MonoBehaviour
         UpdateAmmoState(); // Ensure UI is updated when ammo is restored
     }
 
-
+    /// <summary>
+    /// Updates the UI to reflect the current ammo state.
+    /// </summary>
     void UpdateAmmoState()
     {
         // Check if the instance is initialized
@@ -499,7 +550,9 @@ public class Gun : MonoBehaviour
         }
     }
 
-    // This method can be called when switching to this weapon to reset states
+    /// <summary>
+    /// Resets the reloading state when switching weapons.
+    /// </summary>
     public void ResetReloadingState()
     {
         StopReloadSound();

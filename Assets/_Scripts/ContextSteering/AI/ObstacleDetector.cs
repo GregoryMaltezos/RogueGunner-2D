@@ -15,12 +15,19 @@ public class ObstacleDetector : Detector
 
     Collider2D[] colliders;
 
+
+    /// <summary>
+    /// Detects obstacles within the specified radius and stores the results in AI data.
+    /// </summary>
+    /// <param name="aiData">The AI data where detected obstacles will be stored.</param>
     public override void Detect(AIData aiData)
     {
         colliders = Physics2D.OverlapCircleAll(transform.position, detectionRadius, layerMask);
         aiData.obstacles = colliders;
     }
-
+    /// <summary>
+    /// Draws gizmos in the editor to visualize the detection area and detected obstacles.
+    /// </summary>
     private void OnDrawGizmos()
     {
         if (showGizmos == false)

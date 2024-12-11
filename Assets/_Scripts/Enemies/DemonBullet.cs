@@ -10,17 +10,20 @@ public class DemonBullet : MonoBehaviour
     private Vector2 moveDirection; // The direction in which the projectile will move
     private Rigidbody2D rb;
 
+    /// <summary>
+    /// Initializes the projectile's movement and sets it to self-destruct after its lifetime expires.
+    /// </summary>
     private void Start()
     {
-        // Get the Rigidbody2D component
+        // Get the Rigidbody2D component attached to the projectile
         rb = GetComponent<Rigidbody2D>();
 
-        // Set the projectile to move in a straight line
+        // Set the projectile's velocity if the Rigidbody2D exists
         if (rb != null)
         {
-            rb.velocity = moveDirection * speed;
+            rb.velocity = moveDirection * speed; // Move the projectile in the specified direction
 
-            // Rotate the projectile to face the direction of movement
+            // Rotate the projectile to face its movement direction
             RotateProjectile(moveDirection);
         }
 
@@ -28,21 +31,34 @@ public class DemonBullet : MonoBehaviour
         Destroy(gameObject, lifetime);
     }
 
-    // This function is called to set the direction from the outside when the projectile is spawned
+    /// <summary>
+    /// Sets the direction of the projectile's movement.
+    /// This method is called externally when the projectile is spawned.
+    /// </summary>
+    /// <param name="direction">The direction vector for the projectile.</param>
     public void SetDirection(Vector2 direction)
     {
-        moveDirection = direction.normalized; // Ensure the direction is normalized (unit vector)
+        moveDirection = direction.normalized; // Normalize the direction to ensure consistent movement speed
     }
 
+
+    /// <summary>
+    /// Rotates the projectile to face the specified movement direction.
+    /// </summary>
+    /// <param name="direction">The direction vector for rotation.</param>
     private void RotateProjectile(Vector2 direction)
     {
-        // Calculate the angle in degrees for rotation
+        // Calculate the angle in degrees based on the direction vector
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-        // Apply the rotation to the transform
+        // Apply the calculated angle to the projectile's rotation
         transform.rotation = Quaternion.Euler(0, 0, angle);
     }
 
+    /// <summary>
+    /// Handles collision events for the projectile.
+    /// </summary>
+    /// <param name="collision">Collision data provided by the physics engine.</param>
     private void OnCollisionEnter2D(Collision2D collision)
     {
         // Check if the bullet hit the player

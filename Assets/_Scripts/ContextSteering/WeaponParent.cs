@@ -21,49 +21,59 @@ public class WeaponParent : MonoBehaviour
 
     private bool isCardinalAttack = true; // Track the current attack type
 
+
+    /// <summary>
+    /// Resets the IsAttacking flag, allowing the next attack.
+    /// </summary>
     public void ResetIsAttacking()
     {
         IsAttacking = false;
     }
 
+    /// <summary>
+    /// Updates the weapon's orientation and sorting order based on the direction of the pointer.
+    /// </summary>
     private void Update()
     {
         if (IsAttacking)
-            return;
+            return; // Skip update while attacking
 
-        Vector2 direction = (PointerPosition - (Vector2)transform.position).normalized;
-        transform.right = direction;
+        Vector2 direction = (PointerPosition - (Vector2)transform.position).normalized; // Calculate the direction from the current position to the pointer position
+        transform.right = direction; // Rotate the weapon to face the pointer
 
-        Vector2 scale = transform.localScale;
-        if (direction.x < 0)
+        Vector2 scale = transform.localScale; // Flip the scale based on the direction of the pointer
+        if (direction.x < 0) 
         {
-            scale.y = -1;
+            scale.y = -1; // Flip to the left
         }
         else if (direction.x > 0)
         {
-            scale.y = 1;
+            scale.y = 1; // Flip to the right
         }
         transform.localScale = scale;
-
-        if (transform.eulerAngles.z > 0 && transform.eulerAngles.z < 180)
+        // Adjust weapon's sorting order based on rotation
+        if (transform.eulerAngles.z > 0 && transform.eulerAngles.z < 180) 
         {
-            weaponRenderer.sortingOrder = characterRenderer.sortingOrder - 1;
+            weaponRenderer.sortingOrder = characterRenderer.sortingOrder - 1; // Behind the character
         }
         else
         {
-            weaponRenderer.sortingOrder = characterRenderer.sortingOrder + 1;
+            weaponRenderer.sortingOrder = characterRenderer.sortingOrder + 1; // In front of the character
         }
     }
 
+    /// <summary>
+    /// Initiates an attack, spawns projectiles, and handles attack delays.
+    /// </summary>
     public void Attack()
     {
         if (attackBlocked)
-            return;
+            return; // Block attacks while attack delay is in effect
 
         animator.SetTrigger("Attack");
         IsAttacking = true;
         attackBlocked = true;
-        StartCoroutine(DelayAttack());
+        StartCoroutine(DelayAttack()); // Start the delay before the next attack
 
         // Call the method to spawn projectiles based on the current attack type
         SpawnProjectiles();
@@ -72,12 +82,20 @@ public class WeaponParent : MonoBehaviour
         isCardinalAttack = !isCardinalAttack;
     }
 
+
+    /// <summary>
+    /// Coroutine to implement a delay between attacks, allowing the attack to be blocked.
+    /// </summary>
+    /// <returns>Yield instruction for coroutine.</returns>
     private IEnumerator DelayAttack()
     {
         yield return new WaitForSeconds(delay);
         attackBlocked = false;
     }
 
+    /// <summary>
+    /// Spawns projectiles based on the current attack type (cardinal or diagonal).
+    /// </summary>
     private void SpawnProjectiles()
     {
         // Cardinal directions (North, East, South, West)
@@ -118,6 +136,9 @@ public class WeaponParent : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Draws a wireframe circle in the editor to visualize the attack radius.
+    /// </summary>
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.blue;
@@ -125,17 +146,22 @@ public class WeaponParent : MonoBehaviour
         Gizmos.DrawWireSphere(position, radius);
     }
 
+    /// <summary>
+    /// Detects colliders within the attack radius and applies damage to any affected entities.
+    /// </summary>
     public void DetectColliders()
     {
+        // Detect all colliders within the circle of the specified radius
         foreach (Collider2D collider in Physics2D.OverlapCircleAll(circleOrigin.position, radius))
         {
             if (collider.isTrigger == false)
-                continue;
+                continue; // Skip colliders that are not triggers
 
             Health health;
+            // If the collider has a Health component, apply damage
             if ((health = collider.GetComponent<Health>()) != null)
             {
-                health.GetHit(1, transform.parent.gameObject);
+                health.GetHit(1, transform.parent.gameObject); // Apply damage to the target
             }
         }
     }

@@ -5,7 +5,7 @@ using FMODUnity;
 [System.Serializable]
 public class GunInfo
 {
-    public GameObject gunObject;
+    public GameObject gunObject; // The gun's GameObject.
     public bool locked = true; // All guns start as locked by default
 }
 
@@ -36,6 +36,10 @@ public class WeaponManager : MonoBehaviour
     private InputAction dpadLeftAction;
     private InputAction dpadRightAction;
     [SerializeField] private EventReference weaponSwitch;
+
+    /// <summary>
+    /// Called when the script is first initialized. Sets up the singleton instance and ensures it persists across scenes.
+    /// </summary>
     void Awake()
     {
         if (instance == null)
@@ -50,6 +54,10 @@ public class WeaponManager : MonoBehaviour
         }
         controls = new NewControls();
     }
+
+    /// <summary>
+    /// Enables the input actions for DPad buttons when the script is enabled. Sets up listeners for DPad button presses.
+    /// </summary>
     void OnEnable()
     {
         // Enable the input actions for DPad Left and DPad Right
@@ -63,14 +71,19 @@ public class WeaponManager : MonoBehaviour
         dpadLeftAction.performed += ctx => SwitchWeaponLeft();
         dpadRightAction.performed += ctx => SwitchWeaponRight();
     }
-
+    /// <summary>
+    /// Disables the input actions for DPad buttons when the script is disabled.
+    /// </summary>
     void OnDisable()
     {
-        // Disable the actions when the script is disabled
+       
         dpadLeftAction.Disable();
         dpadRightAction.Disable();
     }
 
+    /// <summary>
+    /// Switch to the previous weapon (left). Loops back to the last weapon if we're at the first one.
+    /// </summary>
     public void SwitchWeaponLeft()
     {
         int previousIndex = currentGunIndex - 1;
@@ -81,7 +94,9 @@ public class WeaponManager : MonoBehaviour
 
         SwitchWeaponByIndex(previousIndex);
     }
-
+    /// <summary>
+    /// Switch to the next weapon (right). Loops back to the first weapon if we're at the last one.
+    /// </summary>
     public void SwitchWeaponRight()
     {
         int nextIndex = currentGunIndex + 1;
@@ -93,6 +108,9 @@ public class WeaponManager : MonoBehaviour
         SwitchWeaponByIndex(nextIndex);
     }
 
+    /// <summary>
+    /// Switches the weapon by the given index and updates visibility and UI. Plays weapon switch sound.
+    /// </summary>
     private void SwitchWeaponByIndex(int index)
     {
         int weaponIndex = equippedGunIndices[index];
@@ -118,6 +136,10 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Called at the start of the game. Initializes and loads the necessary data for guns, ammo, and equipment.
+    /// Ensures the first gun is always unlocked and equipped by default.
+    /// </summary>
     void Start()
     {
         // Ensure the first gun is always unlocked
@@ -126,7 +148,7 @@ public class WeaponManager : MonoBehaviour
             guns[0].locked = false; // Unlock the first gun
         }
 
-        // DEBUG: Clear PlayerPrefs (use only temporarily)
+        // DEBUG: Clear PlayerPrefs 
         // PlayerPrefs.DeleteAll();
 
         LoadUnlockedGuns();
@@ -151,7 +173,10 @@ public class WeaponManager : MonoBehaviour
     }
 
 
-
+    /// <summary>
+    /// check for weapon switch inputs (1 to 8 keys).
+    /// If a weapon switch key is pressed, switches the weapon accordingly.
+    /// </summary>
     void Update()
     {
         for (int i = 0; i < 8; i++) // Check for weapon switch inputs from 1 to 8
@@ -164,6 +189,11 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Switches the weapon to the one in the specified slot.
+    /// If the weapon is unlocked, it becomes the new current weapon, and UI is updated.
+    /// </summary>
+    /// <param name="slotIndex">The index of the slot to switch to (0 to 7).</param>
     public void SwitchWeapon(int slotIndex)
     {
         if (slotIndex >= 0 && slotIndex < equippedGunIndices.Count)
@@ -192,7 +222,11 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-
+    /// <summary>
+    /// Unlocks the specified gun and adds it to the equipped guns if not already equipped.
+    /// Saves the updated state to PlayerPrefs.
+    /// </summary>
+    /// <param name="gunIndex">The index of the gun to unlock.</param>
     public void UnlockGun(int gunIndex)
     {
         if (gunIndex >= 0 && gunIndex < guns.Count && guns[gunIndex].locked)
@@ -214,8 +248,16 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Gets the list of picked-up weapons.
+    /// </summary>
+    /// <returns>A list of indices of weapons that have been picked up.</returns>
     public List<int> GetPickedUpWeapons() => pickedUpWeapons;
 
+    /// <summary>
+    /// Adds a weapon to the list of picked-up weapons if it is not already in the list.
+    /// </summary>
+    /// <param name="gunIndex">The index of the weapon to add.</param>
     public void AddPickedUpWeapon(int gunIndex)
     {
         if (!pickedUpWeapons.Contains(gunIndex))
@@ -224,20 +266,26 @@ public class WeaponManager : MonoBehaviour
             SavePickedUpWeapons();
         }
     }
-
+    /// <summary>
+    /// Clears the list of picked-up weapons and saves the empty list to PlayerPrefs.
+    /// </summary>
     public void ResetPickedUpWeapons()
     {
         pickedUpWeapons.Clear();
         pickedUpWeapons.Clear();
         SavePickedUpWeapons();
     }
-
+    /// <summary>
+    /// Saves the list of picked-up weapons to PlayerPrefs as a comma-separated string.
+    /// </summary>
     void SavePickedUpWeapons()
     {
         PlayerPrefs.SetString(PickedUpWeaponsKey, string.Join(",", pickedUpWeapons));
         PlayerPrefs.Save();
     }
-
+    /// <summary>
+    /// Loads the list of picked-up weapons from PlayerPrefs and updates the list accordingly.
+    /// </summary>
     void LoadPickedUpWeapons()
     {
         if (PlayerPrefs.HasKey(PickedUpWeaponsKey))
@@ -255,7 +303,11 @@ public class WeaponManager : MonoBehaviour
     }
 
 
-
+    /// <summary>
+    /// Handles the process when a weapon is picked up. If the weapon is locked, it gets unlocked.
+    /// If it's unlocked, ammo is restored. The weapon is then switched to and UI is updated.
+    /// </summary>
+    /// <param name="gunIndex">The index of the weapon being picked up.</param>
     public void PickupWeapon(int gunIndex)
     {
         if (gunIndex >= 0 && gunIndex < guns.Count)
@@ -275,7 +327,7 @@ public class WeaponManager : MonoBehaviour
                 }
             }
 
-            // Optionally add the gun to the picked-up weapons list
+            // add the gun to the picked-up weapons list
             AddPickedUpWeapon(gunIndex);
             SwitchWeapon(equippedGunIndices.IndexOf(gunIndex));
             GunUIManager.instance.OnWeaponPickup(gunIndex);
@@ -284,7 +336,11 @@ public class WeaponManager : MonoBehaviour
 
 
 
-    // Ammo Management Methods
+    /// <summary>
+    /// Sets the number of remaining bullets for a specific gun.
+    /// </summary>
+    /// <param name="gunIndex">The index of the gun to set bullets remaining for.</param>
+    /// <param name="bullets">The number of bullets to set.</param>
 
     public void SetGunBulletsRemaining(int gunIndex, int bullets)
     {
@@ -294,11 +350,21 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Gets the number of remaining bullets for a specific gun.
+    /// If no specific data is available, it calculates the default ammo amount.
+    /// </summary>
+    /// <param name="gunIndex">The index of the gun to get bullets remaining for.</param>
+    /// <returns>The number of remaining bullets.</returns>
     public int GetGunBulletsRemaining(int gunIndex)
     {
         return gunBulletsRemaining.ContainsKey(gunIndex) ? gunBulletsRemaining[gunIndex] : guns[gunIndex].gunObject.GetComponent<Gun>().maxAmmo - guns[gunIndex].gunObject.GetComponent<Gun>().ammoPerClip;
     }
-
+    /// <summary>
+    /// Sets the number of remaining clips for a specific gun.
+    /// </summary>
+    /// <param name="gunIndex">The index of the gun to set clips remaining for.</param>
+    /// <param name="clips">The number of clips to set.</param>
     public void SetGunClipsRemaining(int gunIndex, int clips)
     {
         if (gunIndex >= 0 && gunIndex < guns.Count)
@@ -306,12 +372,21 @@ public class WeaponManager : MonoBehaviour
             gunClipsRemaining[gunIndex] = clips;
         }
     }
-
+    /// <summary>
+    /// Gets the number of remaining clips for a specific gun.
+    /// If no specific data is available, it calculates the default clip count.
+    /// </summary>
+    /// <param name="gunIndex">The index of the gun to get clips remaining for.</param>
+    /// <returns>The number of remaining clips.</returns>
     public int GetGunClipsRemaining(int gunIndex)
     {
         return gunClipsRemaining.ContainsKey(gunIndex) ? gunClipsRemaining[gunIndex] : (guns[gunIndex].gunObject.GetComponent<Gun>().maxAmmo - guns[gunIndex].gunObject.GetComponent<Gun>().ammoPerClip) / guns[gunIndex].gunObject.GetComponent<Gun>().ammoPerClip;
     }
-
+    /// <summary>
+    /// Sets the current clip ammo for a specific gun.
+    /// </summary>
+    /// <param name="gunIndex">The index of the gun to set current clip ammo for.</param>
+    /// <param name="clipAmmo">The amount of ammo in the current clip.</param>
     public void SetGunClipAmmo(int gunIndex, int clipAmmo)
     {
         if (gunIndex >= 0 && gunIndex < guns.Count)
@@ -319,13 +394,22 @@ public class WeaponManager : MonoBehaviour
             gunClipAmmo[gunIndex] = clipAmmo;
         }
     }
-
+    /// <summary>
+    /// Gets the current clip ammo for a specific gun.
+    /// If no specific data is available, it returns the default clip ammo value.
+    /// </summary>
+    /// <param name="gunIndex">The index of the gun to get current clip ammo for.</param>
+    /// <returns>The current ammo in the clip.</returns>
     public int GetGunClipAmmo(int gunIndex)
     {
         return gunClipAmmo.ContainsKey(gunIndex) ? gunClipAmmo[gunIndex] : guns[gunIndex].gunObject.GetComponent<Gun>().ammoPerClip;
     }
 
-    // Save all guns' ammo before dungeon regeneration
+
+    /// <summary>
+    /// Saves the ammo data for all guns before the dungeon regeneration.
+    /// This method ensures that all ammo states are saved for later restoration.
+    /// </summary>
     public void SaveAllGunAmmoData()
     {
         foreach (var gun in guns)
@@ -348,7 +432,10 @@ public class WeaponManager : MonoBehaviour
     }
 
 
-    // Restore all guns' ammo after dungeon regeneration
+    /// <summary>
+    /// Restores the ammo data for all guns after the dungeon regeneration.
+    /// This ensures that the guns' ammo states are correctly restored based on the saved data.
+    /// </summary>
     public void RestoreAllGunAmmoData()
     {
         foreach (var gun in guns)
@@ -367,6 +454,11 @@ public class WeaponManager : MonoBehaviour
             }
         }
     }
+
+    /// <summary>
+    /// Restores a portion of the ammo (25% of max ammo) for all guns.
+    /// This helps in resetting the ammo state for gameplay balance.
+    /// </summary>
     public void RestoreSomeGunAmmoData()
     {
         foreach (var gun in guns)
@@ -384,18 +476,20 @@ public class WeaponManager : MonoBehaviour
                     gunComponent.clipsRemaining = Mathf.FloorToInt(ammoToRestore / gunComponent.ammoPerClip);  // How many full clips
                     gunComponent.currentClipAmmo = Mathf.Min(gunComponent.ammoPerClip, ammoToRestore); // Restore ammo in the current clip
 
-                    // Optional debug log to check the ammo restoration
+                    
                     Debug.Log($"Restored ammo for gun {gunIndex} - Bullets: {gunComponent.bulletsRemaining}, Clips: {gunComponent.clipsRemaining}, Current Clip Ammo: {gunComponent.currentClipAmmo}");
                 }
             }
         }
 
-        // Call this after updating ammo data to ensure UI updates and state is saved
+        //called after updating ammo data to ensure UI updates and state is saved
         GunUIManager.instance.UpdateUI();
         Debug.Log("Dungeon regenerated. Ammo data restored (quarter of max ammo).");
     }
 
-    // Save gun ammo data to PlayerPrefs
+    /// <summary>
+    /// Saves the current ammo data for all guns to PlayerPrefs, ensuring the data persists between game sessions.
+    /// </summary>
     void SaveGunAmmoData()
     {
         // Serialize dictionaries to strings
@@ -411,7 +505,9 @@ public class WeaponManager : MonoBehaviour
         Debug.Log("Gun ammo data saved.");
     }
 
-    // Load gun ammo data from PlayerPrefs
+    /// <summary>
+    /// Loads the ammo data for all guns from PlayerPrefs, ensuring the state is restored for the current session.
+    /// </summary>
     void LoadGunAmmoData()
     {
         if (PlayerPrefs.HasKey(GunAmmoKey))
@@ -442,7 +538,11 @@ public class WeaponManager : MonoBehaviour
         GunUIManager.instance.UpdateUI();
     }
 
-    // Helper methods to serialize and deserialize dictionaries
+    /// <summary>
+    /// Serializes a dictionary of gun ammo data to a string for storage.
+    /// </summary>
+    /// <param name="dict">The dictionary to serialize.</param>
+    /// <returns>A serialized string representation of the dictionary.</returns>
     string SerializeDictionary(Dictionary<int, int> dict)
     {
         List<string> entries = new List<string>();
@@ -452,7 +552,11 @@ public class WeaponManager : MonoBehaviour
         }
         return string.Join(",", entries);
     }
-
+    /// <summary>
+    /// Deserializes a string into a dictionary of gun ammo data.
+    /// </summary>
+    /// <param name="data">The serialized string representation of the dictionary.</param>
+    /// <returns>The deserialized dictionary.</returns>
     Dictionary<int, int> DeserializeDictionary(string data)
     {
         Dictionary<int, int> dict = new Dictionary<int, int>();
@@ -467,7 +571,11 @@ public class WeaponManager : MonoBehaviour
         }
         return dict;
     }
-
+    /// <summary>
+    /// Gets the index of a gun in the guns list.
+    /// </summary>
+    /// <param name="gunObject">The gun object to search for.</param>
+    /// <returns>The index of the gun in the guns list, or -1 if not found.</returns>
     public int GetGunIndex(GameObject gunObject)
     {
         for (int i = 0; i < guns.Count; i++)
@@ -480,13 +588,18 @@ public class WeaponManager : MonoBehaviour
         return -1; // Return -1 if gun is not found
     }
 
-
+    /// <summary>
+    /// Retrieves the current gun index.
+    /// </summary>
+    /// <returns>The index of the current gun.</returns>
     public int GetCurrentGunIndex()
     {
         return currentGunIndex;
     }
 
-
+    /// <summary>
+    /// Updates the visibility of all guns based on the current equipped gun index.
+    /// </summary>
     void UpdateGunsVisibility()
     {
         for (int i = 0; i < guns.Count; i++)
@@ -494,7 +607,9 @@ public class WeaponManager : MonoBehaviour
             guns[i].gunObject.SetActive(i == currentGunIndex);
         }
     }
-
+    /// <summary>
+    /// Saves the indices of unlocked guns to PlayerPrefs for persistence across game sessions.
+    /// </summary>
     void SaveUnlockedGuns()
     {
         List<int> unlockedGuns = new List<int>();
@@ -508,7 +623,9 @@ public class WeaponManager : MonoBehaviour
         PlayerPrefs.SetString(UnlockedGunsKey, string.Join(",", unlockedGuns));
         PlayerPrefs.Save();
     }
-
+    /// <summary>
+    /// Loads the indices of unlocked guns from PlayerPrefs and updates the gun states accordingly.
+    /// </summary>
     void LoadUnlockedGuns()
     {
         // First, lock all guns except the first one
@@ -537,13 +654,17 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-
+    /// <summary>
+    /// Saves the indices of equipped guns to PlayerPrefs for persistence across game sessions.
+    /// </summary>
     void SaveEquippedGunIndices()
     {
         PlayerPrefs.SetString(EquippedGunIndicesKey, string.Join(",", equippedGunIndices));
         PlayerPrefs.Save();
     }
-
+    /// <summary>
+    /// Loads the indices of equipped guns from PlayerPrefs.
+    /// </summary>
     void LoadEquippedGunIndices()
     {
         if (PlayerPrefs.HasKey(EquippedGunIndicesKey))
@@ -560,6 +681,11 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Retrieves the <see cref="Gun"/> component of a specific gun by its index.
+    /// </summary>
+    /// <param name="gunIndex">The index of the gun to retrieve.</param>
+    /// <returns>The <see cref="Gun"/> component of the specified gun, or null if not found.</returns>
     public Gun GetGun(int gunIndex)
     {
         if (gunIndex >= 0 && gunIndex < guns.Count)
@@ -571,7 +697,9 @@ public class WeaponManager : MonoBehaviour
 
 
 
-    // Call this when the dungeon is regenerated to restore ammo data
+    /// <summary>
+    /// Called when the dungeon is regenerated to restore the ammo data for all guns.
+    /// </summary>
     public void OnDungeonGenerated()
     {
         RestoreAllGunAmmoData();

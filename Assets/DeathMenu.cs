@@ -13,13 +13,17 @@ public class DeathMenu : MonoBehaviour
     private CorridorFirstDungeonGenerator dungeonGenerator; // Reference to the dungeon generator
     private PlayerHealth playerHealth;  // Reference to the player's health system
 
+    /// <summary>
+    /// Initializes the Death Menu. Sets up button listeners and subscribes to events.
+    /// Finds the necessary dungeon generator and player health components.
+    /// </summary>
     void Start()
     {
-        // Assuming these buttons are children of the death menu panel
+        // Attach the button click event listeners to their respective methods
         tryAgainButton.onClick.AddListener(OnTryAgain);
         quitButton.onClick.AddListener(QuitToMainMenu);
-        PlayerController.OnPlayerDeath += ShowDeathMenu;
-        // Find the CorridorFirstDungeonGenerator in the scene
+        PlayerController.OnPlayerDeath += ShowDeathMenu; // Subscribe to the event that triggers when the player dies
+         // Attempt to find the dungeon generator and player health components in the scene
         dungeonGenerator = FindObjectOfType<CorridorFirstDungeonGenerator>();
         if (dungeonGenerator == null)
         {
@@ -44,11 +48,18 @@ public class DeathMenu : MonoBehaviour
             deathPanel.SetActive(false); // Disable the death panel initially
         }
     }
+    /// <summary>
+    /// Unsubscribes from the player death event to prevent memory leaks when this object is destroyed.
+    /// </summary>
     void OnDestroy()
     {
-        // Unsubscribe from the event when the object is destroyed to prevent memory leaks
+       
         PlayerController.OnPlayerDeath -= ShowDeathMenu;
     }
+
+    /// <summary>
+    /// Checks if the player has died by inspecting their health. If dead, shows the death menu.
+    /// </summary>
     void Update()
     {
         // Check if the player's health is zero (i.e., they are dead)
@@ -58,6 +69,9 @@ public class DeathMenu : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Activates the death menu UI, indicating that the player has died.
+    /// </summary>
     public void ShowDeathMenu()
     {
         // Log message to confirm this method is called
@@ -75,7 +89,9 @@ public class DeathMenu : MonoBehaviour
         }
     }
 
-
+    /// <summary>
+    /// Called when the player clicks the "Try Again" button. Resets the player's state and dungeon.
+    /// </summary>
     public void OnTryAgain()
     {
         // Hide the death menu before restarting
@@ -89,47 +105,50 @@ public class DeathMenu : MonoBehaviour
             deathPanel.SetActive(false);
         }
 
-        // Start a coroutine to handle the delay before resetting the player
+        // Start the reset process with a brief delay
         StartCoroutine(ResetPlayerWithDelay());
     }
 
+    /// <summary>
+    /// Resets the player's health and state with a brief delay after clicking "Try Again".
+    /// </summary>
     private IEnumerator ResetPlayerWithDelay()
     {
-        // Wait for a brief moment (e.g., 1.5 seconds) before resetting the player
-        yield return new WaitForSeconds(1.5f); // Adjust this value as needed to match your animation or desired delay
+        // Wait for a short delay (e.g., 1.5 seconds) to give time for any animation
+        yield return new WaitForSeconds(1.5f);
 
-        // Optionally, regenerate the dungeon or reset the game state
+        // Optionally reset the dungeon or game state
         if (dungeonGenerator != null)
         {
-            dungeonGenerator.ResetForNewGame();  // Reset the dungeon to floor 1
-            StartCoroutine(RegenerateDungeon());
+            dungeonGenerator.ResetForNewGame();  // Reset the dungeon to the starting floor
+            StartCoroutine(RegenerateDungeon()); // Start the regeneration of the dungeon
         }
 
-        // Reset player's health and death status for a fresh start
+        // Reset player's health and death status for the fresh start
         if (playerHealth != null)
         {
-            playerHealth.currentHealth = playerHealth.maxHealth;  // Reset the player's health to max
-            playerHealth.isDead = false;  // Mark the player as alive again
-        }
-
-        // Optionally, if you want to reset the player's position, you can reset it to the starting point here.
-        // Example: player.transform.position = dungeonGenerator.GetStartingPosition();
+            playerHealth.currentHealth = playerHealth.maxHealth; // Set the player's health back to max
+            playerHealth.isDead = false;  // Mark the player as alive
+        }  
     }
 
+    /// <summary>
+    /// Regenerates the dungeon after the player chooses to try again.
+    /// </summary>
     private IEnumerator RegenerateDungeon()
     {
-        // Wait a moment to allow for death animation to finish
+        // Wait briefly to allow death animation or effects to finish
         yield return new WaitForSeconds(0.6f); // Adjust this delay based on animation length
 
         // Clear the current dungeon
-        dungeonGenerator.tilemapVisualizer.Clear();
+        dungeonGenerator.tilemapVisualizer.Clear(); // Clear the dungeon's visual representation
 
-        // Start dungeon generation using the public method
+        // Regenerate the dungeon from scratch
         dungeonGenerator.StartDungeonGeneration();
 
-        // Optionally, show floor notification with effects
+        //show floor notification with effects
         StartCoroutine(dungeonGenerator.ShowFloorNotification());
-        // Reset player's health and death status for a fresh start
+        // Reset player's health and death status
         if (playerHealth != null)
         {
             playerHealth.currentHealth = playerHealth.maxHealth;  // Reset the player's health to max
@@ -141,9 +160,11 @@ public class DeathMenu : MonoBehaviour
 
 
 
-
+    /// <summary>
+    /// Quits the game and returns to the main menu.
+    /// </summary>
     public void QuitToMainMenu()
     {
-        SceneManager.LoadScene("MainMenuScene");
+        SceneManager.LoadScene("MainMenuScene"); // Load the main menu scene
     }
 }

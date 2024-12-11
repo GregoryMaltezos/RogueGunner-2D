@@ -25,24 +25,29 @@ public class AgentMover : MonoBehaviour
         rb2d = GetComponent<Rigidbody2D>();
     }
 
+    /// <summary>
+    /// It updates the agent's velocity based on input and movement speed.
+    /// </summary>
     private void FixedUpdate()
     {
         // Only process movement if the agent is allowed to move
         if (canMove)
         {
+            // Check if the agent has movement input and is not at zero speed
             if (MovementInput.magnitude > 0 && currentSpeed >= 0)
             {
-                oldMovementInput = MovementInput;
-                currentSpeed += acceleration * maxSpeed * Time.deltaTime;
-                isMoving = true;
+                oldMovementInput = MovementInput; // Store the current movement input
+                currentSpeed += acceleration * maxSpeed * Time.deltaTime; // Increase speed based on acceleration
+                isMoving = true; // Set moving flag to true
             }
             else
             {
+                // Decrease speed when there's no input (or movement input magnitude is zero)
                 currentSpeed -= deacceleration * maxSpeed * Time.deltaTime;
-                isMoving = false;
+                isMoving = false; // Set moving flag to false
             }
-            currentSpeed = Mathf.Clamp(currentSpeed, 0, maxSpeed);
-            rb2d.velocity = oldMovementInput * currentSpeed;
+            currentSpeed = Mathf.Clamp(currentSpeed, 0, maxSpeed); // Clamp current speed to be between 0 and maxSpeed
+            rb2d.velocity = oldMovementInput * currentSpeed;  // Set the Rigidbody's velocity based on the movement input and current speed
         }
         else
         {
@@ -51,18 +56,29 @@ public class AgentMover : MonoBehaviour
             isMoving = false;
         }
     }
+
+    /// <summary>
+    /// Checks if the agent is currently moving.
+    /// </summary>
+    /// <returns>True if the agent is moving, false otherwise.</returns>
     public bool IsMoving()
     {
         return isMoving;  // Return if the agent is moving
     }
 
+
+    /// <summary>
+    /// Handles collision events with other objects. If the agent collides with a player or a bullet,
+    /// appropriate knockback is applied to the agent.
+    /// </summary>
+    /// <param name="collision">The collision object containing collision data.</param>
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
             // Handle collision with the player
             Vector2 knockbackDirection = (transform.position - collision.transform.position).normalized;
-            float knockbackForce = 5f; // Adjust as necessary
+            float knockbackForce = 5f; 
             rb2d.velocity = Vector2.zero; // Reset velocity
             rb2d.AddForce(knockbackDirection * knockbackForce, ForceMode2D.Impulse);
         }
@@ -84,7 +100,10 @@ public class AgentMover : MonoBehaviour
         }
     }
 
-    // Method to enable or disable movement
+    /// <summary>
+    /// Enables or disables movement for the agent. If movement is disabled, the agent's velocity is set to zero.
+    /// </summary>
+    /// <param name="enabled">If true, movement is enabled; if false, movement is disabled.</param>
     public void SetMovement(bool enabled)
     {
         canMove = enabled;

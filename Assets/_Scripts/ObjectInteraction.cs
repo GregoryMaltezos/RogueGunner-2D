@@ -15,21 +15,30 @@ public class ObjectInteraction : MonoBehaviour
     private bool isPlayerNearby = false;
     private bool hasInteracted = false; // Flag to check if interaction has occurred.
 
+    /// <summary>
+    /// Initializes the input action.
+    /// </summary>
     void OnEnable()
     {
-        // Initialize and enable the input action
-        var playerInput = new NewControls(); // Replace with your Input System action map
+        
+        var playerInput = new NewControls(); 
         interactAction = playerInput.PlayerInput.Interact;
         interactAction.Enable();
     }
 
+    /// <summary>
+    /// Disables input actions and cleans up the interaction prompt.
+    /// </summary>
     void OnDisable()
     {
-        // Disable the input action when the object is disabled
+        
         interactAction.Disable();
-        DestroyInteractionPrompt(); // Ensure prompt is destroyed when the object is disabled
+        DestroyInteractionPrompt(); // Ensures no leftover UI elements.
     }
 
+    /// <summary>
+    /// Sets up the Canvas reference.
+    /// </summary>
     void Start()
     {
         // Search for the canvas named "InteractCanvas" in the scene
@@ -48,16 +57,20 @@ public class ObjectInteraction : MonoBehaviour
         }
     }
 
+
+    /// <summary>
+    /// Continuously checks for interaction conditions and handles interactions.
+    /// </summary>
     void Update()
     {
-        if (hasInteracted) return; // Skip all logic if interaction has already occurred.
+        if (hasInteracted) return; // Skip further checks if interaction has already occurred.
 
-        // Check the distance between the player and the object
+        // Calculate the distance between the player and the object.
         float distanceToPlayer = Vector3.Distance(PlayerController.instance.transform.position, transform.position);
 
         // Determine if the player is close enough for interaction
         isPlayerNearby = distanceToPlayer <= interactionDistance;
-
+        // Show or hide the interaction prompt based on player proximity.
         if (isPlayerNearby && interactionPrompt == null)
         {
             CreateInteractionPrompt();
@@ -67,13 +80,16 @@ public class ObjectInteraction : MonoBehaviour
             DestroyInteractionPrompt();
         }
 
-        // Handle interaction when the player is nearby and the interact key is pressed
+        // Handle the interaction when the player presses the interaction key.
         if (isPlayerNearby && interactAction.triggered)
         {
             Interact();
         }
     }
 
+    /// <summary>
+    /// Creates an on-screen interaction prompt when the player is nearby.
+    /// </summary>
     private void CreateInteractionPrompt()
     {
         if (canvas == null) return;
@@ -101,6 +117,9 @@ public class ObjectInteraction : MonoBehaviour
         rectTransform.position = screenPosition;
     }
 
+    /// <summary>
+    /// Destroys the interaction prompt when the player moves away or interacts.
+    /// </summary>
     private void DestroyInteractionPrompt()
     {
         if (interactionPrompt != null)
@@ -109,6 +128,9 @@ public class ObjectInteraction : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Handles the interaction logic when the player presses the interact key.
+    /// </summary>
     private void Interact()
     {
         Debug.Log("Player interacted with the object!");
@@ -116,21 +138,13 @@ public class ObjectInteraction : MonoBehaviour
 
         // Remove the interaction prompt after interacting
         DestroyInteractionPrompt();
-
-        // Open the chest and give loot (Add your chest opening and loot logic here)
-        OpenChest();
-
-        // Do not destroy the chest
-        // Destroy(gameObject); // Removed this line, chest won't be destroyed.
     }
 
-    private void OpenChest()
-    {
-        // Your chest opening logic goes here
-        // Example: Play animation, give loot to player, etc.
-        Debug.Log("Chest opened! Loot is given.");
-    }
 
+
+    /// <summary>
+    /// Ensures the interaction prompt is cleaned up if the object is destroyed.
+    /// </summary>
     private void OnDestroy()
     {
         // Ensure the prompt is destroyed if the object is destroyed

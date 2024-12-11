@@ -23,6 +23,10 @@ public class Grenade : MonoBehaviour
     [Range(0.01f, 1f)]
     public float bounceSpeedReductionFactor = 0.5f; // Factor by which speed reduces on bounce
     [SerializeField] private EventReference gunFired;
+
+    /// <summary>
+    /// Initializes grenade properties, sets velocity, and starts grenade behavior.
+    /// </summary>
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -47,9 +51,12 @@ public class Grenade : MonoBehaviour
         Invoke("Explode", explosionDelay); // Explode after the set delay
     }
 
+
+    /// <summary>
+    /// Gradually reduces the grenade's velocity over time.
+    /// </summary>
     private void Update()
     {
-        // Gradually reduce speed over time
         if (rb.velocity.magnitude > 0.1f) // Check to avoid reducing speed if it's almost stopped
         {
             // Directly apply the reduction to velocity
@@ -57,12 +64,18 @@ public class Grenade : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Reduces speed further on collision.
+    /// </summary>
     private void OnCollisionEnter2D(Collision2D collision)
     {
         // Reduce speed more on bounce
         rb.velocity *= bounceSpeedReductionFactor;
     }
 
+    /// <summary>
+    /// Throws the grenade towards the cursor position, applying a force and spin.
+    /// </summary>
     private void ThrowGrenadeTowardsCursor()
     {
         // Get the mouse position using the new Input System
@@ -70,7 +83,7 @@ public class Grenade : MonoBehaviour
 
         // Convert to world coordinates
         Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
-        mouseWorldPosition.z = 0; // Set z to 0 for 2D
+        mouseWorldPosition.z = 0; //z set to 0 since its 2D
 
         // Calculate direction from grenade to mouse position
         Vector2 throwDirection = (mouseWorldPosition - transform.position).normalized;
@@ -82,6 +95,9 @@ public class Grenade : MonoBehaviour
         rb.AddTorque(spinForce);
     }
 
+    /// <summary>
+    /// Re-enables collision with the player after a set duration.
+    /// </summary>
     void EnablePlayerCollision()
     {
         if (player != null)
@@ -94,8 +110,12 @@ public class Grenade : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Handles the grenade explosion, playing sound, triggering effects, and damaging nearby enemies or the player.
+    /// </summary>
     void Explode()
     {
+        // Play grenade fired sound
         AudioManager.instance.PlayOneShot(gunFired, this.transform.position);
         // Instantiate explosion effect
         GameObject explosionEffect = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
@@ -109,7 +129,7 @@ public class Grenade : MonoBehaviour
             // Check if the object has a tag of "Enemy" or "Player"
             if (obj.CompareTag("Enemy"))
             {
-                // Get the object's health script (assuming it has a GetHit method)
+                // Get the object's health script 
                 Health targetHealth = obj.GetComponent<Health>();
 
                 if (targetHealth != null)
@@ -134,7 +154,9 @@ public class Grenade : MonoBehaviour
         Destroy(gameObject); // Destroy the grenade
     }
 
-    // Draw the explosion radius in the editor for visual debugging
+    /// <summary>
+    /// Visualizes the explosion radius in the editor for debugging purposes.
+    /// </summary>
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;

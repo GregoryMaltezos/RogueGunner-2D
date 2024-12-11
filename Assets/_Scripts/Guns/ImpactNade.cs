@@ -18,6 +18,10 @@ public class ImpactNade : MonoBehaviour
 
     private Vector2 throwDirection;
 
+
+    /// <summary>
+    /// Initializes grenade properties, calculates throw direction, and sets velocity and spin.
+    /// </summary>
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -34,6 +38,9 @@ public class ImpactNade : MonoBehaviour
         rb.angularVelocity = spinForce; // Set angular velocity for immediate spinning
     }
 
+    /// <summary>
+    /// Detects collision and triggers explosion when the grenade collides with any object.
+    /// </summary>
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (!exploded)
@@ -42,6 +49,10 @@ public class ImpactNade : MonoBehaviour
         }
     }
 
+
+    /// <summary>
+    /// Handles the grenade explosion, plays sound, instantiates effects, and applies damage to nearby enemies or the player.
+    /// </summary>
     void Explode()
     {
         AudioManager.instance.PlayOneShot(gunFired, this.transform.position);
@@ -93,7 +104,9 @@ public class ImpactNade : MonoBehaviour
         Destroy(gameObject); // Destroy the grenade
     }
 
-    // Draw the explosion radius in the editor for visual debugging
+    /// <summary>
+    /// Draws the explosion radius in the editor for visual debugging.
+    /// </summary>
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;

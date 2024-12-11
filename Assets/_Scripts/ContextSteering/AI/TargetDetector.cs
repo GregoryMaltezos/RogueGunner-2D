@@ -16,6 +16,12 @@ public class TargetDetector : Detector
     // Gizmo parameters
     private List<Transform> colliders;
 
+
+    /// <summary>
+    /// Detects the player within a specified range and determines if the player is visible, 
+    /// considering potential obstacles in the way.
+    /// </summary>
+    /// <param name="aiData">The AI data where detected targets will be stored.</param>
     public override void Detect(AIData aiData)
     {
         // Find out if player is near
@@ -24,30 +30,35 @@ public class TargetDetector : Detector
 
         if (playerCollider != null)
         {
-            // Check if you see the player
+            // Calculate the direction to the player
             Vector2 direction = (playerCollider.transform.position - transform.position).normalized;
+            // Cast a ray to detect obstacles in the path to the player
             RaycastHit2D hit =
                 Physics2D.Raycast(transform.position, direction, targetDetectionRange, obstaclesLayerMask);
 
-            // Make sure that the collider we see is on the "Player" layer
+            // Confirm that the detected collider belongs to the player layer
             if (hit.collider != null && (playerLayerMask & (1 << hit.collider.gameObject.layer)) != 0)
             {
                 Debug.DrawRay(transform.position, direction * targetDetectionRange, Color.magenta);
-                colliders = new List<Transform>() { playerCollider.transform };
+                colliders = new List<Transform>() { playerCollider.transform };  // Add the player's transform to the colliders list
             }
             else
             {
+                // Player is not visible due to an obstacle
                 colliders = null;
             }
         }
         else
         {
-            // Enemy doesn't see the player
+            // No player detected within the range
             colliders = null;
         }
-        aiData.targets = colliders;
+        aiData.targets = colliders;  // Update the AI data with the detected targets
     }
 
+    /// <summary>
+    /// Draws gizmos in the Scene view to visualize the detection range and detected targets.
+    /// </summary>
     private void OnDrawGizmosSelected()
     {
         if (showGizmos == false)
