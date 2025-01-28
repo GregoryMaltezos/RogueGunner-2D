@@ -218,8 +218,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffbe1e947ad9de1458f6b9a36abfdfb8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  portalSpawnSound: event:/PortalSpawn
-  maxSoundDistance: 10
+  portalSpawnSound: event:/SFX/Misc/Portal
+  maxSoundDistance: 20
 --- !u!70 &6307002786554710885
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

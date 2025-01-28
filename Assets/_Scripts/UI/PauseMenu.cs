@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
-
+using FMODUnity;
+using FMOD.Studio; // For FMOD Bus and Event management
 public class PauseMenu : MonoBehaviour
 {
     public GameObject pauseMenuUI;
@@ -23,7 +24,7 @@ public class PauseMenu : MonoBehaviour
     public InputActionReference navigateAction;
     public InputActionReference submitAction;
     public InputActionReference cancelAction;
-
+    private Bus masterBus;
     public bool IsPaused
     {
         get { return isPaused; }
@@ -42,6 +43,7 @@ public class PauseMenu : MonoBehaviour
         navigateAction.action.Enable();
         submitAction.action.Enable();
         cancelAction.action.Enable();
+        masterBus = RuntimeManager.GetBus("bus:/");
     }
     /// <summary>
     /// Called when the script is disabled.
@@ -168,6 +170,7 @@ public class PauseMenu : MonoBehaviour
         EnableGunController(true);
         EnablePlayerController(true);
         if (otherCanvas != null) otherCanvas.SetActive(true);
+        masterBus.setPaused(false);
     }
     /// <summary>
     /// Pauses the game and displays the pause menu.
@@ -188,6 +191,7 @@ public class PauseMenu : MonoBehaviour
         if (otherCanvas != null) otherCanvas.SetActive(false);
 
         EventSystem.current.SetSelectedGameObject(pauseMenuUI.transform.GetChild(0).gameObject);
+        masterBus.setPaused(true);
     }
     /// <summary>
     /// Opens the settings menu and hides the pause menu.
@@ -241,6 +245,7 @@ public class PauseMenu : MonoBehaviour
     {
         // Reset time scale and load the main menu scene
         Time.timeScale = 1f;
+        masterBus.setPaused(false);
         SceneManager.LoadScene("MainMenuScene");
     }
     /// <summary>

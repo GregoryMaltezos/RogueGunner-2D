@@ -9,7 +9,7 @@ public class BossHp : MonoBehaviour
     [SerializeField] private float maxHp = 100f; // Default maximum HP
     private float currentHp;
     private bool hasFlashed = false; // To ensure the flash only happens once
-    private bool canTakeDamage = true; // New variable to track if the boss can take damage
+    private bool canTakeDamage = true; //  track if the boss can take damage
 
     public string bossId; // field for the boss ID
 
@@ -26,6 +26,10 @@ public class BossHp : MonoBehaviour
     [SerializeField] private EventReference hit;
     public float CurrentHp => currentHp; // Expose current health
     private BossHp bossHp;
+
+    /// <summary>
+    /// Initializes the boss's health and sets up references.
+    /// </summary>
     private void Start()
     {
         currentHp = maxHp; // Initialize HP
@@ -39,9 +43,13 @@ public class BossHp : MonoBehaviour
         }
     }
 
-    public void TakeDamage(int amount)
+    /// <summary>
+    /// Reduces the boss's health by a specified amount and checks for death or events.
+    /// </summary>
+    /// <param name="amount">The amount of damage to apply.</param>
+    public void TakeDamage(int amount) 
     {
-        if (!canTakeDamage || currentHp <= 0) return; // Prevent damage if flying or already dead
+        if (!canTakeDamage || currentHp <= 0) return; // Prevent damage if the boss cannot take damage or is already dead
 
         currentHp -= amount; // Reduce HP
         PlayHitSound();
@@ -64,11 +72,19 @@ public class BossHp : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Updates the health bar slider to reflect the current health.
+    /// </summary>
     public void UpdateHealthBar()
     {
         slider.value = currentHp / maxHp; // Update slider value
     }
 
+
+    /// <summary>
+    /// Handles collision with bullets to apply damage.
+    /// </summary>
+    /// <param name="collision">Collision information.</param>
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("FrBullet")) // Make sure the tag is "FrBullet"
@@ -84,30 +100,36 @@ public class BossHp : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Handles the boss's death, including animations, portal spawning, and cleanup.
+    /// </summary>
     public IEnumerator Die()
     {
         Debug.Log("Boss is dead!");
-        AudioManager.instance.PlayOneShot(death, this.transform.position);
+        AudioManager.instance.PlayOneShot(death, this.transform.position);  // Play death sound
         GetComponent<Animator>().SetTrigger("Die");
-        yield return new WaitForSeconds(deathAnimationDuration);
-        SpawnPortal();
-        AudioManager.instance.SetMusicArea(MusicType.Peacefull);
-        if (bossId == "1")
+        yield return new WaitForSeconds(deathAnimationDuration); // Wait for animation to complete
+        SpawnPortal(); // Spawn a portal after death
+        AudioManager.instance.SetMusicArea(MusicType.Peacefull); // Switch to peaceful music
+        if (bossId == "1") // Complete challenge if the boss ID matches a specific value
         {
             ChallengeManager.instance.CompleteChallenge("DefeatGolem");
         }
 
-        Destroy(gameObject);
+        Destroy(gameObject); // Remove the boss object
     }
 
     public float MaxHp => maxHp; // Public property to expose maxHp
 
+    /// <summary>
+    /// Spawns a portal at a fixed position after the boss's death.
+    /// </summary>
     private void SpawnPortal()
     {
         if (portalPrefab != null)
         {
             // Spawn the portal at the fixed position (0, 0)
-            Instantiate(portalPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+            Instantiate(portalPrefab, new Vector3(0, 0, 0), Quaternion.identity); //Spawn Portal
         }
         else
         {
@@ -115,11 +137,18 @@ public class BossHp : MonoBehaviour
         }
     }
 
-    // Public method to enable or disable damage
+    /// <summary>
+    /// Enables or disables the boss's ability to take damage.
+    /// </summary>
+    /// <param name="value">True to enable damage, false to disable it.</param>
     public void SetCanTakeDamage(bool value)
     {
         canTakeDamage = value;
     }
+
+    /// <summary>
+    /// Plays the hit sound effect, ensuring a cooldown between sounds.
+    /// </summary>
     private void PlayHitSound()
     {
         // Only play the hit sound if enough time has passed since the last one

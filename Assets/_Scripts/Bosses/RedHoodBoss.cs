@@ -32,6 +32,9 @@ public class RedHoodBoss : MonoBehaviour
     [SerializeField] private EventReference tpOut;
     private bool isDead = false; // Track whether the boss is dead
 
+    /// <summary>
+    /// Initialize references and start the boss routine.
+    /// </summary>
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -62,6 +65,9 @@ public class RedHoodBoss : MonoBehaviour
         StartCoroutine(BossRoutine());
     }
 
+    /// <summary>
+    /// Main routine for the boss's behavior, including teleportation, chasing, attacking, and disappearing.
+    /// </summary>
     IEnumerator BossRoutine()
     {
         yield return new WaitForSeconds(waitTime);
@@ -157,6 +163,9 @@ public class RedHoodBoss : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Finds and assigns the player object based on the player tag.
+    /// </summary>
     void FindPlayer()
     {
         GameObject playerObject = GameObject.FindGameObjectWithTag(playerTag);
@@ -166,6 +175,9 @@ public class RedHoodBoss : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Teleports the boss further away from the player within a set radius.
+    /// </summary>
     void TeleportFurtherFromPlayer()
     {
         Vector2 teleportPosition = Vector2.zero;
@@ -188,7 +200,7 @@ public class RedHoodBoss : MonoBehaviour
                 teleportPosition = (Vector2)player.position - playerFacingDirection * randomDistance;
             }
 
-            if (Physics2D.OverlapCircle(teleportPosition, 0.5f, dungeonLayerMask))
+            if (Physics2D.OverlapCircle(teleportPosition, 0.5f, dungeonLayerMask)) // Ensure the teleport position is within the dungeon
             {
                 positionFound = true;
             }
@@ -200,8 +212,8 @@ public class RedHoodBoss : MonoBehaviour
            
         }
 
-        transform.position = teleportPosition;
-        
+        transform.position = teleportPosition; // Set the boss position to the teleport destination
+
         // Ensure shadow stays invisible after teleporting
         if (shadowRenderer != null)
         {
@@ -211,6 +223,9 @@ public class RedHoodBoss : MonoBehaviour
         Debug.Log($"Final teleport position: {teleportPosition}");
     }
 
+    /// <summary>
+    /// Makes the boss chase the player until it gets within attack range.
+    /// </summary>
     IEnumerator ChasePlayerUntilClose()
     {
         float distanceToPlayer;
@@ -240,6 +255,9 @@ public class RedHoodBoss : MonoBehaviour
         transform.position = new Vector2(Mathf.Clamp(transform.position.x, player.position.x - chaseDistanceThreshold, player.position.x + chaseDistanceThreshold), player.position.y);
     }
 
+    /// <summary>
+    /// Makes the boss move away from the player.
+    /// </summary>
     IEnumerator MoveAwayFromPlayer()
     {
         // Immediately exit if the boss is dead
@@ -295,7 +313,9 @@ public class RedHoodBoss : MonoBehaviour
 
 
 
-
+    /// <summary>
+    /// Flips the boss sprite to face the player or away from the player depending on the input.
+    /// </summary>
     void FlipBoss(bool facePlayer)
     {
         if (shadowRenderer != null)
@@ -314,7 +334,9 @@ public class RedHoodBoss : MonoBehaviour
             spriteRenderer.flipX = player.position.x > transform.position.x;
         }
     }
-
+    /// <summary>
+    /// Waits until a specific animation state is finished.
+    /// </summary>
     IEnumerator WaitForAnimation(Animator animator, string stateName)
     {
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
@@ -324,7 +346,9 @@ public class RedHoodBoss : MonoBehaviour
             stateInfo = animator.GetCurrentAnimatorStateInfo(0);
         }
     }
-
+    /// <summary>
+    /// Deals damage to the player if the player exists.
+    /// </summary>
     void DealDamageToPlayer()
     {
         if (player != null)
@@ -337,13 +361,17 @@ public class RedHoodBoss : MonoBehaviour
             }
         }
     }
-
+    /// <summary>
+    /// Sets the visibility of the boss sprite and collider.
+    /// </summary>
     void SetBossVisibility(bool visible)
     {
         spriteRenderer.enabled = visible;
         bossCollider.enabled = visible;
     }
-
+    /// <summary>
+    /// Adjusts the transparency of the health bar based on the input alpha value.
+    /// </summary>
     void SetHealthBarTransparency(float alpha)
     {
         if (hpBarBackground != null)
@@ -355,7 +383,9 @@ public class RedHoodBoss : MonoBehaviour
             hpBarFill.color = new Color(originalFillColor.r, originalFillColor.g, originalFillColor.b, alpha);
         }
     }
-
+    /// <summary>
+    /// Adjusts the shadow opacity during the movement.
+    /// </summary>
     void SetShadowOpacity(float opacity)
     {
         if (shadowRenderer != null)
@@ -366,7 +396,9 @@ public class RedHoodBoss : MonoBehaviour
         }
     }
 
-    // Call this method to handle the boss's death
+   /// <summary>
+   /// Handles boss death
+   /// </summary>
     public void HandleDeath()
     {
         if (!isDead) // Ensure this logic only runs once

@@ -3,8 +3,8 @@ using UnityEngine.SceneManagement; // For loading the main menu
 using TMPro;
 using System.Collections;
 using UnityEngine.InputSystem; // For the new input system
-using FMOD.Studio;
-using FMODUnity;
+using FMODUnity; // For FMOD integration
+using FMOD.Studio; // For controlling EventInstance
 
 public class bossPortal : MonoBehaviour
 {
@@ -22,10 +22,6 @@ public class bossPortal : MonoBehaviour
     private string portalSpawnSound = "event:/PortalSpawn"; // FMOD event path for the spawn sound
     private EventInstance portalSoundInstance; // FMOD EventInstance for controlling the sound
 
-    // Maximum distance at which the sound is audible
-    [SerializeField]
-    private float maxSoundDistance = 10f;
-
     // UI Elements
     private Canvas[] canvasesToDisable;
     private Canvas thanksCanvas; // The canvas that holds the Thanks message
@@ -35,9 +31,8 @@ public class bossPortal : MonoBehaviour
     // Reference to the InputAction for interacting with the portal
     private InputAction interactAction;
 
-
     /// <summary>
-    /// Initializes references, sets up InputAction, and validates required objects in the scene.
+    /// Initializes necessary components, sets up input actions, and starts the portal sound.
     /// </summary>
     private void Start()
     {
@@ -46,19 +41,19 @@ public class bossPortal : MonoBehaviour
         {
             Debug.LogError("Player not found. Make sure the Player has the 'Player' tag.");
         }
-        // Find the Dungeon Generator in the scene
+
         dungeonGenerator = FindObjectOfType<CorridorFirstDungeonGenerator>();
         if (dungeonGenerator == null)
         {
             Debug.LogError("Dungeon Generator not found in the scene.");
         }
-        // Find the FadeManager in the scene
+
         fadeManager = FindObjectOfType<FadeManager>();
         if (fadeManager == null)
         {
             Debug.LogError("FadeManager not found in the scene.");
         }
-        // Ensure this object has a Collider2D component
+
         portalCollider = GetComponent<Collider2D>();
         if (portalCollider == null)
         {
@@ -71,7 +66,7 @@ public class bossPortal : MonoBehaviour
         thanksForPlayingText = thanksCanvas?.transform.Find("ThanksForPlayingText")?.GetComponent<TextMeshProUGUI>(); // Find ThanksForPlayingText
         blackBackground = thanksCanvas?.transform.Find("BlackBackground")?.gameObject; // Find BlackBackground panel
 
-        // Validate UI elements
+        // If thanksCanvas or thanksForPlayingText are not found, log an error
         if (thanksCanvas == null)
         {
             Debug.LogError("ThanksCanvas not found in the scene.");
@@ -89,42 +84,28 @@ public class bossPortal : MonoBehaviour
         var playerInput = new NewControls(); // Assuming NewControls is your input action asset
         interactAction = playerInput.PlayerInput.Interact; // Assuming 'Interact' is the action name
         interactAction.Enable();
-    }
 
+        // Start playing the portal spawn sound
+        PlayPortalSpawnSound();
+    }
     /// <summary>
-    /// Enables the interaction InputAction when the object is enabled.
+    /// Enables input actions when the object is active.
     /// </summary>
     private void OnEnable()
     {
-        // Ensure interactAction is initialized before enabling it
-        if (interactAction == null)
-        {
-            InitializeInputAction(); // Custom method to handle initialization
-        }
-
+        // Enable the input action when the object is enabled
         interactAction.Enable();
     }
-
     /// <summary>
-    /// Initializes the interactAction from the input system.
-    /// </summary>
-    private void InitializeInputAction()
-    {
-        var playerInput = new NewControls(); // Assuming NewControls is your input action asset
-        interactAction = playerInput.PlayerInput.Interact; // Assuming 'Interact' is the action name
-    }
-
-    /// <summary>
-    /// Disables the interaction InputAction when the object is disabled.
+    /// Disables input actions when the object is inactive.
     /// </summary>
     private void OnDisable()
     {
         // Disable the input action when the object is disabled
         interactAction.Disable();
     }
-
     /// <summary>
-    /// Handles player interaction with the portal and updates the portal sound position.
+    /// Checks for player interaction with the portal and handles it.
     /// </summary>
     private void Update()
     {
@@ -133,6 +114,9 @@ public class bossPortal : MonoBehaviour
         {
             if (interactAction.triggered) // Check if the interact action was triggered
             {
+                // Stop the portal sound
+                StopPortalSound();
+
                 if (dungeonGenerator.currentFloor == 4) // Check if the player is on the 4th floor
                 {
                     StartCoroutine(ShowThanksMessageAndExit());
@@ -147,76 +131,66 @@ public class bossPortal : MonoBehaviour
                 StartCoroutine(InteractionCooldown());
             }
         }
-
-        // Update the sound's position and distance-based attributes
-        if (portalSoundInstance.isValid())
-        {
-            UpdatePortalSoundPosition();
-        }
     }
-
     /// <summary>
-    /// Updates the position and volume of the portal sound based on player distance.
-    /// </summary>
-    private void UpdatePortalSoundPosition()
-    {
-        if (GameObject.FindWithTag("Player") != null)
-        {
-            Vector3 playerPosition = GameObject.FindWithTag("Player").transform.position;
-            float distance = Vector3.Distance(transform.position, playerPosition);
-
-            // Set 3D attributes to change the sound's spatialization
-            portalSoundInstance.set3DAttributes(RuntimeUtils.To3DAttributes(transform.position));
-
-            // Adjust volume based on distance (attenuate if beyond max distance)
-            float volume = Mathf.Clamp01(1 - (distance / maxSoundDistance)); // Volume fades out beyond max distance
-            portalSoundInstance.setVolume(volume); // Apply the volume adjustment
-        }
-    }
-
-    /// <summary>
-    /// Shows a thank-you message and transitions to the main menu.
+    /// Displays a thank-you message and transitions to the main menu.
     /// </summary>
     private IEnumerator ShowThanksMessageAndExit()
     {
-        // Disable all canvases except ThanksCanvas
+        Debug.Log("Starting ShowThanksMessageAndExit");
         foreach (var canvas in canvasesToDisable)
         {
-            if (canvas != thanksCanvas) // Exclude ThanksCanvas
+            if (canvas == null)
             {
-                canvas.gameObject.SetActive(false);
+                Debug.LogError("A canvas in canvasesToDisable is null!");
+            }
+            else
+            {
+                Debug.Log($"Disabling canvas: {canvas.name}");
+                if (canvas != thanksCanvas)
+                {
+                    canvas.gameObject.SetActive(false);
+                }
             }
         }
 
-        // Show the "Thanks for playing" message and black background
         if (thanksForPlayingText != null && blackBackground != null)
         {
-            thanksForPlayingText.gameObject.SetActive(true); // Enable the text
-            blackBackground.SetActive(true); // Enable the black background
-            thanksForPlayingText.text = "Thanks for playing!"; // Set the message
+            Debug.Log("Showing Thanks for Playing message");
+            thanksForPlayingText.gameObject.SetActive(true);
+            blackBackground.SetActive(true);
+            thanksForPlayingText.text = "Thanks for playing!";
+        }
+        else
+        {
+            Debug.LogError("thanksForPlayingText or blackBackground is null!");
         }
 
-        // Wait for the player to see the message
-        yield return new WaitForSeconds(3f); // Message duration (can be adjusted)
+        yield return new WaitForSeconds(3f);
 
-        // After message, re-enable canvases
         foreach (var canvas in canvasesToDisable)
         {
-            if (canvas != thanksCanvas) // Exclude ThanksCanvas
+            if (canvas != null)
             {
-                canvas.gameObject.SetActive(true);
+                Debug.Log($"Re-enabling canvas: {canvas.name}");
+                if (canvas != thanksCanvas)
+                {
+                    canvas.gameObject.SetActive(true);
+                }
             }
         }
 
-        // Load the Main Menu Scene
         SceneManager.LoadScene("MainMenuScene");
     }
 
     /// <summary>
-    /// Handles the portal transition with a fade effect.
+    /// Fades the screen to black, transitions to the next floor, and then fades back in.
     /// </summary>
     private IEnumerator FadeToBlackAndProceed()
     {
+        // Stop the footstep sound when transitioning to a new floor
+        PlayerController.instance.StopFootstepSound();
+
         if (fadeManager != null && fadeManager.transitionCanvas != null)
         {
             fadeManager.transitionCanvas.gameObject.SetActive(true);
@@ -244,7 +218,7 @@ public class bossPortal : MonoBehaviour
     }
 
     /// <summary>
-    /// Handles the logic for transitioning to the next floor.
+    /// Signals the dungeon generator to proceed to the next floor.
     /// </summary>
     private void GoToNextFloor()
     {
@@ -253,9 +227,8 @@ public class bossPortal : MonoBehaviour
             dungeonGenerator.OnBossDefeated();
         }
     }
-
     /// <summary>
-    /// Detects when the player enters the portal's trigger area.
+    /// Detects when the player enters the portal's area.
     /// </summary>
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -264,9 +237,8 @@ public class bossPortal : MonoBehaviour
             isPlayerNearby = true;
         }
     }
-
     /// <summary>
-    /// Detects when the player exits the portal's trigger area.
+    /// Detects when the player exits the portal's area.
     /// </summary>
     private void OnTriggerExit2D(Collider2D collision)
     {
@@ -275,14 +247,36 @@ public class bossPortal : MonoBehaviour
             isPlayerNearby = false;
         }
     }
-
     /// <summary>
-    /// Implements a cooldown period for portal interaction.
+    /// Enforces a cooldown period between interactions.
     /// </summary>
     private IEnumerator InteractionCooldown()
     {
         canInteract = false;
         yield return new WaitForSeconds(interactionCooldown);
         canInteract = true;
+    }
+    /// <summary>
+    /// Plays the portal spawn sound using FMOD.
+    /// </summary>
+    private void PlayPortalSpawnSound()
+    {
+        if (!string.IsNullOrEmpty(portalSpawnSound))
+        {
+            portalSoundInstance = RuntimeManager.CreateInstance(portalSpawnSound);
+            portalSoundInstance.set3DAttributes(RuntimeUtils.To3DAttributes(transform.position));
+            portalSoundInstance.start();
+        }
+    }
+    /// <summary>
+    /// Stops and releases the portal spawn sound.
+    /// </summary>
+    private void StopPortalSound()
+    {
+        if (portalSoundInstance.isValid())
+        {
+            portalSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT); // Graceful stop
+            portalSoundInstance.release(); // Release the event instance
+        }
     }
 }

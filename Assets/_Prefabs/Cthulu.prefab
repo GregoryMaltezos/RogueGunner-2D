@@ -339,9 +339,12 @@ MonoBehaviour:
   gapChance: 0
   rowGap: 5
   flyingSpeed: 4
-  minAttackDelay: 15
-  maxAttackDelay: 20
+  minAttackDelay: 10
+  maxAttackDelay: 15
   stayInMiddleDelay: 9
+  leaveRoomMessage: YOU MAY NOT LEAVE MORTAL!
+  customFont: {fileID: 12800000, guid: fa6a978401107774787e2be22f0d2128, type: 3}
+  textSize: 70
   detectionRadius: 19.5
   showDetectionRadius: 0
   bufferDistance: 0.1

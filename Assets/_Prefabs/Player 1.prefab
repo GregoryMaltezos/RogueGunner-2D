@@ -44,7 +44,6 @@ Transform:
   - {fileID: 8298142016489864287}
   - {fileID: 4345860008274806119}
   - {fileID: 1985542200416273952}
-  - {fileID: 330339386955783126}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &5902323129157462004
@@ -408,13 +407,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 652204891381333705}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.127, y: -0.039, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.3}
+  m_LocalRotation: {x: -0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.07662866, y: 0.13468707, z: 7.5367975}
+  m_LocalScale: {x: -1.7872343, y: 2.1000001, z: 1.2600001}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4454207835478559453}
-  m_Father: {fileID: 5412161828718417071}
+  m_Father: {fileID: 1985542200416273952}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &8609241812774054848
 SpriteRenderer:
@@ -480,16 +479,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3243de1fe3232f240a90aec2a884d0af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectilePrefab: {fileID: 2306854233797050844, guid: 69a7a7f52feef0a459504f87ba1d708b, type: 3}
+  projectilePrefab: {fileID: 5691732033979957551, guid: 8e3fbd8e9f656504fb8e116bd38e3cc4, type: 3}
   firePoint: {fileID: 4454207835478559453}
   projectileSpeed: 20
   isShotgun: 0
   shotgunPelletCount: 5
   shotgunSpreadAngle: 20
-  isAutomatic: 0
-  fireRate: 0.1
-  maxAmmo: 90
-  ammoPerClip: 30
+  isAutomatic: 1
+  fireRate: 0.15
+  maxAmmo: 75
+  ammoPerClip: 25
   reloadTime: 2
   infiniteAmmo: 0
   currentClipAmmo: 0
@@ -498,18 +497,18 @@ MonoBehaviour:
   isFirstSpawn: 1
   gunFired:
     Guid:
-      Data1: 221637278
-      Data2: 1083491978
-      Data3: 747941794
-      Data4: -88853255
-    Path: event:/SFX/Weapons/Fire SMG
+      Data1: -1063462753
+      Data2: 1169748682
+      Data3: -480077642
+      Data4: -521844465
+    Path: event:/SFX/Weapons/Fire SMG1
   gunReload:
     Guid:
-      Data1: 221637278
-      Data2: 1083491978
-      Data3: 747941794
-      Data4: -88853255
-    Path: event:/SFX/Weapons/Fire SMG
+      Data1: -2084072513
+      Data2: 1212617197
+      Data3: -1342573433
+      Data4: -1349823594
+    Path: event:/SFX/Reloads/SMG Reload
 --- !u!210 &7523191524616979843
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -1862,6 +1861,7 @@ Transform:
   - {fileID: 662542894519781474}
   - {fileID: 5952362525753078390}
   - {fileID: 5925747776739956511}
+  - {fileID: 330339386955783126}
   m_Father: {fileID: 5412161828718417071}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2777074198011401136

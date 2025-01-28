@@ -35,6 +35,10 @@ public class ReaperBoss : MonoBehaviour
     [SerializeField] private EventReference detectionNoiseEvent;
     private FMOD.Studio.EventInstance detectionNoiseInstance;
     [SerializeField] private EventReference orb;
+
+    /// <summary>
+    /// Initializes the boss, finds the player, and sets up initial state.
+    /// </summary>
     private void Start()
     {
         // Automatically find the player in the scene
@@ -78,6 +82,10 @@ public class ReaperBoss : MonoBehaviour
         detectionNoiseInstance = RuntimeManager.CreateInstance(detectionNoiseEvent);
     }
 
+    /// <summary>
+    /// Updates the boss's behavior every frame, checking if the player is detected
+    /// and moving towards them or updating detection status.
+    /// </summary>
     private void Update()
     {
         if (isDead) return; // Stop executing if the boss is dead
@@ -102,6 +110,9 @@ public class ReaperBoss : MonoBehaviour
             }
         }
     }
+    /// <summary>
+    /// Plays the sound indicating the player has been detected.
+    /// </summary>
     private void PlayDetectionNoise()
     {
         if (detectionNoiseInstance.isValid())
@@ -109,7 +120,9 @@ public class ReaperBoss : MonoBehaviour
             detectionNoiseInstance.start();  // Start the sound effect if not already playing
         }
     }
-
+    /// <summary>
+    /// Stops the detection noise when the player is no longer detected.
+    /// </summary>
     private void StopDetectionNoise()
     {
         if (detectionNoiseInstance.isValid())
@@ -117,6 +130,10 @@ public class ReaperBoss : MonoBehaviour
             detectionNoiseInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);  // Stop the sound effect immediately
         }
     }
+
+    /// <summary>
+    /// Moves the boss towards the player and flips the sprite to face them.
+    /// </summary>
     private void MoveTowardsPlayer()
     {
         // Flip the sprite to face the player
@@ -126,7 +143,9 @@ public class ReaperBoss : MonoBehaviour
         Vector2 direction = (player.position - transform.position).normalized;
         rb.velocity = direction * moveSpeed;
     }
-
+    /// <summary>
+    /// Executes a sequence of attacks towards the player, including dashes and spawning objects.
+    /// </summary>
     private IEnumerator AttackSequence()
     {
         while (!isDead) // Continue only if the boss is not dead
@@ -162,7 +181,9 @@ public class ReaperBoss : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
     }
-
+    /// <summary>
+    /// Handles idle state and occasionally makes the boss invincible.
+    /// </summary>
     private IEnumerator IdleAndInvincibilitySequence()
     {
         while (!isDead) // Continue only if the boss is not dead
@@ -184,7 +205,9 @@ public class ReaperBoss : MonoBehaviour
             yield return new WaitForSeconds(2f); // Adjust as needed for idle timing
         }
     }
-
+    /// <summary>
+    /// Triggers the invincibility animation and changes opacity.
+    /// </summary>
     private IEnumerator PlayInvincibilityAnimation()
     {
         // Set the boss to invincible and reduce opacity
@@ -204,7 +227,9 @@ public class ReaperBoss : MonoBehaviour
         color.a = 1f; // Restore full opacity
         spriteRenderer.color = color;
     }
-
+    /// <summary>
+    /// Spawns a prefab object above the boss's head.
+    /// </summary>
     private void SpawnPrefab()
     {
         if (spawnPrefab != null)
@@ -221,6 +246,9 @@ public class ReaperBoss : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Dashes towards the player and tracks their movement if health is low.
+    /// </summary>
     private IEnumerator DashTowardsPlayer()
     {
         if (player == null || isDead) yield break;
@@ -259,6 +287,9 @@ public class ReaperBoss : MonoBehaviour
         animator.SetTrigger("IdleAnimation");
     }
 
+    /// <summary>
+    /// Flips the sprite based on the direction of the player.
+    /// </summary>
     private void FlipSprite()
     {
         // Check the direction to the player
@@ -273,7 +304,9 @@ public class ReaperBoss : MonoBehaviour
             transform.localScale = localScale;
         }
     }
-
+    /// <summary>
+    /// Handles collision with other objects (e.g., player or bullet).
+    /// </summary>
     private void OnTriggerEnter2D(Collider2D other)
     {
         Debug.Log("Collision detected with: " + other.gameObject.tag);
@@ -314,7 +347,10 @@ public class ReaperBoss : MonoBehaviour
         }
     }
 
-    // Optional: Add a method to set current health, if needed
+
+    /// <summary>
+    /// sets the current health and adjusts boss stats based on health.
+    /// </summary>
     public void SetCurrentHealth(int health)
     {
         currentHealth = health;
@@ -337,6 +373,9 @@ public class ReaperBoss : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Handles the death of the boss, triggering the death animation and cleanup.
+    /// </summary>
     private void Die()
     {
         isDead = true; // Set the dead flag
@@ -348,7 +387,9 @@ public class ReaperBoss : MonoBehaviour
     }
 
 
-    // Optional: Method to flash red color
+    /// <summary>
+    /// Coroutine to flash the boss red when hit.
+    /// </summary
     public void FlashRed()
     {
         StartCoroutine(FlashRedCoroutine());
